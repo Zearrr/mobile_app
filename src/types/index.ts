@@ -153,8 +153,8 @@ export interface NewJobFormData {
   };
   details: {
     issueDesc: string;
-    accessories?: string;
-    preCheck?: string;
+    accessories: string;
+    preCheck: string;
   };
   pricing: {
     estimateParts: number;
