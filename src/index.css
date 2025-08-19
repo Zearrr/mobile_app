@@ -9,104 +9,100 @@
 
 @layer base {
   :root {
-    /* Base colors - clean whites and grays */
-    --background: 0 0% 100%;
-    --foreground: 224 15% 12%;
+    /* Base colors - softer neutrals for better comfort */
+    --background: 0 0% 99%;
+    --foreground: 224 14% 16%;
 
     --card: 0 0% 100%;
-    --card-foreground: 224 15% 12%;
+    --card-foreground: 224 14% 16%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 224 15% 12%;
+    --popover-foreground: 224 14% 16%;
 
-    /* Brand blue gradient system (match KODPHONE logo) */
-    --primary: 222 100% 56%;          /* Electric Blue */
-    --primary-glow: 219 92% 65%;      /* Lighter Blue Glow */
-    --primary-dark: 225 96% 46%;      /* Deep Royal Blue */
+    /* Brand palette tuned to logo (softer blue → violet) */
+    --primary: 222 70% 55%;
+    --primary-glow: 222 70% 62%;
+    --primary-dark: 222 65% 48%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary blue for dual-gradient */
-    --purple: 199 89% 55%;            /* Azure/Cyan */
-    --purple-glow: 199 88% 64%;       /* Azure glow */
-    --purple-dark: 199 90% 45%;       /* Deeper Azure */
+    /* Companion hue (muted violet/indigo) */
+    --purple: 260 60% 62%;
+    --purple-glow: 260 65% 68%;
+    --purple-dark: 260 55% 54%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--purple)));
-    --gradient-glow: linear-gradient(135deg, hsl(var(--primary-glow)), hsl(var(--purple-glow)));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary) / 0.95), hsl(var(--purple) / 0.95));
+    --gradient-glow: linear-gradient(135deg, hsl(var(--primary-glow) / 0.85), hsl(var(--purple-glow) / 0.85));
     --gradient-dark: linear-gradient(135deg, hsl(var(--primary-dark)), hsl(var(--purple-dark)));
     --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(0 0% 98%));
 
     /* Secondary & neutral colors */
-    --secondary: 220 13% 95%;
-    --secondary-foreground: 224 15% 25%;
+    --secondary: 220 15% 97%;
+    --secondary-foreground: 224 14% 28%;
 
-    --muted: 220 13% 96%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 220 12% 95%;
+    --muted-foreground: 220 9% 40%;
 
-    --accent: 220 13% 95%;
-    --accent-foreground: 224 15% 25%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 224 14% 28%;
 
     /* Status colors */
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
     
+    --info: 221 83% 53%;
+    --info-foreground: 0 0% 100%;
+
     --warning: 38 95% 56%;
     --warning-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 78% 58%;
     --destructive-foreground: 0 0% 100%;
 
     /* Interactive elements */
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 238 75% 59%;
+    --border: 220 12% 88%;
+    --input: 220 12% 88%;
+    --ring: 222 80% 52%;
 
     /* Shadows & effects */
-    --shadow-primary: 0 10px 30px -10px hsl(var(--primary) / 0.3);
-    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.4);
-    --shadow-card: 0 8px 30px -12px hsl(224 15% 25% / 0.15);
+    --shadow-primary: 0 10px 22px -14px hsl(var(--primary) / 0.14);
+    --shadow-glow: 0 0 28px hsl(var(--primary-glow) / 0.2);
+    --shadow-card: 0 8px 20px -14px hsl(224 15% 25% / 0.10);
 
     /* Radius system */
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
+    --sidebar-background: 0 0% 99%;
+    --sidebar-foreground: 224 14% 24%;
+    --sidebar-primary: 224 14% 18%;
     --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
+    --sidebar-accent: 220 16% 96%;
+    --sidebar-accent-foreground: 224 14% 24%;
     --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 222 70% 55%;
   }
 
   .dark {
-    /* Dark mode - deep navy background with neon blue glow */
-    --background: 222 60% 6%;
-    --foreground: 220 13% 91%;
+    /* Dark mode - softer contrast with reduced glow */
+    --background: 222 40% 10%;
+    --foreground: 220 15% 88%;
 
-    --card: 224 29% 9%;
-    --card-foreground: 220 13% 91%;
+    --card: 222 26% 14%;
+    --card-foreground: 220 15% 88%;
 
-    --popover: 224 29% 9%;
-    --popover-foreground: 220 13% 91%;
+    --popover: 222 26% 14%;
+    --popover-foreground: 220 15% 88%;
 
-    /* Glowing primary in dark mode */
-    --primary: 219 92% 65%;
-    --primary-glow: 217 100% 72%;
-    --primary-dark: 225 96% 46%;
+    /* Primary in dark mode */
+    --primary: 222 80% 62%;
+    --primary-glow: 222 85% 68%;
+    --primary-dark: 222 72% 54%;
     --primary-foreground: 224 29% 7%;
 
-    /* Secondary blue remains vibrant */
-    --purple: 199 88% 64%;
-    --purple-glow: 199 90% 70%;
-    --purple-dark: 199 90% 45%;
+    /* Companion violet in dark mode */
+    --purple: 260 60% 64%;
+    --purple-glow: 260 65% 70%;
+    --purple-dark: 260 55% 56%;
 
     /* Update gradients for dark mode */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--purple)));
@@ -114,32 +110,33 @@
     --gradient-dark: linear-gradient(135deg, hsl(var(--primary-dark)), hsl(var(--purple-dark)));
     --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(224 29% 10%));
 
-    --secondary: 224 25% 14%;
-    --secondary-foreground: 220 13% 84%;
+    --secondary: 222 18% 17%;
+    --secondary-foreground: 220 12% 86%;
 
-    --muted: 224 25% 14%;
-    --muted-foreground: 220 9% 54%;
+    --muted: 222 18% 18%;
+    --muted-foreground: 220 9% 60%;
 
-    --accent: 224 25% 14%;
-    --accent-foreground: 220 13% 84%;
+    --accent: 222 18% 18%;
+    --accent-foreground: 220 12% 86%;
 
     --success: 142 71% 45%;
+    --info: 217.2 91.2% 60%;
     --warning: 38 95% 56%;
-    --destructive: 0 75% 65%;
+    --destructive: 0 68% 62%;
 
-    --border: 224 25% 18%;
-    --input: 224 25% 18%;
-    --ring: 243 75% 67%;
+    --border: 222 16% 24%;
+    --input: 222 16% 24%;
+    --ring: 222 80% 56%;
 
-    --shadow-card: 0 8px 30px -12px hsl(0 0% 0% / 0.4);
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --shadow-card: 0 8px 26px -12px hsl(0 0% 0% / 0.35);
+    --sidebar-background: 222 28% 12%;
+    --sidebar-foreground: 220 14% 88%;
+    --sidebar-primary: 222 70% 52%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 222 20% 16%;
+    --sidebar-accent-foreground: 220 14% 88%;
+    --sidebar-border: 222 16% 20%;
+    --sidebar-ring: 222 80% 60%;
   }
 }
 
@@ -235,8 +232,28 @@
 
 /* Component utilities */
 @layer components {
+  /* High-contrast stat tiles used across dashboards */
+  .stat-tile {
+    @apply rounded-2xl border shadow-md p-5 sm:p-6 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5;
+  }
+  .stat-title {
+    @apply text-sm font-medium opacity-90 thai-text flex items-center gap-2 tracking-tight;
+  }
+  .stat-value {
+    @apply text-3xl font-bold mt-2 tracking-tight;
+  }
+  .stat-blue { @apply bg-blue-500 text-white border-blue-600; }
+  .stat-amber { @apply bg-amber-300 text-gray-900 border-amber-400; }
+  .stat-emerald { @apply bg-emerald-500 text-white border-emerald-600; }
+  .stat-cyan { @apply bg-cyan-400 text-white border-cyan-500; }
+  .stat-indigo { @apply bg-indigo-500 text-white border-indigo-600; }
+  .stat-violet { @apply bg-violet-500 text-white border-violet-600; }
+  .stat-rose { @apply bg-rose-500 text-white border-rose-600; }
+  .stat-purple { @apply bg-purple-500 text-white border-purple-600; }
+  .stat-orange { @apply bg-orange-400 text-gray-900 border-orange-500; }
+
   .glass-card {
-    @apply bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300;
+    @apply bg-card border border-border rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300;
   }
 
   .gradient-text {
@@ -248,6 +265,12 @@
     @apply text-primary-foreground shadow-lg hover:shadow-xl;
     @apply transition-all duration-300 ease-out;
   }
+
+  /* Softer button variants */
+  .btn-primary { @apply bg-primary text-primary-foreground hover:bg-primary-dark shadow; }
+  .btn-soft { @apply bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground shadow-sm; }
+  .btn-outline-primary { @apply border border-primary/30 text-foreground hover:border-primary hover:bg-primary/5; }
+  .btn-ghost { @apply text-foreground hover:bg-accent; }
 
   .status-dot {
     @apply inline-block w-2 h-2 rounded-full mr-2;
@@ -269,15 +292,15 @@
 
   /* Dashboard specific styles */
   .dashboard-card {
-    @apply bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300;
+    @apply bg-card border border-border rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300;
   }
 
   .dashboard-stat-card {
-    @apply bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300;
+    @apply bg-gradient-to-br from-card to-secondary border border-border rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300;
   }
 
   .progress-bar {
-    @apply w-full bg-gray-200 rounded-full h-2 overflow-hidden;
+    @apply w-full bg-muted rounded-full h-2 overflow-hidden;
   }
 
   .progress-fill {
@@ -289,10 +312,27 @@
   }
 
   .recent-job-item {
-    @apply flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200 cursor-pointer;
+    @apply flex items-center justify-between p-4 bg-muted rounded-lg hover:bg-accent transition-all duration-200 cursor-pointer;
   }
 
   .quick-action-card {
-    @apply bg-white border-2 border-transparent rounded-xl shadow-sm hover:shadow-lg hover:border-blue-200 transition-all duration-300 cursor-pointer;
+    @apply bg-card border-2 border-transparent rounded-2xl shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300 cursor-pointer;
   }
+
+  /* Colored quick action tiles */
+  .action-tile {
+    @apply rounded-2xl border border-transparent text-white shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5;
+  }
+  .action-primary { @apply bg-gradient-to-br from-primary to-purple; }
+  .action-success { @apply bg-gradient-to-br from-success to-emerald-600; }
+  .action-warning { @apply bg-gradient-to-br from-warning to-amber-500 text-gray-900; }
+  .action-danger { @apply bg-gradient-to-br from-destructive to-rose-600; }
+  .action-info { @apply bg-gradient-to-br from-blue-600 to-indigo-600; }
+
+  /* Semantic stat tiles for consistency */
+  .stat-primary { @apply bg-primary text-primary-foreground border-primary/60; }
+  .stat-success { @apply bg-success text-success-foreground border-success/60; }
+  .stat-warning { @apply bg-warning text-warning-foreground border-warning/60; }
+  .stat-info { @apply bg-blue-600 text-white border-blue-700; }
+  .stat-danger { @apply bg-destructive text-destructive-foreground border-destructive/60; }
 }

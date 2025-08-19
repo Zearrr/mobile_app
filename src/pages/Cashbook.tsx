@@ -301,53 +301,31 @@ export default function Cashbook() {
         </div>
       </div>
 
-      {/* Main Stats Dashboard */}
+      {/* Main Stats Dashboard - high-contrast tiles */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="glass-card border-green-200 bg-green-50/30">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text text-green-700">รายรับรวม</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">{formatCurrency(summary.totalIncome)}</div>
-            <p className="text-xs text-green-600 thai-text">บาท</p>
-          </CardContent>
-        </Card>
+        <div className="stat-tile stat-success">
+          <div className="stat-title"><TrendingUp className="w-4 h-4" /> รายรับรวม</div>
+          <div className="stat-value">{formatCurrency(summary.totalIncome)}</div>
+          <div className="opacity-80 thai-text text-sm">บาท</div>
+        </div>
 
-        <Card className="glass-card border-red-200 bg-red-50/30">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text text-red-700">รายจ่ายรวม</CardTitle>
-            <TrendingDown className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-red-600">{formatCurrency(summary.totalExpense)}</div>
-            <p className="text-xs text-red-600 thai-text">บาท</p>
-          </CardContent>
-        </Card>
+        <div className="stat-tile stat-danger">
+          <div className="stat-title"><TrendingDown className="w-4 h-4" /> รายจ่ายรวม</div>
+          <div className="stat-value">{formatCurrency(summary.totalExpense)}</div>
+          <div className="opacity-80 thai-text text-sm">บาท</div>
+        </div>
 
-        <Card className="glass-card border-blue-200 bg-blue-50/30">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text text-blue-700">คงเหลือสุทธิ</CardTitle>
-            <DollarSign className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className={cn('text-3xl font-bold', summary.net >= 0 ? 'text-green-600' : 'text-red-600')}>
-              {formatCurrency(summary.net)}
-            </div>
-            <p className="text-xs text-blue-600 thai-text">บาท</p>
-          </CardContent>
-        </Card>
+        <div className={cn('stat-tile', summary.net >= 0 ? 'stat-success' : 'stat-danger')}>
+          <div className="stat-title"><DollarSign className="w-4 h-4" /> คงเหลือสุทธิ</div>
+          <div className="stat-value">{formatCurrency(summary.net)}</div>
+          <div className="opacity-80 thai-text text-sm">บาท</div>
+        </div>
 
-        <Card className="glass-card border-purple-200 bg-purple-50/30">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text text-purple-700">รายการทั้งหมด</CardTitle>
-            <Wallet className="h-4 w-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-purple-600">{rows.length}</div>
-            <p className="text-xs text-purple-600 thai-text">รายการ</p>
-          </CardContent>
-        </Card>
+        <div className="stat-tile stat-info">
+          <div className="stat-title"><Wallet className="w-4 h-4" /> รายการทั้งหมด</div>
+          <div className="stat-value">{rows.length}</div>
+          <div className="opacity-80 thai-text text-sm">รายการ</div>
+        </div>
       </div>
 
       {/* Action Buttons */}

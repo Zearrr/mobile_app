@@ -73,15 +73,15 @@ export const Dashboard = () => {
       case 'received':
       case 'checking':
       case 'waiting_parts':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
+        return 'bg-warning/15 text-warning-foreground border-warning/30';
       case 'in_progress':
       case 'testing':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-primary/10 text-primary border-primary/30';
       case 'done':
       case 'delivered':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-success/15 text-success border-success/30';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
@@ -116,123 +116,111 @@ export const Dashboard = () => {
         </div>
       </div>
 
-      {/* Main Stats Cards */}
+      {/* Main Stats Cards – light glass style to match the rest */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-        <Card className="dashboard-stat-card border-l-4 border-l-blue-500">
+        <Card className="glass-card border-l-4 border-l-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm font-medium thai-text text-gray-600">งานทั้งหมด</CardTitle>
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Wrench className="h-5 w-5 text-blue-600" />
+            <CardTitle className="text-sm font-medium thai-text text-muted-foreground">งานทั้งหมด</CardTitle>
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Wrench className="h-5 w-5 text-primary" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-gray-900">{stats.totalJobs}</div>
+            <div className="text-3xl font-bold">{stats.totalJobs}</div>
             <p className="text-sm text-muted-foreground thai-text mt-1">รายการงาน</p>
-            <div className="mt-3 progress-bar">
-              <div className="progress-fill bg-blue-500" style={{ width: '100%' }}></div>
-            </div>
           </CardContent>
         </Card>
 
-        <Card className="dashboard-stat-card border-l-4 border-l-orange-500">
+        <Card className="glass-card border-l-4 border-l-warning">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm font-medium thai-text text-gray-600">รอดำเนินการ</CardTitle>
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <Clock className="h-5 w-5 text-orange-600" />
+            <CardTitle className="text-sm font-medium thai-text text-muted-foreground">รอดำเนินการ</CardTitle>
+            <div className="p-2 bg-warning/15 rounded-lg">
+              <Clock className="h-5 w-5 text-warning-foreground" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-orange-600">{stats.pendingJobs}</div>
+            <div className="text-3xl font-bold text-warning-foreground">{stats.pendingJobs}</div>
             <p className="text-sm text-muted-foreground thai-text mt-1">{stats.pendingPercent}% ของงานทั้งหมด</p>
-            <div className="mt-3 progress-bar">
-              <div className="progress-fill bg-orange-500" style={{ width: `${stats.pendingPercent}%` }}></div>
-            </div>
           </CardContent>
         </Card>
 
-        <Card className="dashboard-stat-card border-l-4 border-l-blue-500">
+        <Card className="glass-card border-l-4 border-l-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm font-medium thai-text text-gray-600">กำลังดำเนินการ</CardTitle>
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Activity className="h-5 w-5 text-blue-600" />
+            <CardTitle className="text-sm font-medium thai-text text-muted-foreground">กำลังดำเนินการ</CardTitle>
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Activity className="h-5 w-5 text-primary" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-600">{stats.inProgressJobs}</div>
+            <div className="text-3xl font-bold text-primary">{stats.inProgressJobs}</div>
             <p className="text-sm text-muted-foreground thai-text mt-1">{stats.inProgressPercent}% ของงานทั้งหมด</p>
-            <div className="mt-3 progress-bar">
-              <div className="progress-fill bg-blue-500" style={{ width: `${stats.inProgressPercent}%` }}></div>
-            </div>
           </CardContent>
         </Card>
 
-        <Card className="dashboard-stat-card border-l-4 border-l-green-500">
+        <Card className="glass-card border-l-4 border-l-success">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm font-medium thai-text text-gray-600">เสร็จสิ้น</CardTitle>
-            <div className="p-2 bg-green-100 rounded-lg">
-              <CheckCircle className="h-5 w-5 text-green-600" />
+            <CardTitle className="text-sm font-medium thai-text text-muted-foreground">เสร็จสิ้น</CardTitle>
+            <div className="p-2 bg-success/15 rounded-lg">
+              <CheckCircle className="h-5 w-5 text-success" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-600">{stats.completedJobs}</div>
+            <div className="text-3xl font-bold text-success">{stats.completedJobs}</div>
             <p className="text-sm text-muted-foreground thai-text mt-1">{stats.completedPercent}% ของงานทั้งหมด</p>
-            <div className="mt-3 progress-bar">
-              <div className="progress-fill bg-green-500" style={{ width: `${stats.completedPercent}%` }}></div>
-            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Additional Stats */}
+      {/* Additional Stats – light glass style */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-        <Card className="dashboard-card">
+        <Card className="glass-card border-l-4 border-l-success">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm font-medium thai-text text-gray-600">รายได้รวม</CardTitle>
-            <div className="p-2 bg-green-100 rounded-lg">
-              <DollarSign className="h-5 w-5 text-green-600" />
+            <CardTitle className="text-sm font-medium thai-text text-muted-foreground">รายได้รวม</CardTitle>
+            <div className="p-2 bg-success/15 rounded-lg">
+              <DollarSign className="h-5 w-5 text-success" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">฿{stats.totalRevenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-success">฿{stats.totalRevenue.toLocaleString()}</div>
             <p className="text-sm text-muted-foreground thai-text">บาท</p>
           </CardContent>
         </Card>
 
-        <Card className="dashboard-card">
+        <Card className="glass-card border-l-4 border-l-purple">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm font-medium thai-text text-gray-600">ลูกค้า</CardTitle>
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Users className="h-5 w-5 text-purple-600" />
+            <CardTitle className="text-sm font-medium thai-text text-muted-foreground">ลูกค้า</CardTitle>
+            <div className="p-2 bg-purple/15 rounded-lg">
+              <Users className="h-5 w-5 text-purple" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{stats.totalCustomers}</div>
+            <div className="text-2xl font-bold text-purple">{stats.totalCustomers}</div>
             <p className="text-sm text-muted-foreground thai-text">คน</p>
           </CardContent>
         </Card>
 
-        <Card className="dashboard-card">
+        <Card className="glass-card border-l-4 border-l-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm font-medium thai-text text-gray-600">อะไหล่</CardTitle>
-            <div className="p-2 bg-indigo-100 rounded-lg">
-              <Package className="h-5 w-5 text-indigo-600" />
+            <CardTitle className="text-sm font-medium thai-text text-muted-foreground">อะไหล่</CardTitle>
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Package className="h-5 w-5 text-primary" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-indigo-600">{stats.totalParts}</div>
+            <div className="text-2xl font-bold text-primary">{stats.totalParts}</div>
             <p className="text-sm text-muted-foreground thai-text">รายการ</p>
           </CardContent>
         </Card>
 
-        <Card className="dashboard-card">
+        <Card className="glass-card border-l-4 border-l-destructive">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm font-medium thai-text text-gray-600">สต็อกต่ำ</CardTitle>
-            <div className="p-2 bg-red-100 rounded-lg">
-              <AlertCircle className="h-5 w-5 text-red-600" />
+            <CardTitle className="text-sm font-medium thai-text text-muted-foreground">สต็อกต่ำ</CardTitle>
+            <div className="p-2 bg-destructive/10 rounded-lg">
+              <AlertCircle className="h-5 w-5 text-destructive" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.lowStockParts}</div>
+            <div className="text-2xl font-bold text-destructive">{stats.lowStockParts}</div>
             <p className="text-sm text-muted-foreground thai-text">รายการ</p>
           </CardContent>
         </Card>
@@ -245,7 +233,7 @@ export const Dashboard = () => {
           <Card className="dashboard-card">
             <CardHeader>
               <CardTitle className="thai-text flex items-center gap-2">
-                <Activity className="h-5 w-5 text-blue-600" />
+                <Activity className="h-5 w-5 text-primary" />
                 งานล่าสุด
               </CardTitle>
             </CardHeader>
@@ -255,19 +243,19 @@ export const Dashboard = () => {
                   {recentJobs.map((job) => (
                     <div key={job.id} className="recent-job-item">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Wrench className="w-5 h-5 text-blue-600" />
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                          <Wrench className="w-5 h-5 text-primary" />
                         </div>
                         <div>
-                          <p className="font-medium thai-text text-gray-900">{job.customerName}</p>
-                          <p className="text-sm text-gray-600 thai-text">{job.deviceModel}</p>
+                          <p className="font-medium thai-text text-foreground">{job.customerName}</p>
+                          <p className="text-sm text-muted-foreground thai-text">{job.deviceModel}</p>
                         </div>
                       </div>
                       <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
                         <Badge className={`status-badge ${getStatusColor(job.status)} thai-text`}>
                           {getStatusText(job.status)}
                         </Badge>
-                        <span className="text-xs sm:text-sm text-gray-500">
+                        <span className="text-xs sm:text-sm text-muted-foreground">
                           {new Date(job.createdAt).toLocaleDateString('th-TH')}
                         </span>
                       </div>
@@ -275,7 +263,7 @@ export const Dashboard = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 text-gray-500 thai-text">
+                <div className="text-center py-8 text-muted-foreground thai-text">
                   ยังไม่มีงานซ่อม
                 </div>
               )}
@@ -293,42 +281,36 @@ export const Dashboard = () => {
 
         {/* Quick Actions */}
         <div className="space-y-4">
-          <h3 className="text-base sm:text-lg font-semibold thai-text text-gray-900">การดำเนินการด่วน</h3>
-          
+          <h3 className="text-base sm:text-lg font-semibold thai-text text-foreground">การดำเนินการด่วน</h3>
+
           <Link to="/jobs/new">
-            <Card className="quick-action-card">
-              <CardContent className="p-4 sm:p-6 text-center">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                  <Plus className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold thai-text mb-2 text-gray-900">แจ้งซ่อมใหม่</h3>
-                <p className="thai-text text-muted-foreground text-xs sm:text-sm">สร้างงานซ่อมใหม่สำหรับลูกค้า</p>
-              </CardContent>
-            </Card>
+            <div className="action-tile action-success p-4 sm:p-6 text-center">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 bg-white/15 rounded-full flex items-center justify-center">
+                <Plus className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+              </div>
+              <h3 className="text-base sm:text-lg font-semibold thai-text mb-2 text-white">แจ้งซ่อมใหม่</h3>
+              <p className="thai-text text-white/90 text-xs sm:text-sm">สร้างงานซ่อมใหม่สำหรับลูกค้า</p>
+            </div>
           </Link>
 
           <Link to="/jobs">
-            <Card className="quick-action-card">
-              <CardContent className="p-4 sm:p-6 text-center">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                  <List className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold thai-text mb-2 text-gray-900">รายการซ่อม</h3>
-                <p className="thai-text text-muted-foreground text-xs sm:text-sm">ดูและจัดการงานซ่อมทั้งหมด</p>
-              </CardContent>
-            </Card>
+            <div className="action-tile action-info p-4 sm:p-6 text-center">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 bg-white/15 rounded-full flex items-center justify-center">
+                <List className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+              </div>
+              <h3 className="text-base sm:text-lg font-semibold thai-text mb-2 text-white">รายการซ่อม</h3>
+              <p className="thai-text text-white/90 text-xs sm:text-sm">ดูและจัดการงานซ่อมทั้งหมด</p>
+            </div>
           </Link>
 
           <Link to="/pricing">
-            <Card className="quick-action-card">
-              <CardContent className="p-4 sm:p-6 text-center">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 bg-purple-100 rounded-full flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                  <Calculator className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" />
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold thai-text mb-2 text-gray-900">คำนวณราคา</h3>
-                <p className="text-muted-foreground text-xs sm:text-sm">คำนวณราคาและสร้างใบเสนอราคา</p>
-              </CardContent>
-            </Card>
+            <div className="action-tile action-primary p-4 sm:p-6 text-center">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 bg-white/15 rounded-full flex items-center justify-center">
+                <Calculator className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+              </div>
+              <h3 className="text-base sm:text-lg font-semibold thai-text mb-2 text-white">คำนวณราคา</h3>
+              <p className="text-white/90 text-xs sm:text-sm">คำนวณราคาและสร้างใบเสนอราคา</p>
+            </div>
           </Link>
         </div>
       </div>

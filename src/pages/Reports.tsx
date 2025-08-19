@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useRepairStore } from '@/stores/useRepairStore';
 import { format } from 'date-fns';
+import { DollarSign, Package, TrendingDown, TrendingUp } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import {
@@ -137,6 +138,38 @@ export default function Reports() {
           </select>
           <Input type="date" value={dateStr} onChange={(e)=> setDateStr(e.target.value)} />
         </div>
+      </div>
+
+      {/* Summary tiles for selected period */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {(() => {
+          const key = periodKey(new Date(dateStr));
+          const row = rcp.find(r => r.date === key) || { revenue: 0, cost: 0, profit: 0 } as any;
+          return (
+            <>
+              <div className="stat-tile stat-emerald">
+                <div className="stat-title"><DollarSign className="w-4 h-4" /> รายได้</div>
+                <div className="stat-value">฿{row.revenue.toLocaleString()}</div>
+                <div className="opacity-80 thai-text text-sm">{granularity === 'monthly' ? 'รายเดือน' : 'รายวัน'}</div>
+              </div>
+              <div className="stat-tile stat-rose">
+                <div className="stat-title"><TrendingDown className="w-4 h-4" /> ต้นทุน</div>
+                <div className="stat-value">฿{row.cost.toLocaleString()}</div>
+                <div className="opacity-80 thai-text text-sm">{granularity === 'monthly' ? 'รายเดือน' : 'รายวัน'}</div>
+              </div>
+              <div className="stat-tile stat-indigo">
+                <div className="stat-title"><TrendingUp className="w-4 h-4" /> กำไร</div>
+                <div className="stat-value">฿{row.profit.toLocaleString()}</div>
+                <div className="opacity-80 thai-text text-sm">{granularity === 'monthly' ? 'รายเดือน' : 'รายวัน'}</div>
+              </div>
+              <div className="stat-tile stat-orange">
+                <div className="stat-title"><Package className="w-4 h-4" /> สต็อกใกล้หมด</div>
+                <div className="stat-value">{lowStock.length}</div>
+                <div className="opacity-80 thai-text text-sm">รายการ</div>
+              </div>
+            </>
+          );
+        })()}
       </div>
 
       {/* Revenue vs Cost vs Profit */}

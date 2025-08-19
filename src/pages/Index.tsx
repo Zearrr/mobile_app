@@ -1,17 +1,17 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRepairStore } from '@/stores/useRepairStore';
 import {
-    AlertCircle,
-    Calculator,
-    CheckCircle,
-    Clock,
-    List,
-    Package,
-    Smartphone,
-    TrendingUp,
-    Users,
-    Wrench
+  AlertCircle,
+  Calculator,
+  CheckCircle,
+  Clock,
+  List,
+  Package,
+  Smartphone,
+  TrendingUp,
+  Users,
+  Wrench
 } from 'lucide-react';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -51,137 +51,85 @@ const Index = () => {
         </p>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link to="/jobs/new">
-          <Card className="glass-card hover:shadow-lg transition-all duration-200 cursor-pointer group">
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <Smartphone className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold thai-text mb-2">แจ้งซ่อมใหม่</h3>
-              <p className="thai-text text-muted-foreground">สร้างงานซ่อมใหม่สำหรับลูกค้า</p>
-            </CardContent>
-          </Card>
-        </Link>
+      {/* Quick Actions as compact buttons */}
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="thai-text">การดำเนินการด่วน</CardTitle>
+          <CardDescription className="thai-text">เลือกการทำงานที่ต้องการอย่างรวดเร็ว</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Link to="/jobs/new">
+              <Button className="btn-soft w-full justify-center py-6 text-base">
+                <Smartphone className="w-5 h-5 mr-2" /> แจ้งซ่อมใหม่
+              </Button>
+            </Link>
+            <Link to="/jobs">
+              <Button variant="outline" className="w-full justify-center py-6 text-base">
+                <List className="w-5 h-5 mr-2" /> รายการซ่อม
+              </Button>
+            </Link>
+            <Link to="/pricing">
+              <Button className="btn-gradient w-full justify-center py-6 text-base">
+                <Calculator className="w-5 h-5 mr-2" /> คำนวณราคา
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
 
-        <Link to="/jobs">
-          <Card className="glass-card hover:shadow-lg transition-all duration-200 cursor-pointer group">
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-blue-500/10 rounded-full flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
-                <List className="w-8 h-8 text-blue-500" />
-              </div>
-              <h3 className="text-xl font-semibold thai-text mb-2">รายการซ่อม</h3>
-              <p className="thai-text text-muted-foreground">ดูและจัดการงานซ่อมทั้งหมด</p>
-            </CardContent>
-          </Card>
-        </Link>
+      {/* Dashboard Stats – unified colored tiles */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="stat-tile stat-primary">
+          <div className="stat-title"><Wrench className="w-4 h-4" /> งานทั้งหมด</div>
+          <div className="stat-value">{stats.totalJobs}</div>
+          <div className="opacity-80 thai-text text-sm">รายการ</div>
+        </div>
 
-        <Link to="/pricing">
-          <Card className="glass-card hover:shadow-lg transition-all duration-200 cursor-pointer group">
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-green-500/10 rounded-full flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
-                <Calculator className="w-8 h-8 text-green-500" />
-              </div>
-              <h3 className="text-xl font-semibold thai-text mb-2">คำนวณราคา</h3>
-              <p className="thai-text text-muted-foreground">คำนวณราคาและสร้างใบเสนอราคา</p>
-            </CardContent>
-          </Card>
-        </Link>
+        <div className="stat-tile stat-warning">
+          <div className="stat-title"><Clock className="w-4 h-4" /> รอดำเนินการ</div>
+          <div className="stat-value">{stats.pendingJobs}</div>
+          <div className="opacity-80 thai-text text-sm">รายการ</div>
+        </div>
+
+        <div className="stat-tile stat-info">
+          <div className="stat-title"><AlertCircle className="w-4 h-4" /> กำลังดำเนินการ</div>
+          <div className="stat-value">{stats.inProgressJobs}</div>
+          <div className="opacity-80 thai-text text-sm">รายการ</div>
+        </div>
+
+        <div className="stat-tile stat-success">
+          <div className="stat-title"><CheckCircle className="w-4 h-4" /> เสร็จสิ้น</div>
+          <div className="stat-value">{stats.completedJobs}</div>
+          <div className="opacity-80 thai-text text-sm">รายการ</div>
+        </div>
       </div>
 
-      {/* Dashboard Stats */}
+      {/* Additional Stats – colored tiles */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">งานทั้งหมด</CardTitle>
-            <Wrench className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalJobs}</div>
-            <p className="text-xs text-muted-foreground thai-text">รายการ</p>
-          </CardContent>
-        </Card>
+        <div className="stat-tile stat-success">
+          <div className="stat-title"><TrendingUp className="w-4 h-4" /> รายได้รวม</div>
+          <div className="stat-value">฿{stats.totalRevenue.toLocaleString()}</div>
+          <div className="opacity-80 thai-text text-sm">บาท</div>
+        </div>
 
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">รอดำเนินการ</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats.pendingJobs}</div>
-            <p className="text-xs text-muted-foreground thai-text">รายการ</p>
-          </CardContent>
-        </Card>
+        <div className="stat-tile stat-primary">
+          <div className="stat-title"><Users className="w-4 h-4" /> ลูกค้า</div>
+          <div className="stat-value">{stats.totalCustomers}</div>
+          <div className="opacity-80 thai-text text-sm">คน</div>
+        </div>
 
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">กำลังดำเนินการ</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.inProgressJobs}</div>
-            <p className="text-xs text-muted-foreground thai-text">รายการ</p>
-          </CardContent>
-        </Card>
+        <div className="stat-tile stat-info">
+          <div className="stat-title"><Package className="w-4 h-4" /> อะไหล่</div>
+          <div className="stat-value">{stats.totalParts}</div>
+          <div className="opacity-80 thai-text text-sm">รายการ</div>
+        </div>
 
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">เสร็จสิ้น</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.completedJobs}</div>
-            <p className="text-xs text-muted-foreground thai-text">รายการ</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Additional Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">รายได้รวม</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">฿{stats.totalRevenue.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground thai-text">บาท</p>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">ลูกค้า</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCustomers}</div>
-            <p className="text-xs text-muted-foreground thai-text">คน</p>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">อะไหล่</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalParts}</div>
-            <p className="text-xs text-muted-foreground thai-text">รายการ</p>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">สต็อกต่ำ</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.lowStockParts}</div>
-            <p className="text-xs text-muted-foreground thai-text">รายการ</p>
-          </CardContent>
-        </Card>
+        <div className="stat-tile stat-danger">
+          <div className="stat-title"><AlertCircle className="w-4 h-4" /> สต็อกต่ำ</div>
+          <div className="stat-value">{stats.lowStockParts}</div>
+          <div className="opacity-80 thai-text text-sm">รายการ</div>
+        </div>
       </div>
 
       {/* Recent Jobs */}

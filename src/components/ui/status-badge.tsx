@@ -101,7 +101,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     <Badge 
       variant="outline" 
       className={cn(
-        'thai-text font-medium gap-1.5 px-3 py-1 transition-colors',
+        'thai-text font-medium gap-1.5 px-3 py-1 rounded-full transition-colors',
         config.className,
         className
       )}
@@ -120,7 +120,7 @@ export function PaymentBadge({ status, className }: PaymentBadgeProps) {
     <Badge 
       variant="outline" 
       className={cn(
-        'thai-text font-medium gap-1.5 px-3 py-1 transition-colors',
+        'thai-text font-medium gap-1.5 px-3 py-1 rounded-full transition-colors',
         config.className,
         className
       )}

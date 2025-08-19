@@ -125,87 +125,52 @@ export default function Jobs() {
         </Button>
       </div>
 
-      {/* Dashboard Stats */}
+      {/* Dashboard Stats (colored tiles) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">รายการซ่อมทั้งหมด</CardTitle>
-            <Wrench className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalJobs}</div>
-            <p className="text-xs text-muted-foreground thai-text">รายการ</p>
-          </CardContent>
-        </Card>
+        <div className="stat-tile stat-blue">
+          <div className="stat-title"><Wrench className="w-4 h-4" /> รายการซ่อมทั้งหมด</div>
+          <div className="stat-value">{stats.totalJobs}</div>
+          <div className="opacity-80 thai-text text-sm">รายการ</div>
+        </div>
 
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">ซ่อมเสร็จแล้ว</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.completedJobs}</div>
-            <p className="text-xs text-muted-foreground thai-text">รายการ</p>
-          </CardContent>
-        </Card>
+        <div className="stat-tile stat-emerald">
+          <div className="stat-title"><CheckCircle className="w-4 h-4" /> ซ่อมเสร็จแล้ว</div>
+          <div className="stat-value">{stats.completedJobs}</div>
+          <div className="opacity-80 thai-text text-sm">รายการ</div>
+        </div>
 
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">ชำระเงินแล้ว</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.paidJobs}</div>
-            <p className="text-xs text-muted-foreground thai-text">รายการ</p>
-          </CardContent>
-        </Card>
+        <div className="stat-tile stat-violet">
+          <div className="stat-title"><CreditCard className="w-4 h-4" /> ชำระเงินแล้ว</div>
+          <div className="stat-value">{stats.paidJobs}</div>
+          <div className="opacity-80 thai-text text-sm">รายการ</div>
+        </div>
 
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">กำไรรวม</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">฿{stats.totalProfit.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground thai-text">บาท</p>
-          </CardContent>
-        </Card>
+        <div className="stat-tile stat-emerald">
+          <div className="stat-title"><TrendingUp className="w-4 h-4" /> กำไรรวม</div>
+          <div className="stat-value">฿{stats.totalProfit.toLocaleString()}</div>
+          <div className="opacity-80 thai-text text-sm">บาท</div>
+        </div>
       </div>
 
-      {/* Additional Stats */}
+      {/* Additional Stats (colored tiles) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">รอดำเนินการ</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats.pendingJobs}</div>
-            <p className="text-xs text-muted-foreground thai-text">รายการ</p>
-          </CardContent>
-        </Card>
+        <div className="stat-tile stat-amber">
+          <div className="stat-title"><Clock className="w-4 h-4" /> รอดำเนินการ</div>
+          <div className="stat-value">{stats.pendingJobs}</div>
+          <div className="opacity-80 thai-text text-sm">รายการ</div>
+        </div>
 
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">กำลังดำเนินการ</CardTitle>
-            <Wrench className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.inProgressJobs}</div>
-            <p className="text-xs text-muted-foreground thai-text">รายการ</p>
-          </CardContent>
-        </Card>
+        <div className="stat-tile stat-indigo">
+          <div className="stat-title"><Wrench className="w-4 h-4" /> กำลังดำเนินการ</div>
+          <div className="stat-value">{stats.inProgressJobs}</div>
+          <div className="opacity-80 thai-text text-sm">รายการ</div>
+        </div>
 
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">งานค้างส่ง</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.overdueJobs}</div>
-            <p className="text-xs text-muted-foreground thai-text">รายการ</p>
-          </CardContent>
-        </Card>
+        <div className="stat-tile stat-rose">
+          <div className="stat-title"><AlertTriangle className="w-4 h-4" /> งานค้างส่ง</div>
+          <div className="stat-value">{stats.overdueJobs}</div>
+          <div className="opacity-80 thai-text text-sm">รายการ</div>
+        </div>
       </div>
 
       {/* Filter Section */}
