@@ -49,25 +49,25 @@
 - เบราว์เซอร์ที่รองรับ ES2022+
 
 ### 1. ติดตั้ง Dependencies
-\`\`\`bash
+```bash
 npm install
-\`\`\`
+```
 
 ### 2. รันในโหมด Development
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 เปิด http://localhost:8080
 
 ### 3. Build สำหรับ Production
-\`\`\`bash
+```bash
 npm run build
-\`\`\`
+```
 
 ### 4. Preview Build
-\`\`\`bash
+```bash
 npm run preview
-\`\`\`
+```
 
 ## 🔐 เข้าสู่ระบบ (Demo)
 
@@ -96,7 +96,7 @@ npm run preview
 
 ## 📁 โครงสร้างโปรเจค
 
-\`\`\`
+```
 src/
 ├── components/           # คอมโพเนนต์ UI
 │   ├── ui/              # shadcn/ui components
@@ -106,7 +106,7 @@ src/
 ├── lib/                 # Utilities
 ├── types/               # TypeScript types
 └── hooks/               # Custom hooks
-\`\`\`
+```
 
 ## 🎨 Design System
 
@@ -133,12 +133,12 @@ src/
 
 ### เปลี่ยนสีธีม
 แก้ไขใน `src/index.css`:
-\`\`\`css
+```css
 :root {
   --primary: [HSL values];
   --purple: [HSL values];
 }
-\`\`\`
+```
 
 ### เพิ่มฟิลด์ใหม่
 1. อัพเดต types ใน `src/types/index.ts`
@@ -155,26 +155,26 @@ src/
 ## 🚀 Deployment
 
 ### Vercel
-\`\`\`bash
+```bash
 npm install -g vercel
 vercel
-\`\`\`
+```
 
 ### Netlify
-\`\`\`bash
+```bash
 npm run build
 # Upload dist/ folder
-\`\`\`
+```
 
 ### Docker
-\`\`\`dockerfile
+```dockerfile
 FROM node:18-alpine
 WORKDIR /app
 COPY . .
 RUN npm install && npm run build
 EXPOSE 8080
 CMD ["npm", "run", "preview"]
-\`\`\`
+```
 
 ## 📱 Progressive Web App (PWA)
 
