@@ -127,7 +127,7 @@ export function Sidebar({ className }: SidebarProps) {
       <div 
         className={cn(
           "fixed top-0 left-0 z-50 h-screen bg-white border-r border-gray-200 shadow-lg transition-all duration-500 ease-in-out overflow-hidden",
-          collapsed ? "w-24" : "w-96",
+          collapsed ? "w-24" : "w-72",
           "lg:static lg:z-auto",
           className
         )}

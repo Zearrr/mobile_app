@@ -11,7 +11,7 @@ import { useRepairStore } from '@/stores/useRepairStore';
 import { LockType } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Grid3x3, KeyRound, X as XIcon } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -52,57 +52,249 @@ const newJobSchema = z.object({
 
 type NewJobForm = z.infer<typeof newJobSchema>;
 
-// Simple 3x3 Pattern Lock picker. Returns sequence like "1-2-3-6-9"
-function PatternLockPicker({ value, onChange }: { value?: string; onChange: (val: string) => void }) {
-  const [sequence, setSequence] = useState<number[]>([]);
+// Local inline PatternLock component (SVG + Pointer Events)
+type PatternLockProps = {
+  size?: number;
+  dotRadius?: number;
+  onComplete?: (path: number[]) => void;
+  showOrderText?: boolean;
+  autoResetOnComplete?: boolean;
+};
 
-  useEffect(() => {
-    if (value && typeof value === 'string') {
-      const parsed = value
-        .split('-')
-        .map((v) => parseInt(v, 10))
-        .filter((n) => !Number.isNaN(n) && n >= 1 && n <= 9);
-      if (parsed.length) setSequence(parsed);
+type Point = { x: number; y: number };
+
+function useNodes(size: number) {
+  return useMemo(() => {
+    const cell = size / 3;
+    const centers: { id: number; x: number; y: number }[] = [];
+    for (let r = 0; r < 3; r += 1) {
+      for (let c = 0; c < 3; c += 1) {
+        const id = r * 3 + c + 1;
+        const x = c * cell + cell / 2;
+        const y = r * cell + cell / 2;
+        centers.push({ id, x, y });
+      }
     }
-  }, []);
+    return centers;
+  }, [size]);
+}
 
-  const handleClick = (idx: number) => {
-    if (sequence.includes(idx)) return;
-    const next = [...sequence, idx];
-    setSequence(next);
-    onChange(next.join('-'));
+function distance(a: Point, b: Point) {
+  const dx = a.x - b.x; const dy = a.y - b.y;
+  return Math.hypot(dx, dy);
+}
+
+// Distance from point P to segment AB and projection t (0..1)
+function distancePointToSegment(p: Point, a: Point, b: Point): { dist: number; t: number } {
+  const vx = b.x - a.x; const vy = b.y - a.y;
+  const wx = p.x - a.x; const wy = p.y - a.y;
+  const vv = vx * vx + vy * vy || 1; // avoid divide by zero
+  let t = (wx * vx + wy * vy) / vv;
+  if (t < 0) t = 0; else if (t > 1) t = 1;
+  const proj = { x: a.x + t * vx, y: a.y + t * vy };
+  return { dist: distance(p, proj), t };
+}
+
+function midpointIndex(aId: number, bId: number): number | null {
+  if (!aId || !bId) return null;
+  const ar = Math.floor((aId - 1) / 3), ac = (aId - 1) % 3;
+  const br = Math.floor((bId - 1) / 3), bc = (bId - 1) % 3;
+  if (((ar + br) % 2 === 0) && ((ac + bc) % 2 === 0)) {
+    const mr = (ar + br) / 2; const mc = (ac + bc) / 2;
+    const mid = mr * 3 + mc + 1;
+    if (mid !== aId && mid !== bId) return mid;
+  }
+  return null;
+}
+
+function pointFromPointerEvent(svg: SVGSVGElement, e: PointerEvent): { x: number; y: number } {
+  const rect = svg.getBoundingClientRect();
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
+function PatternLock({
+  size = 360,
+  dotRadius = 28,
+  onComplete,
+  showOrderText = true,
+  autoResetOnComplete = false,
+}: PatternLockProps) {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [pointer, setPointer] = useState<Point | null>(null);
+  const [selected, setSelected] = useState<number[]>([]);
+  const selectedSetRef = useRef<Set<number>>(new Set());
+  const nodes = useNodes(size);
+
+  const hitTest = (p: Point) => {
+    for (const n of nodes) {
+      if (distance(p, { x: n.x, y: n.y }) <= dotRadius) return n.id;
+    }
+    return null;
   };
 
-  const handleReset = () => {
-    setSequence([]);
-    onChange('');
+  const addId = (id: number) => {
+    if (selectedSetRef.current.has(id)) return;
+    setSelected(prev => {
+      const last = prev[prev.length - 1];
+      const next: number[] = [...prev];
+      if (last) {
+        const mid = midpointIndex(last, id);
+        if (mid && !selectedSetRef.current.has(mid)) {
+          next.push(mid);
+          selectedSetRef.current.add(mid);
+        }
+      }
+      next.push(id);
+      selectedSetRef.current.add(id);
+      return next;
+    });
   };
+
+  const reset = () => {
+    setSelected([]);
+    selectedSetRef.current = new Set();
+    setPointer(null);
+    setIsDragging(false);
+  };
+
+  const onPointerDown: React.PointerEventHandler<SVGSVGElement> = (e) => {
+    if (!svgRef.current) return;
+    const svg = svgRef.current;
+    const isPrimary = e.isPrimary !== false;
+    if (!isPrimary) return;
+    const p = pointFromPointerEvent(svg, e.nativeEvent);
+    const id = hitTest(p);
+    if (!id) return;
+    // If a previous pattern exists, start a fresh one automatically
+    if (selected.length > 0) {
+      selectedSetRef.current = new Set();
+      setSelected([]);
+    }
+    svg.setPointerCapture(e.pointerId);
+    setIsDragging(true);
+    setPointer(p);
+    addId(id);
+  };
+
+  const onPointerMove: React.PointerEventHandler<SVGSVGElement> = (e) => {
+    if (!isDragging || !svgRef.current) return;
+    const svg = svgRef.current;
+    const p = pointFromPointerEvent(svg, e.nativeEvent);
+    setPointer(p);
+    // 1) if pointer hits a node directly
+    const directId = hitTest(p);
+    // 2) also check if the segment from last node to pointer crosses any node centers
+    const lastId = selected[selected.length - 1];
+    if (lastId) {
+      const lastNode = nodes[lastId - 1];
+      const segA = { x: lastNode.x, y: lastNode.y };
+      const segB = p;
+      const candidates: { id: number; t: number }[] = [];
+      nodes.forEach((n) => {
+        if (selectedSetRef.current.has(n.id)) return;
+        const { dist, t } = distancePointToSegment({ x: n.x, y: n.y }, segA, segB);
+        if (t > 0 && t < 1 && dist <= dotRadius) {
+          candidates.push({ id: n.id, t });
+        }
+      });
+      candidates.sort((a, b) => a.t - b.t);
+      for (const c of candidates) {
+        addId(c.id);
+      }
+    }
+    if (directId) addId(directId);
+  };
+
+  const finish = () => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    setPointer(null);
+    if (onComplete) onComplete(selected);
+    if (autoResetOnComplete) reset();
+  };
+
+  const onPointerUp: React.PointerEventHandler<SVGSVGElement> = () => finish();
+  const onPointerCancel: React.PointerEventHandler<SVGSVGElement> = () => finish();
+
+  const pathPoints = selected.map(id => {
+    const n = nodes[id - 1];
+    return `${n.x},${n.y}`;
+  }).join(' ');
+
+  const lastNode = selected.length ? nodes[selected[selected.length - 1] - 1] : null;
 
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-3 gap-6 max-w-[220px]">
-        {Array.from({ length: 9 }).map((_, i) => {
-          const idx = i + 1;
-          const selectedIndex = sequence.indexOf(idx);
+    <div className="space-y-2">
+      <svg
+        ref={svgRef}
+        className="select-none touch-none"
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        role="application"
+        aria-label="Pattern lock"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerCancel}
+      >
+        {selected.length > 1 && (
+          <polyline
+            points={pathPoints}
+            fill="none"
+            stroke="#1e66ff"
+            strokeWidth={6}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        )}
+
+        {isDragging && pointer && lastNode && (
+          <line
+            x1={lastNode.x}
+            y1={lastNode.y}
+            x2={pointer.x}
+            y2={pointer.y}
+            stroke="#1e66ff"
+            strokeWidth={6}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        )}
+
+        {nodes.map((n) => {
+          const isSelected = selected.includes(n.id);
           return (
-            <button
-              type="button"
-              key={idx}
-              onClick={() => handleClick(idx)}
-              className={
-                "w-14 h-14 rounded-full border flex items-center justify-center text-sm font-semibold transition-colors " +
-                (selectedIndex >= 0 ? "bg-primary text-primary-foreground border-primary" : "hover:bg-accent")
-              }
-              aria-label={`จุดที่ ${idx}`}
-            >
-              {selectedIndex >= 0 ? selectedIndex + 1 : idx}
-            </button>
+            <g key={n.id} transform={`translate(${n.x}, ${n.y})`}>
+              <circle
+                r={18}
+                fill={isSelected ? '#2e7d32' : '#ffffff'}
+                stroke={isSelected ? '#2e7d32' : 'rgba(0,0,0,0.2)'}
+                strokeWidth={2}
+                aria-label={`จุดที่ ${n.id}`}
+              />
+              <text
+                textAnchor="middle"
+                dominantBaseline="central"
+                fontSize={16}
+                fontWeight={600}
+                fill={isSelected ? '#ffffff' : '#1f2937'}
+              >
+                {n.id}
+              </text>
+            </g>
           );
         })}
-      </div>
+      </svg>
+
       <div className="flex items-center gap-3">
-        <div className="thai-text text-muted-foreground text-sm">ลำดับแพทเทิร์น: {sequence.length ? sequence.join('-') : '-'}</div>
-        <Button type="button" variant="outline" size="sm" onClick={handleReset}>ล้าง</Button>
+        <div className="thai-text text-muted-foreground text-sm">ลำดับการปลดล็อก: {selected.length ? selected.join(' → ') : '-'}</div>
+        <Button type="button" variant="outline" size="sm" onClick={reset}>เริ่มใหม่</Button>
+      </div>
+
+      <div className="sr-only" aria-live="polite">
+        {selected.length ? `เลือกจุดที่ ${selected[selected.length - 1]}` : 'ยังไม่เลือกจุด'}
       </div>
     </div>
   );
@@ -341,8 +533,15 @@ export function NewJob() {
                       <>
                         <FormLabel className="thai-text">เลือกแพทเทิร์น โดยกดจุดเรียงตามลำดับ</FormLabel>
                         <FormControl>
-                          <div>
-                            <PatternLockPicker value={field.value} onChange={field.onChange} />
+                          <div className="py-2">
+                            <PatternLock
+                              size={320}
+                              onComplete={(path) => {
+                                // Save as dash-separated string: "1-2-3"
+                                field.onChange(path.join('-'));
+                              }}
+                              showOrderText
+                            />
                           </div>
                         </FormControl>
                       </>

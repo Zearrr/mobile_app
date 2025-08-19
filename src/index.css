@@ -236,7 +236,7 @@
 /* Component utilities */
 @layer components {
   .glass-card {
-    @apply bg-white border border-gray-200 shadow-sm;
+    @apply bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300;
   }
 
   .gradient-text {
@@ -265,5 +265,34 @@
   .thai-form textarea,
   .thai-form select {
     @apply thai-text;
+  }
+
+  /* Dashboard specific styles */
+  .dashboard-card {
+    @apply bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300;
+  }
+
+  .dashboard-stat-card {
+    @apply bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300;
+  }
+
+  .progress-bar {
+    @apply w-full bg-gray-200 rounded-full h-2 overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-2 rounded-full transition-all duration-500 ease-out;
+  }
+
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border;
+  }
+
+  .recent-job-item {
+    @apply flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200 cursor-pointer;
+  }
+
+  .quick-action-card {
+    @apply bg-white border-2 border-transparent rounded-xl shadow-sm hover:shadow-lg hover:border-blue-200 transition-all duration-300 cursor-pointer;
   }
 }
