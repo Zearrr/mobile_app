@@ -1,5 +1,5 @@
 // Mobile Repair Pro - Type Definitions
-export type JobStatus = 'received' | 'in_progress' | 'waiting_parts' | 'done' | 'returned' | 'cancelled';
+export type JobStatus = 'received' | 'checking' | 'waiting_parts' | 'in_progress' | 'testing' | 'done' | 'delivered' | 'cancelled' | 'returned';
 export type PaymentStatus = 'unpaid' | 'deposit' | 'paid';
 export type LockType = 'none' | 'pin' | 'pattern';
 export type PaymentMethod = 'cash' | 'transfer' | 'card' | 'promptpay';
@@ -14,7 +14,8 @@ export interface Customer {
 }
 
 export interface Job {
-  id: string; // รูปแบบ R00001
+  id: string; // ใช้เป็นรหัสเช่น R00001
+  code?: string; // สำรองไว้เผื่อแยก code ออกจาก id ในอนาคต
   customerId: string;
   
   // ข้อมูลอุปกรณ์
@@ -27,7 +28,7 @@ export interface Job {
   // ข้อมูลล็อกหน้าจอ
   lockType: LockType;
   lockNote?: string;
-  photos: string[]; // URLs หรือ base64
+  photos?: string[]; // URLs หรือ base64
   
   // รายละเอียดงาน
   issueDesc: string;
@@ -35,10 +36,10 @@ export interface Job {
   preCheck: string;
   
   // ข้อมูลการเงิน
-  estimateParts: number;
-  estimateLabor: number;
   costParts: number;
   costLabor: number;
+  feeParts?: number; // ค่าขายอะไหล่
+  feeLabor?: number; // ค่าแรงคิดลูกค้า
   deposit: number;
   total: number;
   profit: number;
@@ -63,13 +64,15 @@ export interface Job {
 
 export interface Part {
   id: string;
+  sku: string;
   name: string;
-  brand?: string;
-  model?: string;
+  forBrand?: string;
+  forModel?: string;
+  unit: string;
   cost: number;
   price: number;
   stock: number;
-  category?: string;
+  minStock?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -103,6 +106,7 @@ export interface Settings {
   // การชำระเงิน
   promptPayId?: string;
   bankAccount?: string;
+  vatEnabled?: boolean;
   
   // การพิมพ์
   printFontSize: number;
@@ -110,6 +114,127 @@ export interface Settings {
   
   createdAt: Date;
   updatedAt: Date;
+}
+
+// เพิ่มโมเดลที่ต้องใช้เพิ่มเติมในระบบร้านมือถือ
+export interface Supplier {
+  id: string;
+  name: string;
+  phone?: string;
+  lineId?: string;
+  address?: string;
+  createdAt: Date;
+}
+
+export type StockMoveType = 'receive' | 'sale' | 'use_for_job' | 'adjust';
+export interface StockMove {
+  id: string;
+  partId: string;
+  type: StockMoveType;
+  qty: number;
+  unitCost: number;
+  ref?: string; // ref โค้ดเอกสาร เช่น R00001 หรือ SO00001
+  createdAt: Date;
+}
+
+export interface QuoteItem { name: string; qty: number; unitPrice: number; cost?: number }
+export interface Quote {
+  id: string;
+  jobId?: string;
+  customerId: string;
+  brand?: string;
+  model?: string;
+  items: QuoteItem[];
+  subtotal: number;
+  discount?: number;
+  tax?: number;
+  total: number;
+  status: 'draft' | 'sent' | 'approved' | 'rejected';
+  approvedAt?: Date;
+  createdAt: Date;
+}
+
+export interface SaleItem { sku: string; name: string; qty: number; unitPrice: number; cost?: number }
+export interface SalePayment { method: PaymentMethod; amount: number }
+export interface Sale {
+  id: string;
+  date: Date;
+  items: SaleItem[];
+  customerId?: string;
+  method: PaymentMethod; // ยังคงไว้เพื่อ backward-compat (กรณีชำระช่องทางเดียว)
+  payments?: SalePayment[]; // รองรับหลายช่องทาง
+  subtotal: number;
+  discount?: number;
+  tax?: number;
+  total: number;
+}
+
+export interface Expense {
+  id: string;
+  date: Date;
+  category: string;
+  note?: string;
+  amount: number;
+  method: PaymentMethod;
+  createdBy: string;
+}
+
+export interface CloseDay {
+  id: string;
+  date: Date;
+  openingCash: number;
+  cashIn: number;
+  cashOut: number;
+  transferIn: number;
+  promptpayIn: number;
+  cardIn: number;
+  expectedCash: number;
+  actualCash: number;
+  diff: number;
+  signer: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  role: 'owner' | 'cashier' | 'tech' | 'staff';
+  active: boolean;
+}
+
+export interface ActivityLog {
+  id: string;
+  type: 'create' | 'update' | 'delete' | 'print' | 'close-day';
+  entity: string; // e.g., 'job','sale','expense','closeDay','quote'
+  entityId: string;
+  userId: string;
+  at: Date;
+  detail?: string;
+}
+
+// Purchasing
+export interface POItem { partId: string; sku: string; name: string; qty: number; unitCost: number }
+export interface PurchaseOrder {
+  id: string; // PO code
+  supplierId: string;
+  date: Date;
+  items: POItem[];
+  note?: string;
+  status: 'draft' | 'ordered' | 'received' | 'cancelled';
+  subtotal: number;
+  discount?: number;
+  tax?: number;
+  total: number;
+}
+
+export interface GRItem { partId: string; sku: string; name: string; qty: number; unitCost: number }
+export interface GoodsReceipt {
+  id: string; // GR code
+  date: Date;
+  supplierId?: string;
+  poId?: string;
+  items: GRItem[];
+  note?: string;
+  total: number;
 }
 
 // Dashboard Summary

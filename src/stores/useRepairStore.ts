@@ -1,8 +1,9 @@
 // Mobile Repair Pro - Zustand Store
+import { db, genCode, uid } from '@/lib/database';
+import { activityRepo, customerRepo, expenseRepo, grRepo, jobRepo, partRepo, paymentRepo, poRepo, saleRepo, settingsRepo, stockMoveRepo, supplierRepo, userRepo } from '@/lib/repositories';
+import { ActivityLog, Customer, DashboardSummary, Expense, GoodsReceipt, Job, JobFilters, Part, Payment, PurchaseOrder, Sale, Settings, Supplier, User } from '@/types';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { Customer, Job, Part, Payment, Settings, JobFilters, DashboardSummary } from '@/types';
-import { db, generateJobId, generateCustomerId, generatePartId, generatePaymentId } from '@/lib/database';
 
 interface RepairState {
   // Data
@@ -10,11 +11,18 @@ interface RepairState {
   jobs: Job[];
   parts: Part[];
   payments: Payment[];
+  sales: Sale[];
+  expenses: Expense[];
+  suppliers: Supplier[];
+  purchaseOrders: PurchaseOrder[];
+  goodsReceipts: GoodsReceipt[];
+  users: User[];
   settings: Settings | null;
   
   // UI State
   isLoading: boolean;
   currentUser: string | null;
+  currentRole: 'owner' | 'cashier' | 'tech' | 'staff' | null;
   filters: JobFilters;
   
   // Actions - Authentication
@@ -27,7 +35,13 @@ interface RepairState {
   loadJobs: () => Promise<void>;
   loadParts: () => Promise<void>;
   loadPayments: () => Promise<void>;
+  loadSales: () => Promise<void>;
+  loadExpenses: () => Promise<void>;
+  loadSuppliers: () => Promise<void>;
+  loadPOs: () => Promise<void>;
+  loadGRs: () => Promise<void>;
   loadSettings: () => Promise<void>;
+  loadUsers: () => Promise<void>;
   
   // Actions - Customers
   createCustomer: (customer: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Customer>;
@@ -49,6 +63,24 @@ interface RepairState {
   // Actions - Payments
   createPayment: (payment: Omit<Payment, 'id' | 'createdAt'>) => Promise<Payment>;
   deletePayment: (id: string) => Promise<void>;
+  // Sales
+  createSale: (sale: Omit<Sale, 'id'>) => Promise<Sale>;
+  deleteSale: (id: string) => Promise<void>;
+  // Expenses
+  createExpense: (expense: Omit<Expense, 'id'>) => Promise<Expense>;
+  deleteExpense: (id: string) => Promise<void>;
+  createSupplier: (data: Omit<Supplier, 'id' | 'createdAt'>) => Promise<Supplier>;
+  updateSupplier: (id: string, data: Partial<Supplier>) => Promise<void>;
+  deleteSupplier: (id: string) => Promise<void>;
+  createPO: (po: PurchaseOrder) => Promise<void>;
+  updatePO: (id: string, changes: Partial<PurchaseOrder>) => Promise<void>;
+  createGR: (gr: GoodsReceipt) => Promise<void>;
+  // Users
+  createUser: (user: Omit<User, 'id'>) => Promise<User>;
+  updateUser: (id: string, changes: Partial<User>) => Promise<void>;
+  deleteUser: (id: string) => Promise<void>;
+  // Activity Log
+  log: (log: Omit<ActivityLog, 'id' | 'at'>) => Promise<void>;
   
   // Actions - Settings
   updateSettings: (updates: Partial<Settings>) => Promise<void>;
@@ -73,9 +105,16 @@ export const useRepairStore = create<RepairState>()(
       jobs: [],
       parts: [],
       payments: [],
+      sales: [],
+      expenses: [],
+      suppliers: [],
+      purchaseOrders: [],
+      goodsReceipts: [],
+      users: [],
       settings: null,
       isLoading: false,
       currentUser: localStorage.getItem('repairpro_user') || null,
+      currentRole: (localStorage.getItem('repairpro_role') as any) || null,
       filters: {},
       
       // Authentication (Simple demo)
@@ -85,10 +124,18 @@ export const useRepairStore = create<RepairState>()(
         // Demo authentication
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        if (username === 'admin' && password === 'admin') {
-          const user = 'ผู้ดูแลระบบ';
+        const roleMap: Record<string, 'owner'|'cashier'|'tech'|'staff'> = {
+          admin: 'owner',
+          cashier: 'cashier',
+          tech: 'tech',
+          staff: 'staff'
+        };
+        const role = roleMap[username as keyof typeof roleMap];
+        if (role && password === username) {
+          const user = username;
           localStorage.setItem('repairpro_user', user);
-          set({ currentUser: user, isLoading: false });
+          localStorage.setItem('repairpro_role', role);
+          set({ currentUser: user, currentRole: role, isLoading: false });
           return true;
         }
         
@@ -98,7 +145,8 @@ export const useRepairStore = create<RepairState>()(
       
       logout: () => {
         localStorage.removeItem('repairpro_user');
-        set({ currentUser: null });
+        localStorage.removeItem('repairpro_role');
+        set({ currentUser: null, currentRole: null });
       },
       
       // Data Loading
@@ -110,7 +158,13 @@ export const useRepairStore = create<RepairState>()(
             get().loadJobs(),
             get().loadParts(),
             get().loadPayments(),
-            get().loadSettings()
+            get().loadSales(),
+            get().loadExpenses(),
+            get().loadSuppliers(),
+            get().loadPOs(),
+            get().loadGRs(),
+            get().loadSettings(),
+            get().loadUsers()
           ]);
         } finally {
           set({ isLoading: false });
@@ -136,57 +190,84 @@ export const useRepairStore = create<RepairState>()(
         const payments = await db.payments.orderBy('paidAt').reverse().toArray();
         set({ payments });
       },
+
+      loadSales: async () => {
+        const sales = await db.sales.orderBy('date').reverse().toArray();
+        set({ sales });
+      },
+
+      loadExpenses: async () => {
+        const expenses = await db.expenses.orderBy('date').reverse().toArray();
+        set({ expenses });
+      },
       
       loadSettings: async () => {
         const settings = await db.settings.get('default');
         set({ settings: settings || null });
       },
+      loadUsers: async () => {
+        const users = await userRepo.all();
+        set({ users });
+      },
+      loadSuppliers: async () => {
+        const suppliers = await supplierRepo.all();
+        set({ suppliers });
+      },
+      loadPOs: async () => {
+        const purchaseOrders = await poRepo.all();
+        set({ purchaseOrders });
+      },
+      loadGRs: async () => {
+        const goodsReceipts = await grRepo.all();
+        set({ goodsReceipts });
+      },
       
       // Customer Actions
       createCustomer: async (customerData) => {
         const customer: Customer = {
-          id: generateCustomerId(),
+          id: uid('C_'),
           ...customerData,
           createdAt: new Date(),
           updatedAt: new Date()
         };
         
-        await db.customers.add(customer);
+        await customerRepo.add(customer);
         await get().loadCustomers();
         return customer;
       },
       
       updateCustomer: async (id, updates) => {
-        await db.customers.update(id, { ...updates, updatedAt: new Date() });
+        await customerRepo.update(id, { ...updates, updatedAt: new Date() });
         await get().loadCustomers();
       },
       
       deleteCustomer: async (id) => {
-        await db.customers.delete(id);
+        await customerRepo.delete(id);
         await get().loadCustomers();
       },
       
       // Job Actions
       createJob: async (jobData) => {
         const job: Job = {
-          id: await generateJobId(),
+          id: await genCode('R'),
+          code: undefined,
           ...jobData,
           createdAt: new Date(),
           updatedAt: new Date()
         };
         
-        await db.jobs.add(job);
+        await jobRepo.add(job);
         await get().loadJobs();
         return job;
       },
       
       updateJob: async (id, updates) => {
-        await db.jobs.update(id, { ...updates, updatedAt: new Date() });
+        await jobRepo.update(id, { ...updates, updatedAt: new Date() });
         await get().loadJobs();
       },
       
       deleteJob: async (id) => {
-        await db.jobs.delete(id);
+        await jobRepo.delete(id);
         await get().loadJobs();
       },
       
@@ -195,62 +276,144 @@ export const useRepairStore = create<RepairState>()(
         if (status === 'done') {
           updates.completedAt = new Date();
         }
-        await db.jobs.update(id, updates);
+        await jobRepo.update(id, updates);
         await get().loadJobs();
       },
       
       updatePaymentStatus: async (id, paymentStatus) => {
-        await db.jobs.update(id, { paymentStatus, updatedAt: new Date() });
+        await jobRepo.update(id, { paymentStatus, updatedAt: new Date() });
         await get().loadJobs();
       },
       
       // Part Actions
       createPart: async (partData) => {
         const part: Part = {
-          id: generatePartId(),
+          id: uid('P_'),
           ...partData,
           createdAt: new Date(),
           updatedAt: new Date()
         };
         
-        await db.parts.add(part);
+        await partRepo.add(part);
         await get().loadParts();
         return part;
       },
       
       updatePart: async (id, updates) => {
-        await db.parts.update(id, { ...updates, updatedAt: new Date() });
+        await partRepo.update(id, { ...updates, updatedAt: new Date() });
         await get().loadParts();
       },
       
       deletePart: async (id) => {
-        await db.parts.delete(id);
+        await partRepo.delete(id);
         await get().loadParts();
       },
       
       // Payment Actions
       createPayment: async (paymentData) => {
         const payment: Payment = {
-          id: generatePaymentId(),
+          id: uid('PAY_'),
           ...paymentData,
           createdAt: new Date()
         };
         
-        await db.payments.add(payment);
+        await paymentRepo.add(payment);
         await get().loadPayments();
         return payment;
       },
       
       deletePayment: async (id) => {
-        await db.payments.delete(id);
+        await paymentRepo.delete(id);
         await get().loadPayments();
+      },
+
+      // Sales Actions
+      createSale: async (saleData) => {
+        const sale: Sale = { id: uid('SO_'), ...saleData };
+        await saleRepo.add(sale);
+        await get().loadSales();
+        return sale;
+      },
+      deleteSale: async (id) => {
+        await saleRepo.delete(id);
+        await get().loadSales();
+      },
+
+      // Expense Actions
+      createExpense: async (expenseData) => {
+        const expense: Expense = { id: uid('EX_'), ...expenseData };
+        await expenseRepo.add(expense);
+        await get().loadExpenses();
+        return expense;
+      },
+      deleteExpense: async (id) => {
+        await expenseRepo.delete(id);
+        await get().loadExpenses();
+        await get().log({ type: 'delete', entity: 'expense', entityId: id, userId: get().currentUser || 'system' } as any);
+      },
+      createSupplier: async (data) => {
+        const supplier: Supplier = { id: uid('S_'), ...data, createdAt: new Date() } as Supplier;
+        await supplierRepo.add(supplier);
+        await get().loadSuppliers();
+        return supplier;
+      },
+      updateSupplier: async (id, data) => {
+        await supplierRepo.update(id, data);
+        await get().loadSuppliers();
+      },
+      deleteSupplier: async (id) => {
+        await supplierRepo.delete(id);
+        await get().loadSuppliers();
+      },
+      createPO: async (po) => {
+        await poRepo.add(po);
+        await get().loadPOs();
+      },
+      updatePO: async (id, changes) => {
+        await poRepo.update(id, changes);
+        await get().loadPOs();
+      },
+      createGR: async (gr) => {
+        await grRepo.add(gr);
+        for (const it of gr.items) {
+          const part = await partRepo.get(it.partId);
+          if (!part) continue;
+          const newStock = (part.stock || 0) + it.qty;
+          const avgCost = Math.round(((part.stock * part.cost) + (it.qty * it.unitCost)) / newStock);
+          await stockMoveRepo.add({ id: uid('SM_'), partId: part.id, type: 'receive', qty: it.qty, unitCost: it.unitCost, ref: gr.id, createdAt: new Date() });
+          await partRepo.update(part.id, { stock: newStock, cost: avgCost, updatedAt: new Date() });
+        }
+        await Promise.all([get().loadGRs(), get().loadParts()]);
+        await get().log({ type: 'create', entity: 'goodsReceipt', entityId: gr.id, userId: get().currentUser || 'system' } as any);
+      },
+
+      // Users
+      createUser: async (userData) => {
+        const user: User = { id: uid('U_'), ...userData } as User;
+        await userRepo.add(user);
+        await get().loadUsers();
+        return user;
+      },
+      updateUser: async (id, changes) => {
+        await userRepo.update(id, changes);
+        await get().loadUsers();
+      },
+      deleteUser: async (id) => {
+        await userRepo.delete(id);
+        await get().loadUsers();
+      },
+
+      // Activity log
+      log: async (entry) => {
+        const log: ActivityLog = { id: uid('LOG_'), at: new Date(), ...entry } as ActivityLog;
+        await activityRepo.add(log);
       },
       
       // Settings Actions
       updateSettings: async (updates) => {
         const current = get().settings;
         if (current) {
-          await db.settings.update('default', { ...updates, updatedAt: new Date() });
+          await settingsRepo.update('default', { ...updates, updatedAt: new Date() });
         } else {
           const newSettings: Settings = {
             id: 'default',
@@ -267,7 +430,7 @@ export const useRepairStore = create<RepairState>()(
             createdAt: new Date(),
             updatedAt: new Date()
           };
-          await db.settings.add(newSettings);
+          await settingsRepo.add(newSettings);
         }
         await get().loadSettings();
       },
@@ -348,7 +511,7 @@ export const useRepairStore = create<RepairState>()(
             .filter(job => job.paymentStatus === 'paid')
             .reduce((sum, job) => sum + job.profit, 0),
           pendingJobs: jobs.filter(job => 
-            ['received', 'in_progress', 'waiting_parts'].includes(job.status)
+            ['received', 'checking', 'waiting_parts', 'in_progress', 'testing'].includes(job.status)
           ).length,
           overdueJobs: jobs.filter(job => 
             job.dueAt && job.dueAt < now && job.status !== 'done'

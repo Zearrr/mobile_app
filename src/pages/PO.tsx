@@ -1,0 +1,124 @@
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { formatCurrency } from '@/lib/utils';
+import { useRepairStore } from '@/stores/useRepairStore';
+import { PurchaseOrder } from '@/types';
+import { useEffect, useMemo, useState } from 'react';
+
+export default function POPage() {
+  const { suppliers, parts, loadSuppliers, loadParts, createPO } = useRepairStore();
+  useEffect(() => { loadSuppliers(); loadParts(); }, []);
+
+  const [supplierId, setSupplierId] = useState('');
+  const [note, setNote] = useState('');
+  const [rows, setRows] = useState<Array<{ partId: string; qty: number; unitCost: number }>>([]);
+  const [query, setQuery] = useState('');
+  const filteredParts = useMemo(() => parts.filter(p => (p.sku||'').toLowerCase().includes(query.toLowerCase()) || (p.name||'').toLowerCase().includes(query.toLowerCase())), [query, parts]);
+
+  const addPart = (partId: string) => {
+    const exist = rows.find(r => r.partId === partId);
+    if (exist) setRows(rows.map(r => r.partId === partId ? { ...r, qty: r.qty + 1 } : r));
+    else setRows([...rows, { partId, qty: 1, unitCost: parts.find(p => p.id === partId)?.cost || 0 }]);
+    setQuery('');
+  };
+
+  const subtotal = useMemo(() => rows.reduce((s, r) => s + r.qty * r.unitCost, 0), [rows]);
+
+  const savePO = async () => {
+    if (!supplierId || rows.length === 0) return;
+    const id = `PO_${Date.now()}`;
+    const po: PurchaseOrder = {
+      id,
+      supplierId,
+      date: new Date(),
+      items: rows.map(r => { const p = parts.find(x => x.id === r.partId)!; return { partId: p.id, sku: p.sku, name: p.name, qty: r.qty, unitCost: r.unitCost }; }),
+      note,
+      status: 'ordered',
+      subtotal,
+      total: subtotal
+    };
+    await createPO(po);
+    setRows([]); setSupplierId(''); setNote('');
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold gradient-text">ใบสั่งซื้อ (PO)</h1>
+          <p className="thai-text text-muted-foreground">สร้างใบสั่งซื้ออะไหล่จากผู้จำหน่าย</p>
+        </div>
+      </div>
+
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="thai-text">ข้อมูล PO</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div>
+            <Label className="thai-text">ผู้จำหน่าย</Label>
+            <select className="w-full h-10 rounded-md border px-3" value={supplierId} onChange={(e)=> setSupplierId(e.target.value)}>
+              <option value="">-- เลือก --</option>
+              {suppliers.map(s => (<option key={s.id} value={s.id}>{s.name}</option>))}
+            </select>
+          </div>
+          <div className="md:col-span-3">
+            <Label className="thai-text">หมายเหตุ</Label>
+            <Input value={note} onChange={(e)=> setNote(e.target.value)} />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="thai-text">รายการสั่งซื้อ</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+            <div className="md:col-span-2">
+              <Input placeholder="ค้นหา/สแกน SKU/ชื่อสินค้า" value={query} onChange={(e)=> setQuery(e.target.value)} />
+              {filteredParts.slice(0, 6).map(p => (
+                <div key={p.id} className="px-3 py-2 hover:bg-accent cursor-pointer thai-text" onClick={()=> addPart(p.id)}>
+                  {p.sku} — {p.name}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="thai-text">สินค้า</TableHead>
+                  <TableHead className="thai-text">จำนวน</TableHead>
+                  <TableHead className="thai-text">ราคาต่อหน่วย</TableHead>
+                  <TableHead className="thai-text">รวม</TableHead>
+                  <TableHead className="text-right"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((r, idx) => { const p = parts.find(x => x.id === r.partId)!; return (
+                  <TableRow key={r.partId}>
+                    <TableCell className="thai-text">{p.sku} — {p.name}</TableCell>
+                    <TableCell><Input type="number" min={1} value={r.qty} onChange={(e)=> setRows(rows.map((x,i)=> i===idx? { ...x, qty: Number(e.target.value)||1}: x))} /></TableCell>
+                    <TableCell><Input type="number" min={0} value={r.unitCost} onChange={(e)=> setRows(rows.map((x,i)=> i===idx? { ...x, unitCost: Number(e.target.value)||0}: x))} /></TableCell>
+                    <TableCell>{formatCurrency(r.qty * r.unitCost)}</TableCell>
+                    <TableCell className="text-right"><Button variant="outline" size="sm" onClick={()=> setRows(rows.filter((_,i)=> i!==idx))}>ลบ</Button></TableCell>
+                  </TableRow>
+                ); })}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="flex justify-between items-center mt-3">
+            <div className="thai-text">Subtotal: {formatCurrency(subtotal)}</div>
+            <Button className="btn-gradient" onClick={savePO}>บันทึก PO</Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+

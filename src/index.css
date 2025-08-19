@@ -19,22 +19,22 @@
     --popover: 0 0% 100%;
     --popover-foreground: 224 15% 12%;
 
-    /* Primary indigo-purple gradient system */
-    --primary: 238 75% 59%;           /* Indigo 500 */
-    --primary-glow: 243 75% 67%;      /* Indigo 400 */
-    --primary-dark: 237 84% 53%;      /* Indigo 600 */
+    /* Brand blue gradient system (match KODPHONE logo) */
+    --primary: 222 100% 56%;          /* Electric Blue */
+    --primary-glow: 219 92% 65%;      /* Lighter Blue Glow */
+    --primary-dark: 225 96% 46%;      /* Deep Royal Blue */
     --primary-foreground: 0 0% 100%;
 
-    /* Purple accent for gradients */
-    --purple: 277 78% 56%;            /* Purple 500 */
-    --purple-glow: 279 75% 65%;       /* Purple 400 */
-    --purple-dark: 276 85% 49%;       /* Purple 600 */
+    /* Secondary blue for dual-gradient */
+    --purple: 199 89% 55%;            /* Azure/Cyan */
+    --purple-glow: 199 88% 64%;       /* Azure glow */
+    --purple-dark: 199 90% 45%;       /* Deeper Azure */
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--purple)));
     --gradient-glow: linear-gradient(135deg, hsl(var(--primary-glow)), hsl(var(--purple-glow)));
     --gradient-dark: linear-gradient(135deg, hsl(var(--primary-dark)), hsl(var(--purple-dark)));
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(220 13% 96%));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(0 0% 98%));
 
     /* Secondary & neutral colors */
     --secondary: 220 13% 95%;
@@ -87,8 +87,8 @@
   }
 
   .dark {
-    /* Dark mode - sophisticated dark blues with glowing accents */
-    --background: 224 29% 7%;
+    /* Dark mode - deep navy background with neon blue glow */
+    --background: 222 60% 6%;
     --foreground: 220 13% 91%;
 
     --card: 224 29% 9%;
@@ -98,15 +98,15 @@
     --popover-foreground: 220 13% 91%;
 
     /* Glowing primary in dark mode */
-    --primary: 243 75% 67%;
-    --primary-glow: 247 78% 75%;
-    --primary-dark: 238 75% 59%;
+    --primary: 219 92% 65%;
+    --primary-glow: 217 100% 72%;
+    --primary-dark: 225 96% 46%;
     --primary-foreground: 224 29% 7%;
 
-    /* Purple stays vibrant */
-    --purple: 279 75% 65%;
-    --purple-glow: 282 78% 73%;
-    --purple-dark: 277 78% 56%;
+    /* Secondary blue remains vibrant */
+    --purple: 199 88% 64%;
+    --purple-glow: 199 90% 70%;
+    --purple-dark: 199 90% 45%;
 
     /* Update gradients for dark mode */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--purple)));
@@ -236,7 +236,7 @@
 /* Component utilities */
 @layer components {
   .glass-card {
-    @apply backdrop-blur-xl bg-white/80 dark:bg-card/80 border border-white/20 dark:border-border/20;
+    @apply bg-white border border-gray-200 shadow-sm;
   }
 
   .gradient-text {
