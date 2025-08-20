@@ -108,26 +108,12 @@ const Dashboard = () => {
       {/* ===== HERO HEADER SECTION ===== */}
       <section className="relative mb-16 text-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-indigo-600/10"></div>
-        <div className="relative z-10 py-20">
-          <div className="inline-flex items-center gap-4 mb-8">
-            <div className="w-3 h-20 bg-gradient-to-b from-blue-500 via-purple-500 to-indigo-500 rounded-full shadow-2xl"></div>
-            <h1 className="text-7xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent drop-shadow-lg">
-              แดชบอร์ด
-            </h1>
-          </div>
-          <p className="text-2xl text-muted-foreground max-w-5xl mx-auto leading-relaxed thai-text">
-            ภาพรวมของร้านซ่อมมือถือ ดูข้อมูลสำคัญและติดตามสถานะงานได้อย่างรวดเร็ว
-          </p>
-        </div>
+
       </section>
 
       {/* ===== QUICK ACTIONS SECTION ===== */}
       <section className="mb-20 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center gap-4 mb-12">
-            <div className="w-2 h-14 bg-gradient-to-b from-emerald-500 via-blue-500 to-purple-500 rounded-full shadow-xl"></div>
-            <h2 className="text-5xl font-bold text-foreground">การดำเนินการด่วน</h2>
-          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {/* New Repair Job */}
@@ -249,12 +235,7 @@ const Dashboard = () => {
 
       {/* ===== BUSINESS METRICS SECTION ===== */}
       <section className="mb-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-4 mb-10">
-            <div className="w-3 h-12 bg-gradient-to-b from-emerald-500 to-blue-500 rounded-full shadow-xl"></div>
-            <h2 className="text-4xl font-bold text-foreground">ตัวชี้วัดธุรกิจ</h2>
-          </div>
-          
+        <div className="max-w-6xl mx-auto">       
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Customers */}
             <Card className="group relative overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-cyan-50 to-blue-100 dark:from-cyan-950/50 dark:to-blue-950/50">

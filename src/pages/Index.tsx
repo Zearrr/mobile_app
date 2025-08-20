@@ -51,25 +51,10 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
       {/* Main Content */}
       <div className="p-6 md:p-8 max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="mb-8 text-center">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-1.5 h-8 bg-gradient-to-b from-blue-500 via-purple-500 to-indigo-500 rounded-full"></div>
-            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              แดชบอร์ด
-            </h1>
-          </div>
-          <p className="text-base md:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed thai-text">
-            ภาพรวมของร้านซ่อมมือถือ ดูข้อมูลสำคัญและติดตามสถานะงานได้อย่างรวดเร็ว
-          </p>
-        </div>
+
 
       {/* Quick Action Buttons */}
       <div className="mb-8">
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="w-1 h-8 bg-gradient-to-b from-blue-500 via-purple-500 to-indigo-500 rounded-full"></div>
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground">การดำเนินการด่วน</h2>
-        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           <Link to="/jobs/new" className="group">
             <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-6 text-center text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
@@ -166,10 +151,6 @@ const Index = () => {
 
       {/* Business Metrics Section */}
       <div className="mb-8">
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="w-1 h-8 bg-gradient-to-b from-warning via-purple-500 to-indigo-500 rounded-full"></div>
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground">ตัวชี้วัดธุรกิจ</h2>
-        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <Card className="bg-white/85 backdrop-blur-sm border-l-4 border-l-info shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-300 overflow-hidden group">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

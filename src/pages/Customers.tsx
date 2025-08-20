@@ -48,15 +48,6 @@ const Customers = () => {
       <div className="p-6 md:p-8 max-w-7xl mx-auto">
       {/* Header Section */}
       <div className="mb-12 text-center">
-        <div className="inline-flex items-center gap-3 mb-6">
-          <div className="w-2 h-12 bg-gradient-to-b from-primary via-primary-dark to-primary rounded-full"></div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-primary-dark to-primary bg-clip-text text-transparent">
-            จัดการลูกค้า
-          </h1>
-        </div>
-        <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed thai-text">
-          จัดการข้อมูลลูกค้าทั้งหมด ดูประวัติและข้อมูลการติดต่อได้อย่างครบถ้วน
-        </p>
       </div>
 
       {/* Customer Stats */}
