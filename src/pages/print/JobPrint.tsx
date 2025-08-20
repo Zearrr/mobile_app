@@ -73,7 +73,7 @@ export default function JobPrint() {
             <div className="muted">โทร: {settings?.phone || '-'}</div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <img src="/LOGOKODPHONE.png" alt="logo" style={{ height: 48, objectFit: 'contain' }} />
+            <img src="/KODPHONELOGO.png" alt="logo" style={{ height: 48, objectFit: 'cover' }} />
           </div>
         </div>
 

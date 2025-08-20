@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { formatCurrency } from '@/lib/utils';
 import { useRepairStore } from '@/stores/useRepairStore';
 import { PurchaseOrder } from '@/types';
+import { FileText } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 export default function POPage() {
@@ -45,13 +46,20 @@ export default function POPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold gradient-text">ใบสั่งซื้อ (PO)</h1>
-          <p className="thai-text text-muted-foreground">สร้างใบสั่งซื้ออะไหล่จากผู้จำหน่าย</p>
+    <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
+      <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+        {/* Gradient Header */}
+        <div className="rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+              <FileText className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-xl md:text-2xl font-bold">ใบสั่งซื้อ (PO)</div>
+              <div className="text-white/90 thai-text text-sm md:text-base">สร้างใบสั่งซื้ออะไหล่จากผู้จำหน่าย</div>
+            </div>
+          </div>
         </div>
-      </div>
 
       <Card className="glass-card">
         <CardHeader>
@@ -117,6 +125,7 @@ export default function POPage() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

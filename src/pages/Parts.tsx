@@ -9,10 +9,21 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatCurrency } from '@/lib/utils';
 import { useRepairStore } from '@/stores/useRepairStore';
-import { AlertTriangle, Battery, Database, Monitor, Package, Plus, Smartphone } from 'lucide-react';
+import { AlertTriangle, Battery, Database, Monitor, Package, Plus, Smartphone, Wallet } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
+
+interface OutletContext {
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+  currentPageInfo: {
+    title: string;
+    description: string;
+  };
+}
 
 export default function Parts() {
+  const { sidebarOpen, setSidebarOpen, currentPageInfo } = useOutletContext<OutletContext>();
   const { parts, createPart } = useRepairStore();
   const [search, setSearch] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -111,20 +122,24 @@ export default function Parts() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold gradient-text">อะไหล่</h1>
-          <p className="thai-text text-muted-foreground">
-            จำนวนรายการ {totals.count} • คงคลังรวม {totals.stock} • มูลค่าสต็อก {formatCurrency(totals.value)}
-          </p>
+    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+      {/* Gradient Info Bar */}
+      <div className="rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+            <Package className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="text-lg md:text-xl font-bold">คลังอะไหล่</div>
+            <div className="text-white/90 thai-text text-sm md:text-base">
+              จำนวนรายการ {totals.count} • คงคลังรวม {totals.stock} • มูลค่าสต็อก {formatCurrency(totals.value)}
+            </div>
+          </div>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="thai-text">
-              <Plus className="w-4 h-4 mr-2" />
-              เพิ่มอะไหล่
+            <Button className="rounded-xl"> 
+              <Plus className="w-4 h-4 mr-2" /> เพิ่มอะไหล่
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
@@ -245,45 +260,68 @@ export default function Parts() {
       </Card>
 
       {/* Dashboard Cards */}
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-1 h-8 bg-gradient-to-b from-primary to-primary-dark rounded-full" />
+        <h3 className="text-xl font-semibold text-foreground">ภาพรวมคลังอะไหล่</h3>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">รวมอะไหล่</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totals.count}</div>
-            <p className="text-xs text-muted-foreground thai-text">รายการ</p>
+        <Card className="rounded-2xl border border-border/50 shadow-lg">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-xs text-muted-foreground">รวมอะไหล่</div>
+                <div className="text-3xl font-bold text-blue-700 mt-1">{totals.count}</div>
+                <div className="text-xs text-blue-700/70 thai-text">รายการ</div>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md">
+                <Package className="w-4 h-4" />
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">สต็อกรวม</CardTitle>
-            <Database className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totals.stock}</div>
-            <p className="text-xs text-muted-foreground thai-text">ชิ้น</p>
+
+        <Card className="rounded-2xl border border-border/50 shadow-lg">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-xs text-muted-foreground">สต็อกรวม</div>
+                <div className="text-3xl font-bold text-indigo-700 mt-1">{totals.stock}</div>
+                <div className="text-xs text-indigo-700/70 thai-text">ชิ้น</div>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
+                <Database className="w-4 h-4" />
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">มูลค่าสต็อก</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totals.value)}</div>
-            <p className="text-xs text-muted-foreground thai-text">บาท</p>
+
+        <Card className="rounded-2xl border border-border/50 shadow-lg">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-xs text-muted-foreground">มูลค่าสต็อก</div>
+                <div className="text-3xl font-bold text-emerald-700 mt-1">{formatCurrency(totals.value)}</div>
+                <div className="text-xs text-emerald-700/70 thai-text">บาท</div>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md">
+                <Wallet className="w-4 h-4" />
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium thai-text">สต็อกต่ำ</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">{lowStockParts.length}</div>
-            <p className="text-xs text-muted-foreground thai-text">รายการ</p>
+
+        <Card className="rounded-2xl border border-border/50 shadow-lg">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-xs text-muted-foreground">สต็อกต่ำ</div>
+                <div className="text-3xl font-bold text-rose-700 mt-1">{lowStockParts.length}</div>
+                <div className="text-xs text-rose-700/70 thai-text">รายการ</div>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-md">
+                <AlertTriangle className="w-4 h-4" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

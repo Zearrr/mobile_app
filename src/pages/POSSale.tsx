@@ -8,6 +8,7 @@ import { saleRepo, stockMoveRepo } from '@/lib/repositories';
 import { formatCurrency } from '@/lib/utils';
 import { useRepairStore } from '@/stores/useRepairStore';
 import { Part, PaymentMethod, Sale, SaleItem } from '@/types';
+import { Printer, RotateCcw, Search as SearchIcon, ShoppingCart } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -86,13 +87,28 @@ export default function POSSale() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold gradient-text">ขายหน้าร้าน (POS)</h1>
-          <p className="thai-text text-muted-foreground">สแกน/ค้นหา SKU หรือชื่อสินค้า เพื่อเพิ่มลงตะกร้า</p>
+    <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
+      <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+        {/* Gradient Header */}
+        <div className="rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+              <ShoppingCart className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-xl md:text-2xl font-bold">ขายหน้าร้าน (POS)</div>
+              <div className="text-white/90 thai-text text-sm md:text-base">สแกน/ค้นหา SKU หรือชื่อสินค้า เพื่อเพิ่มลงตะกร้า</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 md:gap-3">
+            <Button variant="outline" className="bg-white/10 text-white hover:bg-white/20 border-white/30" onClick={() => setItems([])}>
+              <RotateCcw className="w-4 h-4 mr-2" /> ล้างตะกร้า
+            </Button>
+            <Button className="rounded-xl" onClick={handleSave}>
+              <Printer className="w-4 h-4 mr-2" /> บันทึกและพิมพ์
+            </Button>
+          </div>
         </div>
-      </div>
 
       <Card className="glass-card">
         <CardHeader>
@@ -100,7 +116,10 @@ export default function POSSale() {
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="md:col-span-2">
-            <Input autoFocus placeholder="สแกนหรือพิมพ์ SKU/ชื่อสินค้า แล้วกด Enter" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown} />
+            <div className="relative">
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input autoFocus placeholder="สแกนหรือพิมพ์ SKU/ชื่อสินค้า แล้วกด Enter" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown} className="pl-9" />
+            </div>
             {filtered.length > 0 && (
               <div className="mt-2 border rounded-md max-h-56 overflow-auto bg-background">
                 {filtered.slice(0, 8).map(p => (
@@ -144,9 +163,13 @@ export default function POSSale() {
                       <TableCell>{formatCurrency(it.unitPrice)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button size="icon" variant="outline" onClick={() => setItems(items.map((x,i)=> i===idx? { ...x, qty: Math.max(1, x.qty-1)}: x))}>-</Button>
+                          <Button size="icon" variant="outline" onClick={() => setItems(items.map((x,i)=> i===idx? { ...x, qty: Math.max(1, x.qty-1)}: x))}>
+                            -
+                          </Button>
                           <Input className="w-20" type="number" min={1} value={it.qty} onChange={(e) => setItems(items.map((x,i)=> i===idx? { ...x, qty: Number(e.target.value)||1}: x))} />
-                          <Button size="icon" variant="outline" onClick={() => setItems(items.map((x,i)=> i===idx? { ...x, qty: x.qty+1}: x))}>+</Button>
+                          <Button size="icon" variant="outline" onClick={() => setItems(items.map((x,i)=> i===idx? { ...x, qty: x.qty+1}: x))}>
+                            +
+                          </Button>
                         </div>
                       </TableCell>
                       <TableCell>{formatCurrency(it.qty * it.unitPrice)}</TableCell>
@@ -206,6 +229,7 @@ export default function POSSale() {
             </div>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );

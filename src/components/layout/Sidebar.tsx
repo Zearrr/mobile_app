@@ -1,16 +1,5 @@
 // Modern Sidebar Navigation
 import { ThemeToggle } from '@/components/ThemeToggle';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useRepairStore } from '@/stores/useRepairStore';
@@ -18,7 +7,6 @@ import {
     BarChart3,
     Calculator,
     LayoutDashboard,
-    LogOut,
     Menu,
     Package,
     Settings,
@@ -44,11 +32,7 @@ const navigation = [
     href: '/parts',
     icon: Package
   },
-  {
-    name: 'คำนวณราคา',
-    href: '/pricing',
-    icon: Calculator
-  },
+
   {
     name: 'รายรับ–รายจ่าย',
     href: '/cashbook',
@@ -100,27 +84,13 @@ export function Sidebar({ className }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const location = useLocation();
-  const logout = useRepairStore(state => state.logout);
   const settings = useRepairStore(state => state.settings);
-  const currentUser = useRepairStore(state => state.currentUser);
-
-  const handleLogout = () => {
-    logout();
-    window.location.href = '/login';
-  };
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
   };
 
   const isExpanded = !collapsed || isHovered;
-
-  // Get current page name
-  const getCurrentPageName = () => {
-    const currentPath = location.pathname;
-    const currentPage = navigation.find(item => item.href === currentPath);
-    return currentPage ? currentPage.name : 'หน้าแรก';
-  };
 
   return (
     <>
@@ -136,7 +106,7 @@ export function Sidebar({ className }: SidebarProps) {
       {/* Sidebar */}
       <div 
         className={cn(
-          "fixed top-0 left-0 z-50 h-screen bg-card text-card-foreground border-r border-border shadow-lg transition-all duration-500 ease-in-out overflow-hidden",
+          "fixed top-0 left-0 z-50 h-screen bg-primary text-primary-foreground border-r border-primary-dark shadow-lg transition-all duration-500 ease-in-out overflow-hidden",
           collapsed ? "w-24" : "w-72",
           "lg:static lg:z-auto",
           className
@@ -145,16 +115,16 @@ export function Sidebar({ className }: SidebarProps) {
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border bg-card">
+        <div className="flex items-center justify-between p-6 border-b border-primary-dark bg-primary">
           <div className={cn(
             "flex items-center gap-4 transition-all duration-300",
             collapsed ? "opacity-0 lg:opacity-100" : "opacity-100"
           )}>
-            <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary flex items-center justify-center shadow-sm border border-border">
-              <img src="/LOGOKODPHONE.png" alt="logo" className="w-10 h-10 object-cover" />
+            <div className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center shadow-sm">
+              <img src="/KODPHONELOGO.png" alt="logo" className="w-full h-full object-cover" />
             </div>
             {isExpanded && (
-              <div className="font-bold text-lg">
+              <div className="font-bold text-lg text-white">
                 {settings?.storeName || 'ระบบร้านซ่อมมือถือ'}
               </div>
             )}
@@ -180,9 +150,9 @@ export function Sidebar({ className }: SidebarProps) {
                 to={item.href}
                 end
                 className={({ isActive }) => cn(
-                  "flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 thai-text font-medium text-sm",
-                  "hover:bg-accent hover:shadow-sm",
-                  isActive && "bg-primary text-primary-foreground shadow-md",
+                  "flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 thai-text font-medium text-sm text-white/80",
+                  "hover:bg-white/10 hover:text-white hover:shadow-sm",
+                  isActive && "bg-white/20 text-white shadow-md",
                   collapsed && "justify-center px-2"
                 )}
               >
@@ -191,7 +161,7 @@ export function Sidebar({ className }: SidebarProps) {
                     <Icon className={cn(
                       "flex-shrink-0 transition-all duration-300",
                       isActive ? "w-6 h-6" : "w-5 h-5",
-                      isActive && "text-primary-foreground"
+                      isActive && "text-white"
                     )} />
                     {isExpanded && (
                       <span className="truncate font-medium text-sm">{item.name}</span>
@@ -201,54 +171,7 @@ export function Sidebar({ className }: SidebarProps) {
               </NavLink>
             );
           })}
-
-          {/* Logout item */}
-          <div className="mt-2">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <button
-                  className={cn(
-                    "w-full text-left flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 thai-text font-medium text-sm text-red-600",
-                    "hover:bg-red-50 hover:shadow-sm",
-                    collapsed && "justify-center px-2"
-                  )}
-                >
-                  <LogOut className="w-5 h-5 flex-shrink-0" />
-                  {isExpanded && <span className="truncate font-medium text-sm">ออกจากระบบ</span>}
-                </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="bg-card text-card-foreground rounded-2xl shadow-2xl">
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="thai-text text-xl">ออกจากระบบ?</AlertDialogTitle>
-                  <AlertDialogDescription className="thai-text text-muted-foreground">
-                    คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ ข้อมูลที่ยังไม่ได้บันทึกอาจหายไป
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel className="thai-text bg-accent hover:bg-accent rounded-xl">
-                    ยกเลิก
-                  </AlertDialogCancel>
-                  <AlertDialogAction 
-                    className="btn-gradient thai-text rounded-xl" 
-                    onClick={handleLogout}
-                  >
-                    ออกจากระบบ
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
         </nav>
-
-        {/* Current Page Display */}
-        {isExpanded && (
-          <div className="p-4 border-t border-border bg-muted/30">
-            <div className="text-center">
-              <div className="text-sm text-muted-foreground thai-text mb-1">หน้าปัจจุบัน</div>
-              <div className="font-semibold text-primary thai-text">{getCurrentPageName()}</div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Floating toggle button when sidebar is collapsed */}

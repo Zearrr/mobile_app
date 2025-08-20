@@ -1,6 +1,7 @@
 // Main Application Layout
+import { Button } from '@/components/ui/button';
 import { useRepairStore } from '@/stores/useRepairStore';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Menu } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
@@ -23,12 +24,73 @@ export function AppLayout() {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Get current page info
+  const getCurrentPageInfo = () => {
+    const path = location.pathname;
+    switch (path) {
+      case '/':
+        return { title: 'หน้าแรก', description: 'หน้าแรกของระบบ' };
+      case '/dashboard':
+        return { title: 'แดชบอร์ด', description: 'ภาพรวมของระบบ' };
+      case '/jobs':
+        return { title: 'จัดการงานซ่อม', description: 'จัดการงานซ่อมทั้งหมด' };
+      case '/customers':
+        return { title: 'จัดการลูกค้า', description: 'จัดการข้อมูลลูกค้า' };
+      case '/parts':
+        return { title: 'จัดการอะไหล่', description: 'จัดการสต็อกอะไหล่' };
+      case '/pricing':
+        return { title: 'คำนวณราคา', description: 'คำนวณราคาและสร้างใบเสนอราคา' };
+      case '/cashbook':
+        return { title: 'รายรับ-รายจ่าย', description: 'จัดการบัญชีรายรับ-รายจ่าย' };
+      case '/pos/sale':
+        return { title: 'ขาย (POS)', description: 'ระบบขายแบบ Point of Sale' };
+      case '/suppliers':
+        return { title: 'ผู้จำหน่าย', description: 'จัดการข้อมูลผู้จำหน่าย' };
+      case '/po':
+        return { title: 'ใบสั่งซื้อ (PO)', description: 'จัดการใบสั่งซื้อ' };
+      case '/gr':
+        return { title: 'รับของเข้าสต็อก', description: 'จัดการการรับของเข้าสต็อก' };
+      case '/reports':
+        return { title: 'รายงาน', description: 'ดูรายงานต่างๆ' };
+      case '/users':
+        return { title: 'ผู้ใช้', description: 'จัดการผู้ใช้ระบบ' };
+      case '/settings':
+        return { title: 'ตั้งค่า', description: 'ตั้งค่าระบบ' };
+      default:
+        return { title: 'แจ้งซ่อมใหม่', description: 'ไม่พบหน้าที่ต้องการ' };
+    }
+  };
+
+  const currentPageInfo = getCurrentPageInfo();
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex h-screen">
         {sidebarOpen && <Sidebar />}
         
         <main className={`flex-1 overflow-y-auto h-screen bg-secondary transition-all duration-300 ${sidebarOpen ? 'ml-0' : 'ml-0'}`}>
+          {/* Top Header Bar - ใช้ร่วมกันในทุกหน้า */}
+          <div className="bg-white/95 backdrop-blur-sm border-b border-border/50 shadow-lg w-full sticky top-0 z-40">
+            <div className="flex items-center justify-between px-8 py-6">
+              <div className="flex items-center gap-6">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="hover:bg-primary/10 hover:text-primary rounded-xl p-3 transition-all duration-300"
+                >
+                  <Menu className="w-6 h-6" />
+                </Button>
+                <div className="text-base font-medium text-muted-foreground thai-text">{currentPageInfo.title}</div>
+              </div>
+              
+              {/* Store Name */}
+              <div className="font-bold text-xl text-primary thai-text bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
+                ร้านซ่อมมือถือ
+              </div>
+            </div>
+          </div>
+
           {/* Loading overlay */}
           {isLoading && (
             <div className="fixed inset-0 z-50 bg-background/90 backdrop-blur-sm flex items-center justify-center">
@@ -41,7 +103,7 @@ export function AppLayout() {
           
           {/* Main content */}
           <div className="w-full">
-            <Outlet context={{ sidebarOpen, setSidebarOpen }} />
+            <Outlet context={{ sidebarOpen, setSidebarOpen, currentPageInfo }} />
           </div>
         </main>
       </div>

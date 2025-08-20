@@ -3,51 +3,106 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useRepairStore } from '@/stores/useRepairStore';
-import { Calendar, MessageCircle, Phone, Search, Users } from 'lucide-react';
+import { Calendar, Clock, MessageCircle, Phone, Plus, Search, Users } from 'lucide-react';
 import { useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 
-export default function Customers() {
+interface OutletContext {
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+  currentPageInfo: {
+    title: string;
+    description: string;
+  };
+}
+
+const Customers = () => {
+  const { sidebarOpen, setSidebarOpen, currentPageInfo } = useOutletContext<OutletContext>();
   const { customers } = useRepairStore();
-  const [search, setSearch] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'phone' | 'createdAt'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  // Calculate stats
+  const newCustomersThisMonth = customers.filter(customer => {
+    const customerDate = new Date(customer.createdAt);
+    const now = new Date();
+    return customerDate.getMonth() === now.getMonth() && customerDate.getFullYear() === now.getFullYear();
+  }).length;
+
+  const recentCustomers = customers.filter(customer => {
+    const customerDate = new Date(customer.createdAt);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - customerDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= 30;
+  }).length;
 
   const filtered = customers.filter(c =>
-    c.name.toLowerCase().includes(search.toLowerCase()) ||
-    c.phone.includes(search)
+    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.phone.includes(searchTerm)
   );
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">ลูกค้า</h1>
-          <p className="thai-text text-muted-foreground">ลูกค้าทั้งหมด {customers.length} ราย</p>
+    <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
+      <div className="p-6 md:p-8 max-w-7xl mx-auto">
+      {/* Header Section */}
+      <div className="mb-12 text-center">
+        <div className="inline-flex items-center gap-3 mb-6">
+          <div className="w-2 h-12 bg-gradient-to-b from-primary via-primary-dark to-primary rounded-full"></div>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-primary-dark to-primary bg-clip-text text-transparent">
+            จัดการลูกค้า
+          </h1>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-primary/10 rounded-xl">
-            <Users className="h-6 w-6 text-primary" />
-          </div>
-        </div>
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed thai-text">
+          จัดการข้อมูลลูกค้าทั้งหมด ดูประวัติและข้อมูลการติดต่อได้อย่างครบถ้วน
+        </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="stat-tile stat-primary">
-          <div className="stat-title"><Users className="w-4 h-4" /> ลูกค้าทั้งหมด</div>
-          <div className="stat-value">{customers.length}</div>
-          <div className="stat-description">ราย</div>
-        </div>
+      {/* Customer Stats */}
+      <div className="mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="bg-gradient-to-br from-primary to-primary-dark text-white shadow-xl border-0 overflow-hidden group hover:shadow-2xl transition-all duration-500">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white/80 text-sm mb-2">ลูกค้าทั้งหมด</p>
+                  <p className="text-3xl font-bold">{customers.length}</p>
+                </div>
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/30 transition-all duration-300">
+                  <Users className="w-6 h-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        <div className="stat-tile stat-info">
-          <div className="stat-title"><Phone className="w-4 h-4" /> มีเบอร์โทร</div>
-          <div className="stat-value">{customers.filter(c => c.phone).length}</div>
-          <div className="stat-description">ราย</div>
-        </div>
+          <Card className="bg-gradient-to-br from-success to-success/80 text-white shadow-xl border-0 overflow-hidden group hover:shadow-2xl transition-all duration-500">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white/80 text-sm mb-2">ลูกค้าใหม่เดือนนี้</p>
+                  <p className="text-3xl font-bold">{newCustomersThisMonth}</p>
+                </div>
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/30 transition-all duration-300">
+                  <Plus className="w-6 h-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        <div className="stat-tile stat-success">
-          <div className="stat-title"><MessageCircle className="w-4 h-4" /> มี Line ID</div>
-          <div className="stat-value">{customers.filter(c => c.lineId).length}</div>
-          <div className="stat-description">ราย</div>
+          <Card className="bg-gradient-to-br from-info to-info/80 text-white shadow-xl border-0 overflow-hidden group hover:shadow-2xl transition-all duration-500">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white/80 text-sm mb-2">ลูกค้าที่ใช้งานล่าสุด</p>
+                  <p className="text-3xl font-bold">{recentCustomers}</p>
+                </div>
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/30 transition-all duration-300">
+                  <Clock className="w-6 h-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
@@ -62,13 +117,13 @@ export default function Customers() {
         <CardContent className="flex gap-3">
           <Input 
             placeholder="ค้นหาจากชื่อ/เบอร์โทร" 
-            value={search} 
-            onChange={(e) => setSearch(e.target.value)}
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="thai-text flex-1"
           />
           <Button 
             variant="outline" 
-            onClick={() => setSearch('')}
+            onClick={() => setSearchTerm('')}
             className="btn-outline"
           >
             ล้าง
@@ -128,8 +183,11 @@ export default function Customers() {
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
+
+export default Customers;
 
 

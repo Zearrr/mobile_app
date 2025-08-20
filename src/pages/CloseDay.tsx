@@ -10,13 +10,13 @@ import { useRepairStore } from '@/stores/useRepairStore';
 import { CloseDay, PaymentMethod } from '@/types';
 import { endOfDay, format, isWithinInterval, startOfDay } from 'date-fns';
 import {
-    ArrowRight,
-    Calculator,
-    Printer,
-    Save,
-    TrendingDown,
-    TrendingUp,
-    Wallet
+  ArrowRight,
+  Calculator,
+  Printer,
+  Save,
+  TrendingDown,
+  TrendingUp,
+  Wallet
 } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -39,7 +39,7 @@ export default function CloseDayPage() {
 
   const dayPayments = useMemo(() => payments.filter(p => isWithinInterval(new Date(p.paidAt), range)), [payments, range]);
   const daySales = useMemo(() => sales.filter(s => isWithinInterval(new Date(s.date), range)), [sales, range]);
-  const dayExpenses = useMemo(() => expenses.filter(e => isWithinInterval(new Date(s.date), range)), [expenses, range]);
+  const dayExpenses = useMemo(() => expenses.filter(e => isWithinInterval(new Date(e.date), range)), [expenses, range]);
 
   const sums = useMemo(() => {
     const methods: PaymentMethod[] = ['cash', 'transfer', 'promptpay', 'card'];
@@ -78,13 +78,23 @@ export default function CloseDayPage() {
       diff,
       signer: signer || 'ผู้ปิดยอด'
     };
-    await closeDayRepo.put ? (closeDayRepo as any).put(payload) : closeDayRepo.add(payload);
-    toast({ title: 'บันทึกปิดยอดสำเร็จ', description: `วันที่ ${dateStr}` });
+    
+    try {
+      // ตรวจสอบว่ามี closeDay อยู่แล้วหรือไม่
+      const existing = await closeDayRepo.get(payload.id);
+      if (existing) {
+        await closeDayRepo.update(payload.id, payload);
+      } else {
+        await closeDayRepo.add(payload);
+      }
+      toast({ title: 'บันทึกปิดยอดสำเร็จ', description: `วันที่ ${dateStr}` });
+    } catch (error) {
+      toast({ title: 'เกิดข้อผิดพลาด', description: 'ไม่สามารถบันทึกข้อมูลได้', variant: 'destructive' });
+    }
   };
 
   const printRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
     documentTitle: `close-day-${dateStr}`,
     pageStyle: `
       @page { size: A4; margin: 12mm; }

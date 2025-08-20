@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { cn, formatCurrency } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 import { useRepairStore } from '@/stores/useRepairStore';
 import { PaymentMethod } from '@/types';
 import { endOfDay, format, isWithinInterval, startOfDay } from 'date-fns';
@@ -270,66 +270,103 @@ export default function Cashbook() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold gradient-text">รายรับ–รายจ่าย</h1>
-          <p className="thai-text text-muted-foreground text-lg">จัดการการเงินและติดตามรายรับ-รายจ่าย</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Input 
-            type="date" 
-            value={dateStr} 
-            onChange={(e) => setDateStr(e.target.value)}
-            className="w-auto"
-          />
-          <Button variant="outline" onClick={exportCSV}>
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
-          <Button className="btn-gradient" onClick={copyToCloseDay}>
-            <Copy className="w-4 h-4 mr-2" />
-            คัดลอกยอด
-          </Button>
-          <Link to="/close-day">
-            <Button variant="outline">
-              <Calculator className="w-4 h-4 mr-2" />
-              ปิดยอดสิ้นวัน
+    <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
+      <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+        {/* Gradient Header */}
+        <div className="rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between">
+          <div>
+            <div className="text-xl md:text-2xl font-bold">รายรับ–รายจ่าย</div>
+            <div className="text-white/90 thai-text text-sm md:text-base">จัดการการเงินและติดตามรายรับ-รายจ่าย</div>
+          </div>
+          <div className="flex items-center gap-2 md:gap-3">
+            <Input 
+              type="date" 
+              value={dateStr} 
+              onChange={(e) => setDateStr(e.target.value)}
+              className="w-auto bg-white text-foreground"
+            />
+            <Button variant="outline" onClick={exportCSV} className="bg-white/10 text-white hover:bg-white/20 border-white/30">
+              <Download className="w-4 h-4 mr-2" />
+              Export
             </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Main Stats Dashboard - high-contrast tiles */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="stat-tile stat-success">
-          <div className="stat-title"><TrendingUp className="w-4 h-4" /> รายรับรวม</div>
-          <div className="stat-value">{formatCurrency(summary.totalIncome)}</div>
-          <div className="opacity-80 thai-text text-sm">บาท</div>
-        </div>
-
-        <div className="stat-tile stat-warning">
-          <div className="stat-title"><TrendingDown className="w-4 h-4" /> รายจ่ายรวม</div>
-          <div className="stat-value">{formatCurrency(summary.totalExpense)}</div>
-          <div className="opacity-80 thai-text text-sm">บาท</div>
+            <Button className="rounded-xl" onClick={copyToCloseDay}>
+              <Copy className="w-4 h-4 mr-2" />
+              คัดลอกยอด
+            </Button>
+            <Link to="/close-day">
+              <Button variant="outline" className="bg-white/10 text-white hover:bg-white/20 border-white/30">
+                <Calculator className="w-4 h-4 mr-2" />
+                ปิดยอดสิ้นวัน
+              </Button>
+            </Link>
+          </div>
         </div>
 
-        <div className={cn('stat-tile', summary.net >= 0 ? 'stat-success' : 'stat-warning')}>
-          <div className="stat-title"><DollarSign className="w-4 h-4" /> คงเหลือสุทธิ</div>
-          <div className="stat-value">{formatCurrency(summary.net)}</div>
-          <div className="opacity-80 thai-text text-sm">บาท</div>
+        {/* Main Stats Dashboard - compact tiles */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="rounded-2xl border border-border/50 shadow-lg">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="text-xs text-muted-foreground">รายรับรวม</div>
+                  <div className="text-3xl font-bold text-emerald-700 mt-1">{formatCurrency(summary.totalIncome)}</div>
+                  <div className="text-xs text-emerald-700/70 thai-text">บาท</div>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md">
+                  <TrendingUp className="w-4 h-4" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-2xl border border-border/50 shadow-lg">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="text-xs text-muted-foreground">รายจ่ายรวม</div>
+                  <div className="text-3xl font-bold text-amber-700 mt-1">{formatCurrency(summary.totalExpense)}</div>
+                  <div className="text-xs text-amber-700/70 thai-text">บาท</div>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-md">
+                  <TrendingDown className="w-4 h-4" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-2xl border border-border/50 shadow-lg">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="text-xs text-muted-foreground">คงเหลือสุทธิ</div>
+                  <div className={`text-3xl font-bold mt-1 ${summary.net >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>{formatCurrency(summary.net)}</div>
+                  <div className={`text-xs thai-text ${summary.net >= 0 ? 'text-emerald-700/70' : 'text-rose-700/70'}`}>บาท</div>
+                </div>
+                <div className={`w-10 h-10 rounded-xl text-white flex items-center justify-center shadow-md ${summary.net >= 0 ? 'bg-emerald-600' : 'bg-rose-600'}`}>
+                  <DollarSign className="w-4 h-4" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-2xl border border-border/50 shadow-lg">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="text-xs text-muted-foreground">รายการทั้งหมด</div>
+                  <div className="text-3xl font-bold text-indigo-700 mt-1">{rows.length}</div>
+                  <div className="text-xs text-indigo-700/70 thai-text">รายการ</div>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
+                  <Wallet className="w-4 h-4" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        <div className="stat-tile stat-primary">
-          <div className="stat-title"><Wallet className="w-4 h-4" /> รายการทั้งหมด</div>
-          <div className="stat-value">{rows.length}</div>
-          <div className="opacity-80 thai-text text-sm">รายการ</div>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex justify-center gap-4">
+        {/* Action Buttons */}
+        <div className="flex justify-center gap-4">
         <Button 
           onClick={() => setShowAddForm(!showAddForm)} 
           className="btn-gradient px-8 py-3 text-lg"
@@ -347,10 +384,10 @@ export default function Cashbook() {
           <Filter className="w-6 h-6 mr-3" />
           {showFilters ? 'ซ่อนตัวกรอง' : 'แสดงตัวกรอง'}
         </Button>
-      </div>
+        </div>
 
-      {/* Add form - Hidden by default */}
-      {showAddForm && (
+        {/* Add form - Hidden by default */}
+        {showAddForm && (
         <Card className="glass-card border-2 border-green-200">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -441,10 +478,10 @@ export default function Cashbook() {
             </div>
           </CardContent>
         </Card>
-      )}
+        )}
 
-      {/* Filter Section - Hidden by default */}
-      {showFilters && (
+        {/* Filter Section - Hidden by default */}
+        {showFilters && (
         <Card className="glass-card border-2 border-blue-200">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -548,10 +585,10 @@ export default function Cashbook() {
             </div>
           </CardContent>
         </Card>
-      )}
+        )}
 
-      {/* Filtered Summary */}
-      <Card className="glass-card">
+        {/* Filtered Summary */}
+        <Card className="glass-card">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="thai-text text-xl">สรุปรายการที่กรอง</CardTitle>
@@ -593,10 +630,10 @@ export default function Cashbook() {
             </div>
           </div>
         </CardContent>
-      </Card>
+        </Card>
 
-      {/* List */}
-      <Card className="glass-card">
+        {/* List */}
+        <Card className="glass-card">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="thai-text text-xl">รายการที่พบ ({filteredRows.length})</CardTitle>
@@ -658,7 +695,8 @@ export default function Cashbook() {
             </Table>
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useRepairStore } from '@/stores/useRepairStore';
+import { ShieldCheck, Users as UsersIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function UsersPage() {
@@ -21,17 +22,24 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold gradient-text">ผู้ใช้</h1>
-          <p className="thai-text text-muted-foreground">จัดการผู้ใช้และสิทธิ์</p>
+    <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
+      <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+        {/* Gradient Header */}
+        <div className="rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+              <UsersIcon className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-xl md:text-2xl font-bold">ผู้ใช้</div>
+              <div className="text-white/90 thai-text text-sm md:text-base">จัดการผู้ใช้และสิทธิ์</div>
+            </div>
+          </div>
         </div>
-      </div>
 
       <Card className="glass-card">
         <CardHeader>
-          <CardTitle className="thai-text">เพิ่มผู้ใช้</CardTitle>
+          <CardTitle className="thai-text flex items-center gap-2"><ShieldCheck className="w-4 h-4" /> เพิ่มผู้ใช้</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-5 gap-3">
           <div>
@@ -92,6 +100,7 @@ export default function UsersPage() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

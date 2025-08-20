@@ -386,12 +386,6 @@ export function NewJob() {
 
   return (
     <div className="space-y-6 mx-auto max-w-6xl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold gradient-text">แจ้งซ่อมใหม่</h1>
-          <p className="thai-text text-muted-foreground">กรอกข้อมูลให้ครบถ้วนเพื่อสร้างใบงานใหม่ ใช้เวลาเพียงไม่กี่ขั้นตอน</p>
-        </div>
-      </div>
 
       <Form {...(form as any)}>
       <form onSubmit={(form as any).handleSubmit(onSubmit as any)} className="space-y-6">

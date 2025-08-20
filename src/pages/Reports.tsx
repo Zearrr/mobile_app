@@ -5,20 +5,19 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useRepairStore } from '@/stores/useRepairStore';
 import { format } from 'date-fns';
-import { DollarSign, Package, TrendingDown, TrendingUp } from 'lucide-react';
+import { BarChart3, DollarSign, Package, TrendingDown, TrendingUp } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
-import { useReactToPrint } from 'react-to-print';
 import {
-    Bar,
-    BarChart,
-    CartesianGrid,
-    Legend,
-    Line,
-    LineChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
 } from 'recharts';
 
 type Granularity = 'daily' | 'monthly';
@@ -113,64 +112,114 @@ export default function Reports() {
     URL.revokeObjectURL(url);
   };
 
-  // Export PDF via print-per-section
+  // Simple print helper per section (avoid type issues with react-to-print)
   const refRevenue = useRef<HTMLDivElement>(null);
   const refTop = useRef<HTMLDivElement>(null);
   const refStock = useRef<HTMLDivElement>(null);
   const refTech = useRef<HTMLDivElement>(null);
-  const printRevenue = useReactToPrint({ content: () => refRevenue.current });
-  const printTop = useReactToPrint({ content: () => refTop.current });
-  const printStock = useReactToPrint({ content: () => refStock.current });
-  const printTech = useReactToPrint({ content: () => refTech.current });
+  const printSection = (ref: React.RefObject<HTMLDivElement>, title: string) => {
+    const html = ref.current?.innerHTML || '';
+    const win = window.open('', '', 'width=1024,height=700');
+    if (!win) return;
+    win.document.write(`<!doctype html><html><head><title>${title}</title><style>body{font-family:Inter,system-ui,Segoe UI,Arial;padding:16px}</style></head><body>${html}</body></html>`);
+    win.document.close();
+    win.focus();
+    win.print();
+    win.close();
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold gradient-text">รายงานภาพรวม</h1>
-          <p className="thai-text text-muted-foreground">สรุปยอดและสถิติต่าง ๆ</p>
+    <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
+      <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+        {/* Gradient Header */}
+        <div className="rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+              <BarChart3 className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-xl md:text-2xl font-bold">รายงานภาพรวม</div>
+              <div className="text-white/90 thai-text text-sm md:text-base">สรุปยอดและสถิติต่าง ๆ</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Label className="thai-text text-white">โหมด</Label>
+            <select className="h-10 rounded-md border px-3 bg-white text-slate-900" value={granularity} onChange={(e)=> setGranularity(e.target.value as Granularity)}>
+              <option value="daily">รายวัน</option>
+              <option value="monthly">รายเดือน</option>
+            </select>
+            <Input type="date" value={dateStr} onChange={(e)=> setDateStr(e.target.value)} className="bg-white text-slate-900 placeholder:text-slate-600" />
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Label className="thai-text">โหมด</Label>
-          <select className="h-10 rounded-md border px-3" value={granularity} onChange={(e)=> setGranularity(e.target.value as Granularity)}>
-            <option value="daily">รายวัน</option>
-            <option value="monthly">รายเดือน</option>
-          </select>
-          <Input type="date" value={dateStr} onChange={(e)=> setDateStr(e.target.value)} />
-        </div>
-      </div>
 
-      {/* Summary tiles for selected period */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {(() => {
-          const key = periodKey(new Date(dateStr));
-          const row = rcp.find(r => r.date === key) || { revenue: 0, cost: 0, profit: 0 } as any;
-          return (
-            <>
-              <div className="stat-tile stat-success">
-                <div className="stat-title"><DollarSign className="w-4 h-4" /> รายได้</div>
-                <div className="stat-value">฿{row.revenue.toLocaleString()}</div>
-                <div className="opacity-80 thai-text text-sm">{granularity === 'monthly' ? 'รายเดือน' : 'รายวัน'}</div>
-              </div>
-              <div className="stat-tile stat-warning">
-                <div className="stat-title"><TrendingDown className="w-4 h-4" /> ต้นทุน</div>
-                <div className="stat-value">฿{row.cost.toLocaleString()}</div>
-                <div className="opacity-80 thai-text text-sm">{granularity === 'monthly' ? 'รายเดือน' : 'รายวัน'}</div>
-              </div>
-              <div className="stat-tile stat-primary">
-                <div className="stat-title"><TrendingUp className="w-4 h-4" /> กำไร</div>
-                <div className="stat-value">฿{row.profit.toLocaleString()}</div>
-                <div className="opacity-80 thai-text text-sm">{granularity === 'monthly' ? 'รายเดือน' : 'รายวัน'}</div>
-              </div>
-              <div className="stat-tile stat-orange">
-                <div className="stat-title"><Package className="w-4 h-4" /> สต็อกใกล้หมด</div>
-                <div className="stat-value">{lowStock.length}</div>
-                <div className="opacity-80 thai-text text-sm">รายการ</div>
-              </div>
-            </>
-          );
-        })()}
-      </div>
+      {/* Summary tiles styled like Parts */}
+      {(() => {
+        const key = periodKey(new Date(dateStr));
+        const row = rcp.find(r => r.date === key) || ({ revenue: 0, cost: 0, profit: 0 } as any);
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="rounded-2xl border border-border/50 shadow-lg">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="text-xs text-muted-foreground">รายได้</div>
+                    <div className="text-3xl font-bold text-emerald-700 mt-1">฿{row.revenue.toLocaleString()}</div>
+                    <div className="text-xs text-emerald-700/70 thai-text">{granularity === 'monthly' ? 'รายเดือน' : 'รายวัน'}</div>
+                  </div>
+                  <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md">
+                    <DollarSign className="w-4 h-4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl border border-border/50 shadow-lg">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="text-xs text-muted-foreground">ต้นทุน</div>
+                    <div className="text-3xl font-bold text-amber-700 mt-1">฿{row.cost.toLocaleString()}</div>
+                    <div className="text-xs text-amber-700/70 thai-text">{granularity === 'monthly' ? 'รายเดือน' : 'รายวัน'}</div>
+                  </div>
+                  <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-md">
+                    <TrendingDown className="w-4 h-4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl border border-border/50 shadow-lg">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="text-xs text-muted-foreground">กำไร</div>
+                    <div className="text-3xl font-bold text-indigo-700 mt-1">฿{row.profit.toLocaleString()}</div>
+                    <div className="text-xs text-indigo-700/70 thai-text">{granularity === 'monthly' ? 'รายเดือน' : 'รายวัน'}</div>
+                  </div>
+                  <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl border border-border/50 shadow-lg">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="text-xs text-muted-foreground">สต็อกใกล้หมด</div>
+                    <div className="text-3xl font-bold text-rose-700 mt-1">{lowStock.length}</div>
+                    <div className="text-xs text-rose-700/70 thai-text">รายการ</div>
+                  </div>
+                  <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-md">
+                    <Package className="w-4 h-4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      })()}
 
       {/* Revenue vs Cost vs Profit */}
       <Card className="glass-card" ref={refRevenue}>
@@ -178,7 +227,7 @@ export default function Reports() {
           <CardTitle className="thai-text">รายได้ vs ต้นทุน vs กำไร</CardTitle>
           <div className="flex gap-2">
             <Button variant="outline" onClick={()=> exportCSV(rcp, `revenue-cost-profit-${granularity}`)}>Export CSV</Button>
-            <Button variant="outline" onClick={printRevenue}>Export PDF</Button>
+            <Button variant="outline" onClick={() => printSection(refRevenue, 'revenue-cost-profit')}>Export PDF</Button>
           </div>
         </CardHeader>
         <CardContent style={{ height: 320 }}>
@@ -204,7 +253,7 @@ export default function Reports() {
           <div className="flex gap-2">
             <Button variant="outline" onClick={()=> exportCSV(topModels, 'top-models')}>Top Models CSV</Button>
             <Button variant="outline" onClick={()=> exportCSV(topIncome, 'top-income')}>Top Income CSV</Button>
-            <Button variant="outline" onClick={printTop}>Export PDF</Button>
+            <Button variant="outline" onClick={() => printSection(refTop, 'top-charts')}>Export PDF</Button>
           </div>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ height: 360 }}>
@@ -241,7 +290,7 @@ export default function Reports() {
           <CardTitle className="thai-text">สต็อกใกล้หมด</CardTitle>
           <div className="flex gap-2">
             <Button variant="outline" onClick={()=> exportCSV(lowStock.map(p => ({ sku: p.sku, name: p.name, stock: p.stock, minStock: p.minStock || 0 })), 'low-stock')}>Export CSV</Button>
-            <Button variant="outline" onClick={printStock}>Export PDF</Button>
+            <Button variant="outline" onClick={() => printSection(refStock, 'low-stock')}>Export PDF</Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -281,7 +330,7 @@ export default function Reports() {
           <CardTitle className="thai-text">ผลงานช่าง</CardTitle>
           <div className="flex gap-2">
             <Button variant="outline" onClick={()=> exportCSV(techPerf.map(t => ({ technician: t.technician, jobs: t.jobs, avgHours: t.avgHours, claimRate: `${t.claims}/${t.done} (${t.done? Math.round((t.claims/t.done)*1000)/10:0}%)` })), 'technician-performance')}>Export CSV</Button>
-            <Button variant="outline" onClick={printTech}>Export PDF</Button>
+            <Button variant="outline" onClick={() => printSection(refTech, 'technician-performance')}>Export PDF</Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -309,6 +358,7 @@ export default function Reports() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
