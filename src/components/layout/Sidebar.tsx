@@ -1,32 +1,29 @@
 // Modern Sidebar Navigation
 import { ThemeToggle } from '@/components/ThemeToggle';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useRepairStore } from '@/stores/useRepairStore';
 import {
-  BarChart3,
-  Calculator,
-  ChevronLeft,
-  ChevronRight,
-  LayoutDashboard,
-  LogOut,
-  Menu,
-  Package,
-  Settings,
-  Users,
-  Wallet,
-  X
+    BarChart3,
+    Calculator,
+    LayoutDashboard,
+    LogOut,
+    Menu,
+    Package,
+    Settings,
+    Users,
+    Wallet
 } from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
@@ -46,6 +43,11 @@ const navigation = [
     name: 'อะไหล่',
     href: '/parts',
     icon: Package
+  },
+  {
+    name: 'คำนวณราคา',
+    href: '/pricing',
+    icon: Calculator
   },
   {
     name: 'รายรับ–รายจ่าย',
@@ -113,6 +115,13 @@ export function Sidebar({ className }: SidebarProps) {
 
   const isExpanded = !collapsed || isHovered;
 
+  // Get current page name
+  const getCurrentPageName = () => {
+    const currentPath = location.pathname;
+    const currentPage = navigation.find(item => item.href === currentPath);
+    return currentPage ? currentPage.name : 'หน้าแรก';
+  };
+
   return (
     <>
       {/* Mobile backdrop */}
@@ -153,24 +162,6 @@ export function Sidebar({ className }: SidebarProps) {
           
           <div className="flex items-center gap-2">
             {isExpanded && <ThemeToggle />}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleSidebar}
-              className="lg:hidden hover:bg-accent rounded-full p-2"
-              title={collapsed ? "แสดง Sidebar" : "ซ่อน Sidebar"}
-            >
-              {collapsed ? <Menu className="w-5 h-5 text-muted-foreground" /> : <X className="w-5 h-5 text-muted-foreground" />}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleSidebar}
-              className="hidden lg:flex hover:bg-accent rounded-full p-2 transition-all duration-200"
-              title={collapsed ? "แสดง Sidebar" : "ซ่อน Sidebar"}
-            >
-              {collapsed ? <ChevronRight className="w-5 h-5 text-muted-foreground" /> : <ChevronLeft className="w-5 h-5 text-muted-foreground" />}
-            </Button>
           </div>
         </div>
 
@@ -249,7 +240,15 @@ export function Sidebar({ className }: SidebarProps) {
           </div>
         </nav>
 
-
+        {/* Current Page Display */}
+        {isExpanded && (
+          <div className="p-4 border-t border-border bg-muted/30">
+            <div className="text-center">
+              <div className="text-sm text-muted-foreground thai-text mb-1">หน้าปัจจุบัน</div>
+              <div className="font-semibold text-primary thai-text">{getCurrentPageName()}</div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Floating toggle button when sidebar is collapsed */}
@@ -263,10 +262,6 @@ export function Sidebar({ className }: SidebarProps) {
           <Menu className="w-7 h-7" />
         </Button>
       )}
-
-
-
-
     </>
   );
 }

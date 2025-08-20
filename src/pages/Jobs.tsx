@@ -20,6 +20,7 @@ import {
     Printer,
     RotateCcw,
     Search,
+    Smartphone,
     Trash2,
     TrendingUp,
     Wrench
@@ -109,67 +110,90 @@ export default function Jobs() {
   }, [items]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold gradient-text">รายการงานซ่อม</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">รายการงานซ่อม</h1>
           <p className="thai-text text-muted-foreground">
             งานทั้งหมด {jobs.length.toLocaleString()} รายการ • กำลังแสดง {items.length.toLocaleString()} รายการ
           </p>
         </div>
-        <Button asChild className="btn-gradient">
+        <Button asChild className="btn-primary">
           <Link to="/jobs/new">
             <Plus className="w-4 h-4 mr-2" /> แจ้งซ่อมใหม่
           </Link>
         </Button>
       </div>
 
+      {/* Quick Repair Button - Prominent */}
+      <Card className="glass-card border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-primary/20 rounded-xl">
+                <Smartphone className="h-8 w-8 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-foreground mb-1">ต้องการแจ้งซ่อมด่วน?</h3>
+                <p className="text-muted-foreground thai-text">คลิกปุ่มด้านขวาเพื่อสร้างงานซ่อมใหม่ทันที</p>
+              </div>
+            </div>
+            <Link to="/jobs/new">
+              <Button className="btn-primary text-lg px-6 py-4 h-auto shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+                <Plus className="w-6 h-6 mr-2" />
+                แจ้งซ่อมใหม่
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Dashboard Stats (colored tiles) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="stat-tile stat-blue">
+        <div className="stat-tile stat-primary">
           <div className="stat-title"><Wrench className="w-4 h-4" /> รายการซ่อมทั้งหมด</div>
           <div className="stat-value">{stats.totalJobs}</div>
-          <div className="opacity-80 thai-text text-sm">รายการ</div>
+          <div className="stat-description">รายการ</div>
         </div>
 
-        <div className="stat-tile stat-emerald">
+        <div className="stat-tile stat-success">
           <div className="stat-title"><CheckCircle className="w-4 h-4" /> ซ่อมเสร็จแล้ว</div>
           <div className="stat-value">{stats.completedJobs}</div>
-          <div className="opacity-80 thai-text text-sm">รายการ</div>
+          <div className="stat-description">รายการ</div>
         </div>
 
-        <div className="stat-tile stat-violet">
+        <div className="stat-tile stat-info">
           <div className="stat-title"><CreditCard className="w-4 h-4" /> ชำระเงินแล้ว</div>
           <div className="stat-value">{stats.paidJobs}</div>
-          <div className="opacity-80 thai-text text-sm">รายการ</div>
+          <div className="stat-description">รายการ</div>
         </div>
 
-        <div className="stat-tile stat-emerald">
+        <div className="stat-tile stat-success">
           <div className="stat-title"><TrendingUp className="w-4 h-4" /> กำไรรวม</div>
           <div className="stat-value">฿{stats.totalProfit.toLocaleString()}</div>
-          <div className="opacity-80 thai-text text-sm">บาท</div>
+          <div className="stat-description">บาท</div>
         </div>
       </div>
 
       {/* Additional Stats (colored tiles) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="stat-tile stat-amber">
+        <div className="stat-tile stat-warning">
           <div className="stat-title"><Clock className="w-4 h-4" /> รอดำเนินการ</div>
           <div className="stat-value">{stats.pendingJobs}</div>
-          <div className="opacity-80 thai-text text-sm">รายการ</div>
+          <div className="stat-description">รายการ</div>
         </div>
 
-        <div className="stat-tile stat-indigo">
+        <div className="stat-tile stat-primary">
           <div className="stat-title"><Wrench className="w-4 h-4" /> กำลังดำเนินการ</div>
           <div className="stat-value">{stats.inProgressJobs}</div>
-          <div className="opacity-80 thai-text text-sm">รายการ</div>
+          <div className="stat-description">รายการ</div>
         </div>
 
-        <div className="stat-tile stat-rose">
+        <div className="stat-tile stat-danger">
           <div className="stat-title"><AlertTriangle className="w-4 h-4" /> งานค้างส่ง</div>
           <div className="stat-value">{stats.overdueJobs}</div>
-          <div className="opacity-80 thai-text text-sm">รายการ</div>
+          <div className="stat-description">รายการ</div>
         </div>
       </div>
 
@@ -177,18 +201,19 @@ export default function Jobs() {
       <Card className="glass-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 thai-text">
-            <Filter className="h-5 w-5" />
+            <Filter className="h-5 w-5 text-primary" />
             ตัวกรองและค้นหา
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           {/* Search Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          <div className="filter-row">
             <div className="lg:col-span-2">
               <Input 
                 placeholder="ค้นหา: รหัสงาน, ลูกค้า, เบอร์, รุ่น, อาการเสีย" 
                 value={search} 
                 onChange={(e) => setSearch(e.target.value)} 
+                className="thai-text"
               />
             </div>
             <div>
@@ -226,7 +251,7 @@ export default function Jobs() {
           </div>
 
           {/* Date Range Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          <div className="filter-row">
             <div>
               <label className="text-sm font-medium thai-text mb-2 block">วันที่เริ่ม</label>
               <div className="relative">
@@ -235,7 +260,7 @@ export default function Jobs() {
                   type="date" 
                   value={dateFrom} 
                   onChange={(e) => setDateFrom(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 thai-text"
                 />
               </div>
             </div>
@@ -247,16 +272,16 @@ export default function Jobs() {
                   type="date" 
                   value={dateTo} 
                   onChange={(e) => setDateTo(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 thai-text"
                 />
               </div>
             </div>
             <div className="lg:col-span-2 flex gap-2 items-end">
-              <Button variant="outline" onClick={resetFilters} className="flex-1">
+              <Button variant="outline" onClick={resetFilters} className="flex-1 btn-outline">
                 <RotateCcw className="w-4 h-4 mr-2" />
                 ล้าง
               </Button>
-              <Button onClick={applyFilters} className="flex-1">
+              <Button onClick={applyFilters} className="flex-1 btn-primary">
                 <Search className="w-4 h-4 mr-2" />
                 ค้นหา
               </Button>
@@ -270,17 +295,17 @@ export default function Jobs() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="thai-text">รายการที่พบ ({filteredStats.count})</CardTitle>
-            <div className="flex gap-4 text-sm">
+            <div className="flex gap-6 text-sm">
               <div className="text-center">
-                <div className="font-semibold text-green-600">฿{filteredStats.revenue.toLocaleString()}</div>
+                <div className="font-semibold text-success">฿{filteredStats.revenue.toLocaleString()}</div>
                 <div className="text-muted-foreground thai-text">ยอดรวม</div>
               </div>
               <div className="text-center">
-                <div className="font-semibold text-blue-600">฿{filteredStats.cost.toLocaleString()}</div>
+                <div className="font-semibold text-primary">฿{filteredStats.cost.toLocaleString()}</div>
                 <div className="text-muted-foreground thai-text">ต้นทุน</div>
               </div>
               <div className="text-center">
-                <div className="font-semibold text-green-600">฿{filteredStats.profit.toLocaleString()}</div>
+                <div className="font-semibold text-success">฿{filteredStats.profit.toLocaleString()}</div>
                 <div className="text-muted-foreground thai-text">กำไร</div>
               </div>
             </div>
@@ -291,13 +316,13 @@ export default function Jobs() {
             <div className="text-center py-10 thai-text text-muted-foreground">
               <Wrench className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>ไม่พบรายการตามเงื่อนไข</p>
-              <Button variant="outline" onClick={resetFilters} className="mt-4">
+              <Button variant="outline" onClick={resetFilters} className="mt-4 btn-outline">
                 ล้างตัวกรอง
               </Button>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <Table>
+              <Table className="enhanced-table">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="thai-text">เลขที่ซ่อม</TableHead>
@@ -331,7 +356,7 @@ export default function Jobs() {
                         <TableCell className="thai-text max-w-xs truncate" title={job.issueDesc}>
                           {job.issueDesc}
                         </TableCell>
-                        <TableCell className="font-semibold text-green-600">
+                        <TableCell className="font-semibold text-success">
                           ฿{job.total.toLocaleString()}
                         </TableCell>
                         <TableCell className="text-sm">
@@ -344,7 +369,7 @@ export default function Jobs() {
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className={`font-semibold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <TableCell className={`font-semibold ${profit >= 0 ? 'text-success' : 'text-destructive'}`}>
                           {profit >= 0 ? '↑' : '↓'} ฿{Math.abs(profit).toLocaleString()}
                         </TableCell>
                         <TableCell>
@@ -355,22 +380,22 @@ export default function Jobs() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                            <Button variant="outline" size="sm" asChild className="h-8 w-8 p-0">
+                            <Button variant="outline" size="sm" asChild className="h-8 w-8 p-0 btn-outline">
                               <Link to={`/jobs/${job.id}`} title="ดู">
                                 <Eye className="w-4 h-4" />
                               </Link>
                             </Button>
-                            <Button variant="outline" size="sm" asChild className="h-8 w-8 p-0">
+                            <Button variant="outline" size="sm" asChild className="h-8 w-8 p-0 btn-outline">
                               <Link to={`/jobs/${job.id}/edit`} title="แก้ไข">
                                 <Edit className="w-4 h-4" />
                               </Link>
                             </Button>
-                            <Button variant="outline" size="sm" asChild className="h-8 w-8 p-0">
+                            <Button variant="outline" size="sm" asChild className="h-8 w-8 p-0 btn-outline">
                               <Link to={`/print/jobs/${job.id}`} title="พิมพ์">
                                 <Printer className="w-4 h-4" />
                               </Link>
                             </Button>
-                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-red-600 hover:text-red-700" title="ลบ">
+                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive btn-outline" title="ลบ">
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>

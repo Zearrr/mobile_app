@@ -1,7 +1,7 @@
 // Main Application Layout
 import { useRepairStore } from '@/stores/useRepairStore';
 import { Loader2 } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 
@@ -10,6 +10,7 @@ export function AppLayout() {
   const loadAllData = useRepairStore(state => state.loadAllData);
   const isLoading = useRepairStore(state => state.isLoading);
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     if (currentUser) {
@@ -25,9 +26,9 @@ export function AppLayout() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex h-screen">
-        <Sidebar />
+        {sidebarOpen && <Sidebar />}
         
-        <main className="flex-1 overflow-y-auto h-screen bg-secondary">
+        <main className={`flex-1 overflow-y-auto h-screen bg-secondary transition-all duration-300 ${sidebarOpen ? 'ml-0' : 'ml-0'}`}>
           {/* Loading overlay */}
           {isLoading && (
             <div className="fixed inset-0 z-50 bg-background/90 backdrop-blur-sm flex items-center justify-center">
@@ -39,8 +40,8 @@ export function AppLayout() {
           )}
           
           {/* Main content */}
-          <div className="p-4 lg:p-8 max-w-7xl mx-auto w-full">
-            <Outlet />
+          <div className="w-full">
+            <Outlet context={{ sidebarOpen, setSidebarOpen }} />
           </div>
         </main>
       </div>

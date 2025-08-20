@@ -141,7 +141,7 @@ export default function CloseDayPage() {
 
       {/* Summary Dashboard - high-contrast tiles */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div className="stat-tile stat-emerald">
+        <div className="stat-tile stat-success">
           <div className="stat-title">
             <TrendingUp className="w-4 h-4" /> เงินสดเข้า
           </div>
@@ -149,7 +149,7 @@ export default function CloseDayPage() {
           <div className="opacity-80 thai-text text-sm">บาท</div>
         </div>
 
-        <div className="stat-tile stat-rose">
+        <div className="stat-tile stat-warning">
           <div className="stat-title">
             <TrendingDown className="w-4 h-4" /> เงินสดออก
           </div>
@@ -157,7 +157,7 @@ export default function CloseDayPage() {
           <div className="opacity-80 thai-text text-sm">บาท</div>
         </div>
 
-        <div className="stat-tile stat-cyan">
+        <div className="stat-tile stat-primary">
           <div className="stat-title">
             <Wallet className="w-4 h-4" /> โอนเข้า
           </div>
@@ -165,7 +165,7 @@ export default function CloseDayPage() {
           <div className="opacity-80 thai-text text-sm">บาท</div>
         </div>
 
-        <div className="stat-tile stat-violet">
+        <div className="stat-tile stat-primary">
           <div className="stat-title">
             <Wallet className="w-4 h-4" /> พร้อมเพย์เข้า
           </div>
@@ -173,7 +173,7 @@ export default function CloseDayPage() {
           <div className="opacity-80 thai-text text-sm">บาท</div>
         </div>
 
-        <div className="stat-tile stat-orange">
+        <div className="stat-tile stat-warning">
           <div className="stat-title">
             <Wallet className="w-4 h-4" /> บัตรเข้า
           </div>

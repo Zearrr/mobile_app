@@ -11,20 +11,20 @@ import { useRepairStore } from '@/stores/useRepairStore';
 import { PaymentMethod } from '@/types';
 import { endOfDay, format, isWithinInterval, startOfDay } from 'date-fns';
 import {
-  Calculator,
-  Calendar,
-  Clock,
-  Copy,
-  DollarSign,
-  Download,
-  Filter,
-  Plus,
-  RotateCcw,
-  Search,
-  TrendingDown,
-  TrendingUp,
-  Wallet,
-  X
+    Calculator,
+    Calendar,
+    Clock,
+    Copy,
+    DollarSign,
+    Download,
+    Filter,
+    Plus,
+    RotateCcw,
+    Search,
+    TrendingDown,
+    TrendingUp,
+    Wallet,
+    X
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -309,19 +309,19 @@ export default function Cashbook() {
           <div className="opacity-80 thai-text text-sm">บาท</div>
         </div>
 
-        <div className="stat-tile stat-danger">
+        <div className="stat-tile stat-warning">
           <div className="stat-title"><TrendingDown className="w-4 h-4" /> รายจ่ายรวม</div>
           <div className="stat-value">{formatCurrency(summary.totalExpense)}</div>
           <div className="opacity-80 thai-text text-sm">บาท</div>
         </div>
 
-        <div className={cn('stat-tile', summary.net >= 0 ? 'stat-success' : 'stat-danger')}>
+        <div className={cn('stat-tile', summary.net >= 0 ? 'stat-success' : 'stat-warning')}>
           <div className="stat-title"><DollarSign className="w-4 h-4" /> คงเหลือสุทธิ</div>
           <div className="stat-value">{formatCurrency(summary.net)}</div>
           <div className="opacity-80 thai-text text-sm">บาท</div>
         </div>
 
-        <div className="stat-tile stat-info">
+        <div className="stat-tile stat-primary">
           <div className="stat-title"><Wallet className="w-4 h-4" /> รายการทั้งหมด</div>
           <div className="stat-value">{rows.length}</div>
           <div className="opacity-80 thai-text text-sm">รายการ</div>

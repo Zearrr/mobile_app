@@ -147,17 +147,17 @@ export default function Reports() {
           const row = rcp.find(r => r.date === key) || { revenue: 0, cost: 0, profit: 0 } as any;
           return (
             <>
-              <div className="stat-tile stat-emerald">
+              <div className="stat-tile stat-success">
                 <div className="stat-title"><DollarSign className="w-4 h-4" /> รายได้</div>
                 <div className="stat-value">฿{row.revenue.toLocaleString()}</div>
                 <div className="opacity-80 thai-text text-sm">{granularity === 'monthly' ? 'รายเดือน' : 'รายวัน'}</div>
               </div>
-              <div className="stat-tile stat-rose">
+              <div className="stat-tile stat-warning">
                 <div className="stat-title"><TrendingDown className="w-4 h-4" /> ต้นทุน</div>
                 <div className="stat-value">฿{row.cost.toLocaleString()}</div>
                 <div className="opacity-80 thai-text text-sm">{granularity === 'monthly' ? 'รายเดือน' : 'รายวัน'}</div>
               </div>
-              <div className="stat-tile stat-indigo">
+              <div className="stat-tile stat-primary">
                 <div className="stat-title"><TrendingUp className="w-4 h-4" /> กำไร</div>
                 <div className="stat-value">฿{row.profit.toLocaleString()}</div>
                 <div className="opacity-80 thai-text text-sm">{granularity === 'monthly' ? 'รายเดือน' : 'รายวัน'}</div>
