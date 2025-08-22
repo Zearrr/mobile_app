@@ -3,17 +3,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { formatCurrency } from '@/lib/utils';
 import { useRepairStore } from '@/stores/useRepairStore';
 import { format } from 'date-fns';
-import { BarChart3, DollarSign, Package, TrendingDown, TrendingUp } from 'lucide-react';
+import { BarChart3, DollarSign, List, Package, Receipt, TrendingDown, TrendingUp } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   Legend,
-  Line,
-  LineChart,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -64,6 +69,20 @@ export default function Reports() {
     return Array.from(map.values()).sort((a,b)=> a.date.localeCompare(b.date));
   }, [payments, sales, jobs, expenses, granularity]);
 
+  // Pie data (sum of series in current dataset)
+  const pieData = useMemo(() => {
+    const sums = rcp.reduce((acc, r) => ({
+      revenue: acc.revenue + r.revenue,
+      cost: acc.cost + r.cost,
+      profit: acc.profit + r.profit
+    }), { revenue: 0, cost: 0, profit: 0 });
+    return [
+      { name: 'รายได้', value: sums.revenue, color: '#8b5cf6' },
+      { name: 'ต้นทุน', value: sums.cost, color: '#f97316' },
+      { name: 'กำไร', value: sums.profit, color: '#3b82f6' }
+    ];
+  }, [rcp]);
+
   // Top 5 models by count
   const topModels = useMemo(() => {
     const m = new Map<string, number>();
@@ -82,23 +101,43 @@ export default function Reports() {
   // Low stock list
   const lowStock = useMemo(() => parts.filter(p => (p.minStock ?? 0) > 0 && (p.stock || 0) <= (p.minStock || 0)), [parts]);
 
-  // Technician performance
-  const techPerf = useMemo(() => {
-    const g = new Map<string, { technician: string; jobs: number; avgHours: number; claims: number; done: number }>();
-    const get = (name: string) => { if (!g.has(name)) g.set(name, { technician: name, jobs: 0, avgHours: 0, claims: 0, done: 0 }); return g.get(name)!; };
-    jobs.forEach(j => {
-      const name = j.technician || 'ไม่ระบุ';
-      const row = get(name);
-      row.jobs += 1;
-      if (j.completedAt) {
-        row.done += 1;
-        const hours = (new Date(j.completedAt).getTime() - new Date(j.receivedAt).getTime()) / 36e5;
-        row.avgHours += hours;
-      }
-      if (j.status === 'returned') row.claims += 1;
-    });
-    return Array.from(g.values()).map(r => ({ ...r, avgHours: r.done ? Math.round((r.avgHours / r.done) * 10) / 10 : 0, claimRate: r.done ? Math.round((r.claims / r.done) * 1000) / 10 : 0 })).sort((a,b)=> b.jobs - a.jobs);
-  }, [jobs]);
+  // All sales list for table (include cost and profit for better insights)
+  const allSales = useMemo(() => {
+    return sales.map(sale => {
+      const totalItems = sale.items.reduce((sum, item) => sum + item.qty, 0);
+      const discount = sale.discount || 0;
+      const net = sale.total;
+      const cost = sale.items.reduce((sum, it) => sum + ((it.cost || 0) * it.qty), 0);
+      const profit = net - cost;
+      return {
+        ...sale,
+        totalItems,
+        discount,
+        net,
+        cost,
+        profit
+      };
+    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [sales]);
+
+  const getPaymentLabel = (s: any) => {
+    const toText = (m: string) => m === 'cash' ? 'เงินสด' : m === 'transfer' ? 'โอนเงิน' : m === 'card' ? 'บัตร' : m === 'promptpay' ? 'พร้อมเพย์' : m;
+    if (Array.isArray(s.payments) && s.payments.length > 0) {
+      return s.payments.map((p: any) => `${toText(p.method)} ${formatCurrency(p.amount)}`).join(' + ');
+    }
+    return toText(s.method);
+  };
+
+  const getPaymentButtonClass = (s: any) => {
+    const has = (m: string) => Array.isArray(s.payments) ? s.payments.some((p: any) => p.method === m) : s.method === m;
+    // Solid tones like sample: amber, cyan, emerald, rose
+    if (has('card')) return 'bg-amber-400 hover:bg-amber-500 text-black rounded-md shadow w-20';
+    if (has('transfer')) return 'bg-cyan-500 hover:bg-cyan-600 text-white rounded-md shadow w-20';
+    if (has('cash')) return 'bg-emerald-600 hover:bg-emerald-700 text-white rounded-md shadow w-20';
+    return 'bg-rose-600 hover:bg-rose-700 text-white rounded-md shadow w-20';
+  };
+
+
 
   // Export helpers (CSV)
   const exportCSV = (rows: any[], name: string) => {
@@ -116,7 +155,7 @@ export default function Reports() {
   const refRevenue = useRef<HTMLDivElement>(null);
   const refTop = useRef<HTMLDivElement>(null);
   const refStock = useRef<HTMLDivElement>(null);
-  const refTech = useRef<HTMLDivElement>(null);
+  const refSales = useRef<HTMLDivElement>(null);
   const printSection = (ref: React.RefObject<HTMLDivElement>, title: string) => {
     const html = ref.current?.innerHTML || '';
     const win = window.open('', '', 'width=1024,height=700');
@@ -221,7 +260,7 @@ export default function Reports() {
         );
       })()}
 
-      {/* Revenue vs Cost vs Profit */}
+      {/* Revenue vs Cost vs Profit - smooth area lines like example */}
       <Card className="glass-card" ref={refRevenue}>
         <CardHeader className="flex items-center justify-between flex-row">
           <CardTitle className="thai-text">รายได้ vs ต้นทุน vs กำไร</CardTitle>
@@ -230,19 +269,49 @@ export default function Reports() {
             <Button variant="outline" onClick={() => printSection(refRevenue, 'revenue-cost-profit')}>Export PDF</Button>
           </div>
         </CardHeader>
-        <CardContent style={{ height: 320 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={rcp}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="revenue" stroke="#16a34a" name="รายได้" />
-              <Line type="monotone" dataKey="cost" stroke="#ef4444" name="ต้นทุน" />
-              <Line type="monotone" dataKey="profit" stroke="#3b82f6" name="กำไร" />
-            </LineChart>
-          </ResponsiveContainer>
+        <CardContent style={{ height: 320 }} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={rcp} margin={{ left: 0, right: 0, top: 10, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gradRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#a78bfa" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#a78bfa" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gradCost" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#fb923c" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#fb923c" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gradProfit" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#60a5fa" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#60a5fa" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Area type="monotone" dataKey="revenue" name="รายได้" stroke="#8b5cf6" strokeWidth={3} fill="url(#gradRevenue)" dot={{ r: 3 }} activeDot={{ r: 6 }} />
+                <Area type="monotone" dataKey="cost" name="ต้นทุน" stroke="#f97316" strokeWidth={3} fill="url(#gradCost)" dot={{ r: 3 }} activeDot={{ r: 6 }} />
+                <Area type="monotone" dataKey="profit" name="กำไร" stroke="#3b82f6" strokeWidth={3} fill="url(#gradProfit)" dot={{ r: 3 }} activeDot={{ r: 6 }} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={pieData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={100}
+                     label={(e: any) => `${e.name} ${pieData.reduce((s,d)=>s+d.value,0) ? Math.round((e.value/(pieData.reduce((s,d)=>s+d.value,0)))*100) : 0}%`}>
+                  {pieData.map((entry, idx) => (
+                    <Cell key={`cell-${idx}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Legend />
+                <Tooltip formatter={(v: any)=> typeof v==='number'? v.toLocaleString(): v} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </CardContent>
       </Card>
 
@@ -324,13 +393,26 @@ export default function Reports() {
         </CardContent>
       </Card>
 
-      {/* Technician performance */}
-      <Card className="glass-card" ref={refTech}>
+      {/* All Sales List */}
+      <Card className="glass-card" ref={refSales}>
         <CardHeader className="flex items-center justify-between flex-row">
-          <CardTitle className="thai-text">ผลงานช่าง</CardTitle>
+          <CardTitle className="thai-text flex items-center gap-2">
+            <List className="w-5 h-5" />
+            รายการขายทั้งหมด
+          </CardTitle>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={()=> exportCSV(techPerf.map(t => ({ technician: t.technician, jobs: t.jobs, avgHours: t.avgHours, claimRate: `${t.claims}/${t.done} (${t.done? Math.round((t.claims/t.done)*1000)/10:0}%)` })), 'technician-performance')}>Export CSV</Button>
-            <Button variant="outline" onClick={() => printSection(refTech, 'technician-performance')}>Export PDF</Button>
+            <Button variant="outline" onClick={()=> exportCSV(allSales.map(s => ({ 
+              receiptNumber: s.id, 
+              dateTime: format(new Date(s.date), 'dd/MM/yyyy HH:mm'),
+              customer: s.customer || 'ลูกค้าทั่วไป',
+              items: s.totalItems,
+              total: s.subtotal,
+              discount: s.discount,
+              net: s.net,
+              paymentMethod: s.method,
+              cashier: s.employee || 'admin'
+            })), 'all-sales')}>Export CSV</Button>
+            <Button variant="outline" onClick={() => printSection(refSales, 'all-sales')}>Export PDF</Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -338,21 +420,70 @@ export default function Reports() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="thai-text">ช่าง</TableHead>
-                  <TableHead className="thai-text">จำนวนงาน</TableHead>
-                  <TableHead className="thai-text">เวลาเฉลี่ย (ชม.)</TableHead>
-                  <TableHead className="thai-text">อัตราเคลม</TableHead>
+                  <TableHead className="thai-text">เลขที่ใบเสร็จ</TableHead>
+                  <TableHead className="thai-text">วันเวลา</TableHead>
+                  <TableHead className="thai-text">ลูกค้า</TableHead>
+                  <TableHead className="thai-text">โทรศัพท์</TableHead>
+                  <TableHead className="thai-text">รายการ</TableHead>
+                  <TableHead className="thai-text">ค่าใช้จ่าย</TableHead>
+                  <TableHead className="thai-text">ต้นทุน</TableHead>
+                  <TableHead className="thai-text">การชำระ</TableHead>
+                  <TableHead className="thai-text">แคชเชียร์</TableHead>
+                  <TableHead className="thai-text text-center">จัดการ</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {techPerf.map(t => (
-                  <TableRow key={t.technician}>
-                    <TableCell className="thai-text">{t.technician}</TableCell>
-                    <TableCell className="thai-text">{t.jobs}</TableCell>
-                    <TableCell className="thai-text">{t.avgHours}</TableCell>
-                    <TableCell className="thai-text">{t.done ? `${Math.round((t.claims/t.done)*1000)/10}%` : '-'}</TableCell>
+                {allSales.map(sale => (
+                  <TableRow key={sale.id}>
+                    <TableCell className="font-mono font-semibold">{sale.id}</TableCell>
+                    <TableCell className="thai-text">
+                      {format(new Date(sale.date), 'dd/MM/yyyy HH:mm')}
+                    </TableCell>
+                    <TableCell className="thai-text">
+                      {sale.customer || 'ลูกค้าทั่วไป'}
+                    </TableCell>
+                    <TableCell className="thai-text">
+                      {sale.customerPhone || '-'}
+                    </TableCell>
+                    <TableCell className="thai-text">
+                      {sale.totalItems} รายการ
+                    </TableCell>
+                    <TableCell className="thai-text">
+                      {formatCurrency(sale.subtotal)}
+                    </TableCell>
+                    <TableCell className="thai-text">
+                      {formatCurrency(sale.cost)}
+                    </TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        (sale.payments?.some((p:any)=>p.method==='cash') || sale.method === 'cash') ? 'bg-green-100 text-green-800' :
+                        (sale.payments?.some((p:any)=>p.method==='transfer') || sale.method === 'transfer') ? 'bg-blue-100 text-blue-800' :
+                        (sale.payments?.some((p:any)=>p.method==='card') || sale.method === 'card') ? 'bg-amber-100 text-amber-800' :
+                        'bg-slate-100 text-slate-800'
+                      }`}>
+                        {getPaymentLabel(sale)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="thai-text">
+                      {sale.employee || 'admin'}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Button variant="secondary" size="sm" asChild className={`${getPaymentButtonClass(sale)}`}>
+                        <Link to={`/print/sales/${sale.id}`}>
+                          <Receipt className="w-4 h-4 mr-1" />
+                          ใบเสร็จ
+                        </Link>
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
+                {allSales.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={10} className="text-center thai-text text-muted-foreground py-8">
+                      ไม่มีรายการขาย
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>

@@ -34,22 +34,16 @@ export function AppLayout() {
         return { title: 'แดชบอร์ด', description: 'ภาพรวมของระบบ' };
       case '/jobs':
         return { title: 'จัดการงานซ่อม', description: 'จัดการงานซ่อมทั้งหมด' };
-      case '/customers':
-        return { title: 'จัดการลูกค้า', description: 'จัดการข้อมูลลูกค้า' };
       case '/parts':
-        return { title: 'จัดการอะไหล่', description: 'จัดการสต็อกอะไหล่' };
+        return { title: 'จัดการสินค้า', description: 'จัดการสต็อกสินค้า' };
       case '/pricing':
         return { title: 'คำนวณราคา', description: 'คำนวณราคาและสร้างใบเสนอราคา' };
       case '/cashbook':
         return { title: 'รายรับ-รายจ่าย', description: 'จัดการบัญชีรายรับ-รายจ่าย' };
       case '/pos/sale':
         return { title: 'ขาย (POS)', description: 'ระบบขายแบบ Point of Sale' };
-      case '/suppliers':
-        return { title: 'ผู้จำหน่าย', description: 'จัดการข้อมูลผู้จำหน่าย' };
       case '/po':
         return { title: 'ใบสั่งซื้อ (PO)', description: 'จัดการใบสั่งซื้อ' };
-      case '/gr':
-        return { title: 'รับของเข้าสต็อก', description: 'จัดการการรับของเข้าสต็อก' };
       case '/reports':
         return { title: 'รายงาน', description: 'ดูรายงานต่างๆ' };
       case '/users':
@@ -66,9 +60,9 @@ export function AppLayout() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex h-screen">
-        {sidebarOpen && <Sidebar />}
+        <Sidebar className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:fixed transition-transform duration-300`} />
         
-        <main className={`flex-1 overflow-y-auto h-screen bg-secondary transition-all duration-300 ${sidebarOpen ? 'ml-0' : 'ml-0'}`}>
+        <main className={`flex-1 overflow-y-auto h-screen bg-secondary transition-all duration-300 ${sidebarOpen ? 'lg:ml-72' : 'lg:ml-0'}`}>
           {/* Top Header Bar - ใช้ร่วมกันในทุกหน้า */}
           <div className="bg-white/95 backdrop-blur-sm border-b border-border/50 shadow-lg w-full sticky top-0 z-40">
             <div className="flex items-center justify-between px-8 py-6">

@@ -2,19 +2,21 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatCurrency } from '@/lib/utils';
 import { useRepairStore } from '@/stores/useRepairStore';
 import {
   Activity,
-  AlertCircle,
+  AlertTriangle,
   Calculator,
-  CheckCircle,
+  CalendarDays,
   Clock,
   Package,
   Plus,
-  Users,
+  ShieldCheck,
+  Wallet,
   Wrench
 } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 
 interface OutletContext {
@@ -29,6 +31,7 @@ interface OutletContext {
 const Dashboard = () => {
   const { sidebarOpen, setSidebarOpen, currentPageInfo } = useOutletContext<OutletContext>();
   const { jobs, customers, parts } = useRepairStore();
+  const [quickQuery, setQuickQuery] = useState('');
 
   const stats = useMemo(() => {
     const totalJobs = jobs.length;
@@ -38,6 +41,7 @@ const Dashboard = () => {
     const totalCustomers = customers.length;
     const totalParts = parts.length;
     const lowStockParts = parts.filter(p => p.stock <= (p.minStock || 5)).length;
+    const totalClaims = jobs.filter(j => (j.warrantyDays || 0) > 0).length;
 
     // Calculate percentages
     const pendingPercent = totalJobs > 0 ? Math.round((pendingJobs / totalJobs) * 100) : 0;
@@ -52,6 +56,7 @@ const Dashboard = () => {
       totalCustomers,
       totalParts,
       lowStockParts,
+      totalClaims,
       pendingPercent,
       inProgressPercent,
       completedPercent
@@ -72,6 +77,85 @@ const Dashboard = () => {
         };
       });
   }, [jobs, customers]);
+
+  // Parts totals for stock and value
+  const partsTotals = useMemo(() => {
+    const stock = parts.reduce((sum, p) => sum + (p.stock || 0), 0);
+    const value = parts.reduce((sum, p) => sum + ((p.stock || 0) * (p.cost || 0)), 0);
+    return { stock, value };
+  }, [parts]);
+
+  // Finance KPIs
+  const finance = useMemo(() => {
+    const now = new Date();
+    const isSameDay = (d: Date) => d.toDateString() === now.toDateString();
+    const isSameWeek = (d: Date) => {
+      const first = new Date(now);
+      first.setDate(now.getDate() - now.getDay());
+      const last = new Date(first); last.setDate(first.getDate() + 6);
+      return d >= first && d <= last;
+    };
+    const isSameMonth = (d: Date) => d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+
+    const paidJobs = jobs.filter(j => j.paymentStatus === 'paid');
+    const revenueToday = paidJobs.filter(j => j.completedAt && isSameDay(new Date(j.completedAt))).reduce((s, j) => s + (j.total || 0), 0);
+    const revenueWeek = paidJobs.filter(j => j.completedAt && isSameWeek(new Date(j.completedAt))).reduce((s, j) => s + (j.total || 0), 0);
+    const revenueMonth = paidJobs.filter(j => j.completedAt && isSameMonth(new Date(j.completedAt))).reduce((s, j) => s + (j.total || 0), 0);
+    const totalRevenue = paidJobs.reduce((s, j) => s + (j.total || 0), 0);
+
+    const unpaid = jobs.filter(j => j.paymentStatus !== 'paid');
+    const unpaidAmount = unpaid.reduce((s, j) => s + Math.max(0, (j.total || 0) - (j.deposit || 0)), 0);
+    const depositsOutstanding = jobs.reduce((s, j) => s + (j.deposit || 0), 0);
+
+    return { revenueToday, revenueWeek, revenueMonth, totalRevenue, unpaidAmount, depositsOutstanding };
+  }, [jobs]);
+
+  // Unpaid jobs list (top 5 by due amount)
+  const unpaidJobsList = useMemo(() => {
+    const enriched = jobs
+      .filter(j => j.paymentStatus !== 'paid')
+      .map(j => ({
+        ...j,
+        due: Math.max(0, (j.total || 0) - (j.deposit || 0)),
+      }))
+      .sort((a, b) => b.due - a.due)
+      .slice(0, 5);
+    return enriched;
+  }, [jobs]);
+
+  // Alerts
+  const alerts = useMemo(() => {
+    const now = new Date();
+    const daysBetween = (a: Date, b: Date) => Math.ceil((a.getTime() - b.getTime()) / 86400000);
+
+    const waitingParts = jobs.filter(j => j.status === 'waiting_parts');
+
+    // Overdue: jobs not completed older than 7 days since receivedAt/createdAt
+    const overdue = jobs.filter(j => !['done', 'delivered'].includes(j.status))
+      .filter(j => {
+        const base = new Date(j.receivedAt || j.createdAt);
+        return daysBetween(now, base) > 7;
+      });
+
+    // Warranty expiring within 7 days
+    const warrantyExpiring = jobs.filter(j => j.completedAt && (j.warrantyDays || 0) > 0).filter(j => {
+      const start = new Date(j.completedAt as Date);
+      const expire = new Date(start);
+      expire.setDate(expire.getDate() + (j.warrantyDays || 0));
+      const remaining = daysBetween(expire, now);
+      return remaining >= 0 && remaining <= 7;
+    }).map(j => ({
+      id: j.id,
+      customerId: j.customerId,
+      remainingDays: (() => {
+        const start = new Date(j.completedAt as Date);
+        const expire = new Date(start); expire.setDate(expire.getDate() + (j.warrantyDays || 0));
+        return Math.max(0, Math.ceil((expire.getTime() - now.getTime()) / 86400000));
+      })()
+    }));
+
+    return { waitingParts, overdue, warrantyExpiring };
+  }, [jobs]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -94,7 +178,7 @@ const Dashboard = () => {
     switch (status) {
       case 'received': return 'รับงาน';
       case 'checking': return 'ตรวจสอบ';
-      case 'waiting_parts': return 'รออะไหล่';
+      case 'waiting_parts': return 'รอสินค้า';
       case 'in_progress': return 'กำลังซ่อม';
       case 'testing': return 'ทดสอบ';
       case 'done': return 'เสร็จสิ้น';
@@ -103,322 +187,309 @@ const Dashboard = () => {
     }
   };
 
+  const doQuickSearch = () => {
+    if (!quickQuery.trim()) return;
+    // เบื้องต้น: นำทางไปหน้า Jobs เพื่อค้นหาเพิ่มเติม
+    window.location.href = '/jobs';
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      {/* ===== HERO HEADER SECTION ===== */}
-      <section className="relative mb-16 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-indigo-600/10"></div>
+    <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
+      <div className="p-6 md:p-8 w-full">
+        {/* Header */}
 
-      </section>
-
-      {/* ===== QUICK ACTIONS SECTION ===== */}
-      <section className="mb-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {/* New Repair Job */}
-            <Link to="/jobs/new" className="group">
-              <div className="relative bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 rounded-3xl p-12 text-center text-white shadow-2xl hover:shadow-emerald-500/30 transform hover:-translate-y-4 transition-all duration-500 cursor-pointer overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="relative z-10">
-                  <div className="w-24 h-24 bg-white/20 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-white/30 group-hover:scale-110 transition-all duration-300">
-                    <Plus className="w-12 h-12" />
-                  </div>
-                  <h3 className="text-3xl font-bold mb-4">แจ้งซ่อมใหม่</h3>
-                  <p className="text-white/90 text-lg leading-relaxed thai-text">สร้างงานซ่อมใหม่สำหรับลูกค้า</p>
-                </div>
-              </div>
+        {/* Page Header - gradient bar with action buttons */}
+        <div className="rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+              <Wrench className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-lg md:text-xl font-bold">หน้าแรก</div>
+              <div className="text-white/90 thai-text text-sm md:text-base">ภาพรวมและทางลัดการทำงานในระบบ</div>
+            </div>
+          </div>
+          <div className="hidden sm:flex items-center gap-3">
+            <Link to="/jobs/new">
+              <Button className="rounded-xl bg-green-600 hover:bg-green-700 text-white border border-green-600 px-4 py-2 shadow-lg">
+                <Plus className="w-4 h-4 mr-2" /> แจ้งซ่อมใหม่
+              </Button>
             </Link>
-            
-            {/* View All Jobs */}
-            <Link to="/jobs" className="group">
-              <div className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-3xl p-12 text-center text-white shadow-2xl hover:shadow-blue-500/30 transform hover:-translate-y-4 transition-all duration-500 cursor-pointer overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="relative z-10">
-                  <div className="w-24 h-24 bg-white/20 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-white/30 group-hover:scale-110 transition-all duration-300">
-                    <Wrench className="w-12 h-12" />
-                  </div>
-                  <h3 className="text-3xl font-bold mb-4">รายการแจ้งซ่อม</h3>
-                  <p className="text-white/90 text-lg leading-relaxed thai-text">ดูและจัดการงานซ่อมทั้งหมด</p>
-                </div>
-              </div>
+            <Link to="/jobs">
+              <Button className="rounded-xl bg-orange-600 hover:bg-orange-700 text-white border border-orange-600 px-4 py-2 shadow-lg">
+                <Wrench className="w-4 h-4 mr-2" /> รายการแจ้งซ่อม
+              </Button>
             </Link>
-            
-            {/* Price Calculator */}
-            <Link to="/pricing" className="group">
-              <div className="relative bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-3xl p-12 text-center text-white shadow-2xl hover:shadow-purple-500/30 transform hover:-translate-y-4 transition-all duration-500 cursor-pointer overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="relative z-10">
-                  <div className="w-24 h-24 bg-white/20 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-white/30 group-hover:scale-110 transition-all duration-300">
-                    <Calculator className="w-12 h-12" />
-                  </div>
-                  <h3 className="text-3xl font-bold mb-4">คำนวณราคา</h3>
-                  <p className="text-white/90 text-lg leading-relaxed thai-text">คำนวณราคาและสร้างใบเสนอราคา</p>
-                </div>
-              </div>
+            <Link to="/pricing">
+              <Button className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white border border-indigo-600 px-4 py-2 shadow-lg">
+                <Calculator className="w-4 h-4 mr-2" /> คำนวณราคา
+              </Button>
             </Link>
           </div>
         </div>
-      </section>
 
-      {/* ===== WORK STATUS OVERVIEW SECTION ===== */}
-      <section className="mb-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-4 mb-10">
-            <div className="w-3 h-12 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full shadow-xl"></div>
-            <h2 className="text-4xl font-bold text-foreground">ภาพรวมสถานะงานซ่อม</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+      {/* ===== DASHBOARD CARDS (requested set) ===== */}
+      <section className="mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Jobs */}
-            <Card className="group relative overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950/50 dark:to-indigo-950/50">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-5">
-                <CardTitle className="text-lg font-semibold text-blue-700 dark:text-blue-300">งานทั้งหมด</CardTitle>
-                <div className="p-4 bg-blue-500/15 rounded-2xl group-hover:bg-blue-500/25 transition-all duration-300">
-                  <Wrench className="h-7 w-7 text-blue-600 dark:text-blue-400" />
+            <Card onClick={() => (window.location.href = '/jobs')} className="rounded-2xl bg-white/90 backdrop-blur-sm border border-blue-200/60 dark:border-blue-800/40 shadow-lg h-full min-h-[140px] transition-all hover:shadow-xl hover:-translate-y-[2px] cursor-pointer">
+              <CardContent className="p-5 h-full">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="text-sm text-muted-foreground thai-text">งานทั้งหมด</div>
+                    <div className="text-4xl font-extrabold text-blue-700 mt-2">{stats.totalJobs}</div>
+                    <div className="text-sm text-muted-foreground thai-text mt-1">รายการ</div>
+                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md">
+                    <Wrench className="w-5 h-5" />
+                  </div>
                 </div>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-5xl font-bold text-blue-700 dark:text-blue-300 mb-3">{stats.totalJobs}</div>
-                <p className="text-base text-blue-600/70 dark:text-blue-400/70 thai-text">รายการงานทั้งหมด</p>
               </CardContent>
             </Card>
 
-            {/* Pending Jobs */}
-            <Card className="group relative overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-950/50 dark:to-orange-950/50">
-              <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-5">
-                <CardTitle className="text-lg font-semibold text-amber-700 dark:text-amber-300">รอดำเนินการ</CardTitle>
-                <div className="p-4 bg-amber-500/15 rounded-2xl group-hover:bg-amber-500/25 transition-all duration-300">
-                  <Clock className="h-7 w-7 text-amber-600 dark:text-amber-400" />
+            {/* In Progress */}
+            <Card onClick={() => (window.location.href = '/jobs')} className="rounded-2xl bg-white/90 backdrop-blur-sm border border-indigo-200/60 dark:border-indigo-800/40 shadow-lg h-full min-h-[140px] transition-all hover:shadow-xl hover:-translate-y-[2px] cursor-pointer">
+              <CardContent className="p-5 h-full">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="text-sm text-muted-foreground thai-text">กำลังซ่อม</div>
+                    <div className="text-4xl font-extrabold text-indigo-700 mt-2">{stats.inProgressJobs}</div>
+                    <div className="text-sm text-muted-foreground thai-text mt-1">งาน</div>
+                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
+                    <Activity className="w-5 h-5" />
+                  </div>
                 </div>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-5xl font-bold text-amber-700 dark:text-amber-300 mb-3">{stats.pendingJobs}</div>
-                <p className="text-base text-amber-600/70 dark:text-amber-400/70 thai-text">{stats.pendingPercent}% ของงานทั้งหมด</p>
               </CardContent>
             </Card>
 
-            {/* In Progress Jobs */}
-            <Card className="group relative overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-indigo-50 to-purple-100 dark:from-indigo-950/50 dark:to-purple-950/50">
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-5">
-                <CardTitle className="text-lg font-semibold text-indigo-700 dark:text-indigo-300">กำลังดำเนินการ</CardTitle>
-                <div className="p-4 bg-indigo-500/15 rounded-2xl group-hover:bg-indigo-500/25 transition-all duration-300">
-                  <Activity className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
+            {/* Low Stock */}
+            <Card onClick={() => (window.location.href = '/parts')} className="rounded-2xl bg-white/90 backdrop-blur-sm border border-rose-200/60 dark:border-rose-800/40 shadow-lg h-full min-h-[140px] transition-all hover:shadow-xl hover:-translate-y-[2px] cursor-pointer">
+              <CardContent className="p-5 h-full">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="text-sm text-muted-foreground thai-text">สต็อกต่ำ</div>
+                    <div className="text-4xl font-extrabold text-rose-700 mt-2">{stats.lowStockParts}</div>
+                    <div className="text-sm text-muted-foreground thai-text mt-1">รายการ</div>
+                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center shadow-md">
+                    <AlertTriangle className="w-5 h-5" />
+                  </div>
                 </div>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-5xl font-bold text-indigo-700 dark:text-indigo-300 mb-3">{stats.inProgressJobs}</div>
-                <p className="text-base text-indigo-600/70 dark:text-indigo-400/70 thai-text">{stats.inProgressPercent}% ของงานทั้งหมด</p>
               </CardContent>
             </Card>
 
-            {/* Completed Jobs */}
-            <Card className="group relative overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-emerald-50 to-green-100 dark:from-emerald-950/50 dark:to-green-950/50">
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-5">
-                <CardTitle className="text-lg font-semibold text-emerald-700 dark:text-emerald-300">เสร็จสิ้น</CardTitle>
-                <div className="p-4 bg-emerald-500/15 rounded-2xl group-hover:bg-emerald-500/25 transition-all duration-300">
-                  <CheckCircle className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
+            {/* Total Claims */}
+            <Card onClick={() => (window.location.href = '/claims')} className="rounded-2xl bg-white/90 backdrop-blur-sm border border-violet-200/60 dark:border-violet-800/40 shadow-lg h-full min-h-[140px] transition-all hover:shadow-xl hover:-translate-y-[2px] cursor-pointer">
+              <CardContent className="p-5 h-full">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="text-sm text-muted-foreground thai-text">เครมทั้งหมด</div>
+                    <div className="text-4xl font-extrabold text-violet-700 mt-2">{stats.totalClaims}</div>
+                    <div className="text-sm text-muted-foreground thai-text mt-1">รายการ</div>
+                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-violet-600 text-white flex items-center justify-center shadow-md">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
                 </div>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-5xl font-bold text-emerald-700 dark:text-emerald-300 mb-3">{stats.completedJobs}</div>
-                <p className="text-base text-emerald-600/70 dark:text-emerald-400/70 thai-text">{stats.completedPercent}% ของงานทั้งหมด</p>
               </CardContent>
             </Card>
+
           </div>
+      </section>
+
+      {/* ===== FINANCE KPI SECTION ===== */}
+      <section className="mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Card className="rounded-2xl bg-white/90 border border-emerald-200/60 shadow-lg h-full min-h-[120px]">
+            <CardContent className="p-5 flex items-start justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground thai-text">รายรับวันนี้</div>
+                <div className="text-3xl font-extrabold text-emerald-700 mt-1">{formatCurrency(finance.revenueToday)}</div>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center"><Wallet className="w-5 h-5" /></div>
+            </CardContent>
+          </Card>
+          <Card className="rounded-2xl bg-white/90 border border-indigo-200/60 shadow-lg h-full min-h-[120px]">
+            <CardContent className="p-5 flex items-start justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground thai-text">รายรับสัปดาห์นี้</div>
+                <div className="text-3xl font-extrabold text-indigo-700 mt-1">{formatCurrency(finance.revenueWeek)}</div>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center"><Wallet className="w-5 h-5" /></div>
+            </CardContent>
+          </Card>
+          <Card className="rounded-2xl bg-white/90 border border-purple-200/60 shadow-lg h-full min-h-[120px]">
+            <CardContent className="p-5 flex items-start justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground thai-text">รายรับเดือนนี้</div>
+                <div className="text-3xl font-extrabold text-purple-700 mt-1">{formatCurrency(finance.revenueMonth)}</div>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center"><Wallet className="w-5 h-5" /></div>
+            </CardContent>
+          </Card>
+          <Card className="rounded-2xl bg-white/90 border border-slate-200/60 shadow-lg h-full min-h-[120px]">
+            <CardContent className="p-5 flex items-start justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground thai-text">รายรับรวม</div>
+                <div className="text-3xl font-extrabold text-slate-700 mt-1">{formatCurrency(finance.totalRevenue)}</div>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-slate-600 text-white flex items-center justify-center"><Wallet className="w-5 h-5" /></div>
+            </CardContent>
+          </Card>
+          <Card className="rounded-2xl bg-white/90 border border-amber-200/60 shadow-lg h-full min-h-[120px]">
+            <CardContent className="p-5 flex items-start justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground thai-text">ยอดค้างชำระ</div>
+                <div className="text-3xl font-extrabold text-amber-600 mt-1">{formatCurrency(finance.unpaidAmount)}</div>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center"><Clock className="w-5 h-5" /></div>
+            </CardContent>
+          </Card>
+          <Card className="rounded-2xl bg-white/90 border border-slate-200/60 shadow-lg h-full min-h-[120px]">
+            <CardContent className="p-5 flex items-start justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground thai-text">มัดจำคงค้าง (รวม)</div>
+                <div className="text-3xl font-extrabold text-slate-700 mt-1">{formatCurrency(finance.depositsOutstanding)}</div>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-slate-600 text-white flex items-center justify-center"><Wallet className="w-5 h-5" /></div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
-      {/* ===== BUSINESS METRICS SECTION ===== */}
-      <section className="mb-20 px-6">
-        <div className="max-w-6xl mx-auto">       
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Customers */}
-            <Card className="group relative overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-cyan-50 to-blue-100 dark:from-cyan-950/50 dark:to-blue-950/50">
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-5">
-                <CardTitle className="text-lg font-semibold text-cyan-700 dark:text-cyan-300">ลูกค้า</CardTitle>
-                <div className="p-4 bg-cyan-500/15 rounded-2xl group-hover:bg-cyan-500/25 transition-all duration-300">
-                  <Users className="h-7 w-7 text-cyan-600 dark:text-cyan-400" />
-                </div>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-5xl font-bold text-cyan-700 dark:text-cyan-300 mb-3">{stats.totalCustomers}</div>
-                <p className="text-base text-cyan-600/70 dark:text-cyan-400/70 thai-text">คน</p>
-              </CardContent>
-            </Card>
+      {/* ===== ALERTS + STOCK/WARRANTY ===== */}
+      <section className="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Alerts */}
+        <Card className="rounded-2xl border-0 shadow-xl bg-white/95">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-rose-600" /> แจ้งเตือนสำคัญ</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="p-3 rounded-xl border border-rose-200/60 bg-rose-50/60 flex items-center justify-between">
+              <div className="thai-text">รออะไหล่</div>
+              <div className="font-bold text-rose-700">{alerts.waitingParts.length}</div>
+            </div>
+            <div className="p-3 rounded-xl border border-amber-200/60 bg-amber-50/60 flex items-center justify-between">
+              <div className="thai-text">งานค้างเกิน 7 วัน</div>
+              <div className="font-bold text-amber-700">{alerts.overdue.length}</div>
+            </div>
+            <div className="p-3 rounded-xl border border-emerald-200/60 bg-emerald-50/60 flex items-center justify-between">
+              <div className="thai-text">ประกันใกล้หมด (≤ 7 วัน)</div>
+              <div className="font-bold text-emerald-700">{alerts.warrantyExpiring.length}</div>
+            </div>
+          </CardContent>
+        </Card>
 
-            {/* Parts */}
-            <Card className="group relative overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-violet-50 to-purple-100 dark:from-violet-950/50 dark:to-purple-950/50">
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-5">
-                <CardTitle className="text-lg font-semibold text-violet-700 dark:text-violet-300">อะไหล่</CardTitle>
-                <div className="p-4 bg-violet-500/15 rounded-2xl group-hover:bg-violet-500/25 transition-all duration-300">
-                  <Package className="h-7 w-7 text-violet-600 dark:text-violet-400" />
+        {/* Unpaid jobs list */}
+        <Card className="rounded-2xl border-0 shadow-xl bg-white/95">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Wallet className="w-5 h-5 text-amber-600" /> งานที่ยังไม่ชำระ</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {unpaidJobsList.length > 0 ? (
+              unpaidJobsList.map(j => (
+                <div key={j.id} className="flex items-center justify-between p-3 rounded-lg border border-border/50">
+                  <div className="thai-text text-sm">
+                    <div className="font-medium">งาน {j.id}</div>
+                    <div className="text-xs text-muted-foreground">{customers.find(c => c.id === j.customerId)?.name || j.customerId}</div>
+                  </div>
+                  <div className="text-amber-700 font-semibold">{formatCurrency(j.due)}</div>
                 </div>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-5xl font-bold text-violet-700 dark:text-violet-300 mb-3">{stats.totalParts}</div>
-                <p className="text-base text-violet-600/70 dark:text-violet-400/70 thai-text">รายการ</p>
-              </CardContent>
-            </Card>
+              ))
+            ) : (
+              <div className="text-sm text-muted-foreground">ไม่มีงานค้างชำระ</div>
+            )}
+          </CardContent>
+        </Card>
 
-            {/* Low Stock Alert */}
-            <Card className="group relative overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-rose-50 to-pink-100 dark:from-rose-950/50 dark:to-pink-950/50">
-              <div className="absolute inset-0 bg-gradient-to-r from-rose-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-5">
-                <CardTitle className="text-lg font-semibold text-rose-700 dark:text-rose-300">สต็อกต่ำ</CardTitle>
-                <div className="p-4 bg-rose-500/15 rounded-2xl group-hover:bg-rose-500/25 transition-all duration-300">
-                  <AlertCircle className="h-7 w-7 text-rose-600 dark:text-rose-400" />
-                </div>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-5xl font-bold text-rose-700 dark:text-rose-300 mb-3">{stats.lowStockParts}</div>
-                <p className="text-base text-rose-600/70 dark:text-rose-400/70 thai-text">รายการ</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        {/* Warranty expiring list */}
+        <Card className="rounded-2xl border-0 shadow-xl bg-white/95">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-emerald-600" /> รับประกันใกล้หมด</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {alerts.warrantyExpiring.slice(0,5).map(w => (
+              <div key={w.id} className="flex items-center justify-between p-3 rounded-lg border border-border/50">
+                <div className="thai-text text-sm">งาน {w.id}</div>
+                <div className="text-emerald-700 font-semibold">เหลือ {w.remainingDays} วัน</div>
+              </div>
+            ))}
+            {alerts.warrantyExpiring.length === 0 && (
+              <div className="text-sm text-muted-foreground">ยังไม่มีงานที่ใกล้หมดประกัน</div>
+            )}
+          </CardContent>
+        </Card>
       </section>
 
       {/* ===== MAIN CONTENT SECTION ===== */}
-      <section className="px-6 pb-20">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* Recent Jobs - Enhanced Design */}
-            <div className="lg:col-span-2">
-              <Card className="group relative overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <CardHeader className="relative z-10 border-b border-slate-200/50 dark:border-slate-700/50 bg-gradient-to-r from-slate-50/80 to-blue-50/80 dark:from-slate-800/80 dark:to-blue-950/80">
-                  <CardTitle className="flex items-center gap-4 text-foreground">
-                    <div className="w-3 h-12 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full shadow-lg"></div>
-                    <div className="flex items-center gap-3">
-                      <Activity className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                      <span className="text-3xl font-bold">งานล่าสุด</span>
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="relative z-10 p-8">
-                  {recentJobs.length > 0 ? (
-                    <div className="space-y-6">
-                      {recentJobs.map((job, index) => (
-                        <div key={job.id} className="group/item p-6 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 hover:border-blue-300/50 hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 dark:hover:from-blue-950/30 dark:hover:to-indigo-950/30 transition-all duration-300 shadow-sm hover:shadow-md">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-6">
-                              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover/item:scale-110 transition-transform duration-300">
-                                {index + 1}
-                              </div>
-                              <div>
-                                <p className="font-semibold text-xl text-foreground group-hover/item:text-blue-600 dark:group-hover/item:text-blue-400 transition-colors">
-                                  {job.customerName}
-                                </p>
-                                <p className="text-lg text-muted-foreground">{job.deviceModel}</p>
-                              </div>
-                            </div>
-                            <div className="flex flex-col items-end gap-3">
-                              <Badge className={`${getStatusColor(job.status)} font-medium text-base px-4 py-2 rounded-full`}>
-                                {getStatusText(job.status)}
-                              </Badge>
-                              <span className="text-base text-muted-foreground">
-                                {new Date(job.createdAt).toLocaleDateString('th-TH')}
-                              </span>
-                            </div>
+      <section className="pb-12 grid grid-cols-1 lg:grid-cols-3 gap-10">
+        {/* Recent Jobs - Enhanced Design */}
+        <div className="lg:col-span-2">
+          <Card className="group relative overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <CardHeader className="relative z-10 bg-gradient-to-r from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-b border-border/50">
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Activity className="h-6 w-6 text-primary" />
+                  <span className="text-2xl md:text-3xl font-bold">งานซ่อมล่าสุด</span>
+                </div>
+                <Link to="/jobs">
+                  <Button variant="outline" className="rounded-xl h-9 px-4 text-sm thai-text">ดูทั้งหมด</Button>
+                </Link>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="relative z-10 p-6">
+              {recentJobs.length > 0 ? (
+                <div className="space-y-4">
+                  {recentJobs.map((job, index) => (
+                    <div key={job.id} className="p-4 rounded-xl border border-border/40 bg-white/90 dark:bg-slate-800/60 shadow-sm hover:shadow-md transition-all">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-semibold">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-base thai-text">{job.customerName}</div>
+                            <div className="text-xs text-muted-foreground thai-text">{job.deviceModel}</div>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-20 text-muted-foreground">
-                      <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-3xl flex items-center justify-center">
-                        <Package className="w-12 h-12 text-blue-500/50 dark:text-blue-400/50" />
+                        <div className="text-right">
+                          <Badge className={`${getStatusColor(job.status)} thai-text px-3 py-1 rounded-full text-xs`}>{getStatusText(job.status)}</Badge>
+                          <div className="text-xs text-muted-foreground mt-2">{new Date(job.createdAt).toLocaleDateString('th-TH')}</div>
+                        </div>
                       </div>
-                      <p className="text-2xl font-medium thai-text mb-3">ยังไม่มีงานซ่อม</p>
-                      <p className="text-lg thai-text">เริ่มต้นด้วยการสร้างงานซ่อมใหม่</p>
                     </div>
-                  )}
-                  <div className="mt-10 pt-8 border-t border-slate-200/50 dark:border-slate-700/50">
-                    <Link to="/jobs">
-                      <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg">
-                        <Wrench className="w-6 h-6 mr-3" />
-                        ดูงานทั้งหมด
-                      </Button>
-                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center">
+                    <Package className="w-8 h-8 text-blue-500/50 dark:text-blue-400/50" />
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                  <p className="text-lg font-medium thai-text mb-1">ยังไม่มีงานซ่อม</p>
+                  <p className="text-sm thai-text">เริ่มต้นด้วยการสร้างงานซ่อมใหม่</p>
+                </div>
+              )}
 
-            {/* Quick Actions Sidebar - Enhanced Design */}
-            <div className="space-y-8">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-2 h-10 bg-gradient-to-b from-emerald-500 to-blue-500 rounded-full shadow-lg"></div>
-                <h3 className="text-2xl font-bold text-foreground">การดำเนินการด่วน</h3>
-              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-              <div className="space-y-6">
-                {/* New Repair Job */}
-                <Link to="/jobs/new">
-                  <div className="group p-6 text-center bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl text-white shadow-lg hover:shadow-2xl hover:shadow-emerald-500/25 transform hover:-translate-y-2 transition-all duration-300 cursor-pointer">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-2xl flex items-center justify-center group-hover:bg-white/30 group-hover:scale-110 transition-all duration-300">
-                      <Plus className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3">แจ้งซ่อมใหม่</h3>
-                    <p className="text-white/90 text-base thai-text leading-relaxed">สร้างงานซ่อมใหม่สำหรับลูกค้า</p>
-                  </div>
-                </Link>
-
-                {/* View All Jobs */}
-                <Link to="/jobs">
-                  <div className="group p-6 text-center bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl text-white shadow-lg hover:shadow-2xl hover:shadow-blue-500/25 transform hover:-translate-y-2 transition-all duration-300 cursor-pointer">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-2xl flex items-center justify-center group-hover:bg-white/30 group-hover:scale-110 transition-all duration-300">
-                      <Wrench className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3">รายการซ่อม</h3>
-                    <p className="text-white/90 text-base thai-text leading-relaxed">ดูและจัดการงานซ่อมทั้งหมด</p>
-                  </div>
-                </Link>
-
-                {/* Customers */}
-                <Link to="/customers">
-                  <div className="group p-6 text-center bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl text-white shadow-lg hover:shadow-2xl hover:shadow-amber-500/25 transform hover:-translate-y-2 transition-all duration-300 cursor-pointer">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-2xl flex items-center justify-center group-hover:bg-white/30 group-hover:scale-110 transition-all duration-300">
-                      <Users className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3">ลูกค้า</h3>
-                    <p className="text-white/90 text-base thai-text leading-relaxed">จัดการข้อมูลลูกค้า</p>
-                  </div>
-                </Link>
-
-                {/* Parts */}
-                <Link to="/parts">
-                  <div className="group p-6 text-center bg-gradient-to-br from-violet-500 to-purple-500 rounded-2xl text-white shadow-lg hover:shadow-2xl hover:shadow-violet-500/25 transform hover:-translate-y-2 transition-all duration-300 cursor-pointer">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-2xl flex items-center justify-center group-hover:bg-white/30 group-hover:scale-110 transition-all duration-300">
-                      <Package className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3">อะไหล่</h3>
-                    <p className="text-white/90 text-base thai-text leading-relaxed">จัดการสต็อกอะไหล่</p>
-                  </div>
-                </Link>
-
-                {/* Price Calculator */}
-                <Link to="/pricing">
-                  <div className="group p-6 text-center bg-gradient-to-br from-cyan-500 to-blue-500 rounded-2xl text-white shadow-lg hover:shadow-2xl hover:shadow-cyan-500/25 transform hover:-translate-y-2 transition-all duration-300 cursor-pointer">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-2xl flex items-center justify-center group-hover:bg-white/30 group-hover:scale-110 transition-all duration-300">
-                      <Calculator className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3">คำนวณราคา</h3>
-                    <p className="text-white/90 text-base thai-text leading-relaxed">คำนวณราคางานซ่อมและอะไหล่</p>
-                  </div>
-                </Link>
-              </div>
-            </div>
-          </div>
+        {/* Calendar placeholder */}
+        <div>
+          <Card className="rounded-2xl shadow-xl border-0 bg-white/95">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><CalendarDays className="w-5 h-5 text-indigo-600" /> ปฏิทิน/นัดหมาย (ตัวอย่าง)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm text-muted-foreground thai-text">พื้นที่สำหรับแสดงนัดรับเครื่อง/ติดตามลูกค้า/สั่งอะไหล่ ของวันนี้และสัปดาห์นี้</div>
+            </CardContent>
+          </Card>
         </div>
       </section>
+      </div>
     </div>
   );
 };

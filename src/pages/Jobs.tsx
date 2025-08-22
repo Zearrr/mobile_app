@@ -8,21 +8,21 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useRepairStore } from '@/stores/useRepairStore';
 import type { JobStatus, PaymentStatus } from '@/types';
 import {
-  AlertTriangle,
-  Calendar,
-  CheckCircle,
-  Clock,
-  CreditCard,
-  Edit,
-  Eye,
-  Filter,
-  Plus,
-  Printer,
-  RotateCcw,
-  Search,
-  Trash2,
-  TrendingUp,
-  Wrench
+    AlertTriangle,
+    Calendar,
+    CheckCircle,
+    Clock,
+    CreditCard,
+    Edit,
+    Eye,
+    Filter,
+    Plus,
+    Printer,
+    RotateCcw,
+    Search,
+    Trash2,
+    TrendingUp,
+    Wrench
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
@@ -219,10 +219,6 @@ const Jobs = () => {
 
 				{/* Additional Stats (colored tiles) */}
 				<div className="mb-8">
-					<div className="flex items-center gap-3 mb-4">
-						<div className="w-1 h-8 bg-gradient-to-b from-warning to-primary-dark rounded-full" />
-						<h3 className="text-xl font-semibold text-foreground">สถานะโดยละเอียด</h3>
-					</div>
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 						<Card className="rounded-2xl border border-border/50 shadow-lg">
 							<CardContent className="p-4">
@@ -271,103 +267,11 @@ const Jobs = () => {
 					</div>
 				</div>
 
-				{/* Filter Section */}
+
+				{/* Results Summary + Filters in header */}
 				<Card className="glass-card">
 					<CardHeader>
-						<CardTitle className="flex items-center gap-2 thai-text">
-							<Filter className="h-5 w-5 text-primary" />
-							ตัวกรองและค้นหา
-						</CardTitle>
-					</CardHeader>
-					<CardContent className="space-y-6">
-						{/* Search Row */}
-						<div className="filter-row">
-							<div className="lg:col-span-2">
-								<Input 
-									placeholder="ค้นหา: รหัสงาน, ลูกค้า, เบอร์, รุ่น, อาการเสีย" 
-									value={search} 
-									onChange={(e) => setSearch(e.target.value)} 
-									className="thai-text"
-								/>
-							</div>
-							<div>
-								<Select value={status} onValueChange={(v) => setStatus(v as any)}>
-									<SelectTrigger>
-										<SelectValue placeholder="สถานะงาน" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">สถานะทั้งหมด</SelectItem>
-										<SelectItem value="received">รับงานแล้ว</SelectItem>
-										<SelectItem value="checking">กำลังตรวจเช็ค</SelectItem>
-										<SelectItem value="waiting_parts">รออะไหล่</SelectItem>
-										<SelectItem value="in_progress">กำลังซ่อม</SelectItem>
-										<SelectItem value="testing">ทดสอบ</SelectItem>
-										<SelectItem value="done">ซ่อมเสร็จ</SelectItem>
-										<SelectItem value="delivered">ส่งมอบแล้ว</SelectItem>
-										<SelectItem value="returned">รับคืนแล้ว</SelectItem>
-										<SelectItem value="cancelled">ยกเลิก</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-							<div>
-								<Select value={payment} onValueChange={(v) => setPayment(v as any)}>
-									<SelectTrigger>
-										<SelectValue placeholder="สถานะชำระ" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">ชำระทั้งหมด</SelectItem>
-										<SelectItem value="unpaid">ยังไม่ชำระ</SelectItem>
-										<SelectItem value="deposit">มัดจำ</SelectItem>
-										<SelectItem value="paid">ชำระแล้ว</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-						</div>
-
-						{/* Date Range Row */}
-						<div className="filter-row">
-							<div>
-								<label className="text-sm font-medium thai-text mb-2 block">วันที่เริ่ม</label>
-								<div className="relative">
-									<Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-									<Input 
-										type="date" 
-										value={dateFrom} 
-										onChange={(e) => setDateFrom(e.target.value)}
-										className="pl-10 thai-text"
-									/>
-								</div>
-							</div>
-							<div>
-								<label className="text-sm font-medium thai-text mb-2 block">วันที่สิ้นสุด</label>
-								<div className="relative">
-									<Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-									<Input 
-										type="date" 
-										value={dateTo} 
-										onChange={(e) => setDateTo(e.target.value)}
-										className="pl-10 thai-text"
-									/>
-								</div>
-							</div>
-							<div className="lg:col-span-2 flex gap-2 items-end">
-								<Button variant="outline" onClick={resetFilters} className="flex-1 btn-outline">
-									<RotateCcw className="w-4 h-4 mr-2" />
-									ล้าง
-								</Button>
-								<Button onClick={applyFilters} className="flex-1 btn-primary">
-									<Search className="w-4 h-4 mr-2" />
-									ค้นหา
-								</Button>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-
-				{/* Results Summary */}
-				<Card className="glass-card">
-					<CardHeader>
-						<div className="flex items-center justify-between">
+						<div className="flex items-center justify-between gap-4 flex-wrap">
 							<CardTitle className="thai-text">รายการที่พบ ({filteredStats.count})</CardTitle>
 							<div className="flex gap-6 text-sm">
 								<div className="text-center">
@@ -384,6 +288,71 @@ const Jobs = () => {
 								</div>
 							</div>
 						</div>
+						<div className="mt-4 rounded-xl border border-border p-4 bg-white/60">
+							<div className="flex items-center gap-2 mb-4">
+								<Filter className="h-5 w-5 text-primary" />
+								<span className="thai-text font-medium">ตัวกรองและค้นหา</span>
+							</div>
+						<div className="flex flex-col md:flex-row md:items-end md:gap-3 gap-4">
+							<Input placeholder="ค้นหา: รหัสงาน, ลูกค้า, เบอร์, รุ่น, อาการเสีย" value={search} onChange={(e) => setSearch(e.target.value)} className="thai-text md:flex-[2]" />
+							<div className="md:w-56">
+								<Select value={status} onValueChange={(v) => setStatus(v as any)}>
+									<SelectTrigger>
+										<SelectValue placeholder="สถานะงาน" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="all">สถานะทั้งหมด</SelectItem>
+										<SelectItem value="received">รับงานแล้ว</SelectItem>
+										<SelectItem value="checking">กำลังตรวจเช็ค</SelectItem>
+										                <SelectItem value="waiting_parts">รอสินค้า</SelectItem>
+										<SelectItem value="in_progress">กำลังซ่อม</SelectItem>
+										<SelectItem value="testing">ทดสอบ</SelectItem>
+										<SelectItem value="done">ซ่อมเสร็จ</SelectItem>
+										<SelectItem value="delivered">ส่งมอบแล้ว</SelectItem>
+										<SelectItem value="returned">รับคืนแล้ว</SelectItem>
+										<SelectItem value="cancelled">ยกเลิก</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
+							<div className="md:w-56">
+								<Select value={payment} onValueChange={(v) => setPayment(v as any)}>
+									<SelectTrigger>
+										<SelectValue placeholder="สถานะชำระ" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="all">ชำระทั้งหมด</SelectItem>
+										<SelectItem value="unpaid">ยังไม่ชำระ</SelectItem>
+										<SelectItem value="deposit">มัดจำ</SelectItem>
+										<SelectItem value="paid">ชำระแล้ว</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
+							<div className="md:w-44">
+								<label className="text-sm font-medium thai-text mb-2 block md:mb-1">วันที่เริ่ม</label>
+								<div className="relative">
+									<Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+									<Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="pl-10 thai-text" />
+								</div>
+							</div>
+							<div className="md:w-44">
+								<label className="text-sm font-medium thai-text mb-2 block md:mb-1">วันที่สิ้นสุด</label>
+								<div className="relative">
+									<Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+									<Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="pl-10 thai-text" />
+								</div>
+							</div>
+							<div className="flex gap-2 md:w-64">
+								<Button variant="outline" onClick={resetFilters} className="flex-1 btn-outline">
+									<RotateCcw className="w-4 h-4 mr-2" />
+									ล้าง
+								</Button>
+								<Button onClick={applyFilters} className="flex-1 btn-primary">
+									<Search className="w-4 h-4 mr-2" />
+									ค้นหา
+								</Button>
+							</div>
+						</div>
+					</div>
 					</CardHeader>
 					<CardContent>
 						{items.length === 0 ? (
@@ -438,7 +407,7 @@ const Jobs = () => {
 															<span>฿{totalCost.toLocaleString()}</span>
 															{totalCost > 0 && (
 																<Badge variant="outline" className="text-xs">
-																	จากอะไหล่
+																	จากสินค้า
 																</Badge>
 															)}
 														</div>

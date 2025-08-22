@@ -10,6 +10,7 @@ import {
     Menu,
     Package,
     Settings,
+    ShieldCheck,
     Users,
     Wallet
 } from 'lucide-react';
@@ -23,12 +24,7 @@ const navigation = [
     icon: LayoutDashboard
   },
   {
-    name: 'ลูกค้า',
-    href: '/customers',
-    icon: Users
-  },
-  {
-    name: 'อะไหล่',
+    name: 'จัดการสินค้า',
     href: '/parts',
     icon: Package
   },
@@ -44,19 +40,16 @@ const navigation = [
     icon: Calculator
   },
   {
-    name: 'ผู้จำหน่าย',
-    href: '/suppliers',
-    icon: Users
-  },
-  {
     name: 'ใบสั่งซื้อ (PO)',
     href: '/po',
     icon: Package
   },
+  // หน้ารับของเข้าสต๊อกถูกลบออก
+
   {
-    name: 'รับของเข้าสต็อก',
-    href: '/gr',
-    icon: Package
+    name: 'รับประกัน',
+    href: '/warranty',
+    icon: ShieldCheck
   },
 
   {
@@ -136,7 +129,7 @@ export function Sidebar({ className }: SidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
+        <nav className="p-3 space-y-1.5 flex-1 overflow-y-auto">
           {navigation
             .filter(item => {
               return true;
@@ -150,8 +143,8 @@ export function Sidebar({ className }: SidebarProps) {
                 to={item.href}
                 end
                 className={({ isActive }) => cn(
-                  "flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 thai-text font-medium text-sm text-white/80",
-                  "hover:bg-white/10 hover:text-white hover:shadow-sm",
+                  "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 thai-text font-medium text-sm text-white/80",
+                  "hover:bg.white/10 hover:text-white hover:shadow-sm",
                   isActive && "bg-white/20 text-white shadow-md",
                   collapsed && "justify-center px-2"
                 )}
@@ -159,8 +152,7 @@ export function Sidebar({ className }: SidebarProps) {
                 {({ isActive }) => (
                   <>
                     <Icon className={cn(
-                      "flex-shrink-0 transition-all duration-300",
-                      isActive ? "w-6 h-6" : "w-5 h-5",
+                      "flex-shrink-0 transition-all duration-300 w-5 h-5",
                       isActive && "text-white"
                     )} />
                     {isExpanded && (

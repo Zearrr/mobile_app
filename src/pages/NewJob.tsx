@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -20,7 +20,8 @@ const newJobSchema = z.object({
   customer: z.object({
     name: z.string().min(1, 'กรุณากรอกชื่อลูกค้า'),
     phone: z.string().min(1, 'กรุณากรอกเบอร์โทร'),
-    lineId: z.string().optional()
+    lineId: z.string().optional(),
+    altPhone: z.string().optional()
   }),
   device: z.object({
     brand: z.string().min(1, 'กรุณากรอกยี่ห้อ'),
@@ -314,7 +315,7 @@ export function NewJob() {
     // Cast to any to avoid type mismatch between local RHF generics and Form wrapper types
     resolver: zodResolver(newJobSchema) as any,
     defaultValues: {
-      customer: { name: '', phone: '', lineId: '' },
+      customer: { name: '', phone: '', lineId: '', altPhone: '' },
       device: { brand: '', model: '', color: '', imei: '', serial: '' },
       lock: { type: 'none' as LockType, note: '' },
       details: { issueDesc: '', accessories: '', preCheck: '' },
@@ -338,7 +339,8 @@ export function NewJob() {
       const customer = existing || await createCustomer({
         name: data.customer.name,
         phone: data.customer.phone,
-        lineId: data.customer.lineId || ''
+        lineId: data.customer.lineId || '',
+        altPhone: data.customer.altPhone || ''
       });
 
       const total = Number(data.pricing.estimateParts) + Number(data.pricing.estimateLabor);
@@ -413,15 +415,14 @@ export function NewJob() {
                     <FormControl>
                       <Input inputMode="tel" autoComplete="tel" className="h-11" placeholder="เช่น 0891234567" {...field} />
                     </FormControl>
-                    <FormDescription className="thai-text">ใช้สำหรับค้นหาลูกค้าเดิมอัตโนมัติ</FormDescription>
                     <FormMessage className="thai-text" />
                   </FormItem>
                 )} />
-                <FormField control={form.control} name="customer.lineId" render={({ field }) => (
+                <FormField control={form.control} name="customer.altPhone" render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="thai-text">Line ID (ถ้ามี)</FormLabel>
+                    <FormLabel className="thai-text">เบอร์โทรสำรอง (ถ้ามี)</FormLabel>
                     <FormControl>
-                      <Input className="h-11" placeholder="line id" {...field} />
+                      <Input className="h-11" inputMode="tel" placeholder="เช่น 0891234567" {...field} />
                     </FormControl>
                   </FormItem>
                 )} />
@@ -587,7 +588,7 @@ export function NewJob() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <FormField control={form.control} name="pricing.estimateParts" render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="thai-text">อะไหล่ (บาท)</FormLabel>
+                    <FormLabel className="thai-text">สินค้า (บาท)</FormLabel>
                     <FormControl>
                       <Input className="h-11" type="number" min={0} step="1" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                     </FormControl>
@@ -607,7 +608,6 @@ export function NewJob() {
                     <FormControl>
                       <Input className="h-11" type="number" min={0} step="1" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                     </FormControl>
-                    <FormDescription className="thai-text">ไม่บังคับ หากไม่มีให้ใส่ 0</FormDescription>
                   </FormItem>
                 )} />
                 <div>

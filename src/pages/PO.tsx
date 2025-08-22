@@ -1,16 +1,17 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { formatCurrency } from '@/lib/utils';
 import { useRepairStore } from '@/stores/useRepairStore';
 import { PurchaseOrder } from '@/types';
-import { FileText } from 'lucide-react';
+import { FileText, Trash2, UserPlus } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 export default function POPage() {
-  const { suppliers, parts, loadSuppliers, loadParts, createPO } = useRepairStore();
+  const { suppliers, parts, loadSuppliers, loadParts, createPO, createSupplier, deleteSupplier } = useRepairStore();
   useEffect(() => { loadSuppliers(); loadParts(); }, []);
 
   const [supplierId, setSupplierId] = useState('');
@@ -18,6 +19,11 @@ export default function POPage() {
   const [rows, setRows] = useState<Array<{ partId: string; qty: number; unitCost: number }>>([]);
   const [query, setQuery] = useState('');
   const filteredParts = useMemo(() => parts.filter(p => (p.sku||'').toLowerCase().includes(query.toLowerCase()) || (p.name||'').toLowerCase().includes(query.toLowerCase())), [query, parts]);
+
+  // Dialog states for supplier management
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [newSupplier, setNewSupplier] = useState<{ name: string; phone?: string; lineId?: string; address?: string }>({ name: '' });
 
   const addPart = (partId: string) => {
     const exist = rows.find(r => r.partId === partId);
@@ -45,6 +51,21 @@ export default function POPage() {
     setRows([]); setSupplierId(''); setNote('');
   };
 
+  const handleCreateSupplier = async () => {
+    if (!newSupplier.name) return;
+    const s = await createSupplier(newSupplier as any);
+    setIsAddOpen(false);
+    setNewSupplier({ name: '' });
+    setSupplierId(s.id);
+  };
+
+  const handleDeleteSupplier = async () => {
+    if (!supplierId) return;
+    await deleteSupplier(supplierId);
+    setIsDeleteOpen(false);
+    setSupplierId('');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
       <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
@@ -56,7 +77,7 @@ export default function POPage() {
             </div>
             <div>
               <div className="text-xl md:text-2xl font-bold">ใบสั่งซื้อ (PO)</div>
-              <div className="text-white/90 thai-text text-sm md:text-base">สร้างใบสั่งซื้ออะไหล่จากผู้จำหน่าย</div>
+                              <div className="text-white/90 thai-text text-sm md:text-base">สร้างใบสั่งซื้อสินค้าจากผู้จำหน่าย</div>
             </div>
           </div>
         </div>
@@ -72,6 +93,14 @@ export default function POPage() {
               <option value="">-- เลือก --</option>
               {suppliers.map(s => (<option key={s.id} value={s.id}>{s.name}</option>))}
             </select>
+            <div className="flex gap-2 mt-2">
+              <Button size="sm" variant="outline" onClick={() => setIsAddOpen(true)}>
+                <UserPlus className="w-4 h-4 mr-2" /> เพิ่มผู้จำหน่าย
+              </Button>
+              <Button size="sm" variant="destructive" disabled={!supplierId} onClick={() => setIsDeleteOpen(true)}>
+                <Trash2 className="w-4 h-4 mr-2" /> ลบผู้จำหน่าย
+              </Button>
+            </div>
           </div>
           <div className="md:col-span-3">
             <Label className="thai-text">หมายเหตุ</Label>
@@ -79,6 +108,51 @@ export default function POPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog: Add Supplier */}
+      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="thai-text">เพิ่มผู้จำหน่าย</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <Label className="thai-text">ชื่อ</Label>
+              <Input value={newSupplier.name} onChange={(e)=> setNewSupplier({ ...newSupplier, name: e.target.value })} />
+            </div>
+            <div>
+              <Label className="thai-text">โทร</Label>
+              <Input value={newSupplier.phone || ''} onChange={(e)=> setNewSupplier({ ...newSupplier, phone: e.target.value })} />
+            </div>
+            <div>
+              <Label className="thai-text">Line</Label>
+              <Input value={newSupplier.lineId || ''} onChange={(e)=> setNewSupplier({ ...newSupplier, lineId: e.target.value })} />
+            </div>
+            <div>
+              <Label className="thai-text">ที่อยู่</Label>
+              <Input value={newSupplier.address || ''} onChange={(e)=> setNewSupplier({ ...newSupplier, address: e.target.value })} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={()=> setIsAddOpen(false)}>ยกเลิก</Button>
+            <Button className="btn-gradient" onClick={handleCreateSupplier}>บันทึก</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog: Delete Supplier */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="thai-text">ยืนยันการลบผู้จำหน่าย</DialogTitle>
+          </DialogHeader>
+          <div className="thai-text">คุณต้องการลบผู้จำหน่ายนี้ออกจากระบบหรือไม่? การลบจะไม่สามารถย้อนกลับได้</div>
+          <DialogFooter>
+            <Button variant="outline" onClick={()=> setIsDeleteOpen(false)}>ยกเลิก</Button>
+            <Button variant="destructive" onClick={handleDeleteSupplier}>ลบ</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Card className="glass-card">
         <CardHeader>

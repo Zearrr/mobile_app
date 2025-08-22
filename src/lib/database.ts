@@ -36,10 +36,10 @@ export class RepairDatabase extends Dexie {
   constructor() {
     super('RepairProDatabase');
     
-    // v2: expanded schema to cover full mobile shop
-    this.version(4).stores({
-      customers: 'id, name, phone, lineId, createdAt',
-      jobs: 'id, customerId, status, paymentStatus, receivedAt, dueAt, technician, brand, model',
+    // v6: add index on jobs.createdAt to support sorting/filtering by created date
+    this.version(6).stores({
+      customers: 'id, name, phone, altPhone, lineId, createdAt',
+      jobs: 'id, customerId, status, paymentStatus, receivedAt, dueAt, technician, brand, model, createdAt',
       parts: 'id, sku, name, forBrand, forModel, stock',
       payments: 'id, jobId, paidAt, method',
       settings: 'id',
@@ -142,7 +142,7 @@ export const seedDatabase = async () => {
     
     // Suppliers
     const suppliers: Supplier[] = [
-      { id: uid('S_'), name: 'ศูนย์อะไหล่มือถือไทย', phone: '02-555-1234', lineId: 'sparethai', address: 'บางกะปิ', createdAt: new Date() },
+      { id: uid('S_'), name: 'ศูนย์สินค้ามือถือไทย', phone: '02-555-1234', lineId: 'sparethai', address: 'บางกะปิ', createdAt: new Date() },
       { id: uid('S_'), name: 'Gadget Parts Co.,Ltd.', phone: '02-777-8888', createdAt: new Date() }
     ];
     await db.suppliers.bulkAdd(suppliers);
@@ -154,7 +154,11 @@ export const seedDatabase = async () => {
       { id: uid('P_'), sku: 'MI11-CAM', name: 'กล้องหลัง Mi 11', forBrand: 'Xiaomi', forModel: 'Mi 11', unit: 'ชิ้น', cost: 600, price: 950, stock: 4, createdAt: new Date(), updatedAt: new Date() },
       { id: uid('P_'), sku: 'IP12-BACK', name: 'ฝาหลัง iPhone 12', forBrand: 'Apple', forModel: 'iPhone 12', unit: 'ชิ้น', cost: 700, price: 1200, stock: 6, createdAt: new Date(), updatedAt: new Date() },
       { id: uid('P_'), sku: 'GEN-TEMPER', name: 'ฟิล์มกระจก', unit: 'แผ่น', cost: 20, price: 79, stock: 50, createdAt: new Date(), updatedAt: new Date() },
-      { id: uid('P_'), sku: 'USB-CABLE', name: 'สายชาร์จ USB-C', unit: 'เส้น', cost: 30, price: 99, stock: 30, createdAt: new Date(), updatedAt: new Date() }
+      { id: uid('P_'), sku: 'USB-CABLE', name: 'สายชาร์จ USB-C', unit: 'เส้น', cost: 30, price: 99, stock: 30, createdAt: new Date(), updatedAt: new Date() },
+      { id: uid('P_'), sku: 'BAT-IPHONE-15', name: 'แบตเตอรี่ iPhone 15', forBrand: 'Apple', forModel: 'iPhone 15', unit: 'ก้อน', cost: 1200, price: 1800, stock: 10, minStock: 3, createdAt: new Date(), updatedAt: new Date() },
+      { id: uid('P_'), sku: 'SCREEN-S23', name: 'จอ Samsung S23', forBrand: 'Samsung', forModel: 'Galaxy S23', unit: 'ชิ้น', cost: 35000, price: 45000, stock: 3, minStock: 1, createdAt: new Date(), updatedAt: new Date() },
+      { id: uid('P_'), sku: 'BAT-S23', name: 'แบตเตอรี่ Samsung S23', forBrand: 'Samsung', forModel: 'Galaxy S23', unit: 'ก้อน', cost: 2400, price: 3400, stock: 15, minStock: 5, createdAt: new Date(), updatedAt: new Date() },
+      { id: uid('P_'), sku: 'CASE-IPHONE', name: 'เคส iPhone 15 Pro', forBrand: 'Apple', forModel: 'iPhone 15 Pro', unit: 'ชิ้น', cost: 6000, price: 9900, stock: 8, minStock: 2, createdAt: new Date(), updatedAt: new Date() }
     ];
     
     await db.parts.bulkAdd(parts);
@@ -264,10 +268,54 @@ export const seedDatabase = async () => {
       { id: uid('PAY_'), jobId: job2Id, amount: 1500, method: 'transfer', note: 'ชำระเต็ม', paidAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000), createdAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000) }
     ]);
 
-    // Sales (2)
+    // Sales (3) - Sample data for sales history
     const sales: Sale[] = [
-      { id: uid('SO_'), date: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000), items: [ { sku: 'GEN-TEMPER', name: 'ฟิล์มกระจก', qty: 2, unitPrice: 79, cost: 20 } ], customerId: customers[0].id, method: 'cash', subtotal: 158, discount: 0, tax: 0, total: 158 },
-      { id: uid('SO_'), date: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000), items: [ { sku: 'USB-CABLE', name: 'สายชาร์จ USB-C', qty: 1, unitPrice: 99, cost: 30 } ], method: 'transfer', subtotal: 99, discount: 0, tax: 0, total: 99 }
+      { 
+        id: 'SAL-20250821-0017', 
+        date: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000), 
+        items: [ 
+          { sku: 'BAT-IPHONE-15', name: 'แบตเตอรี่ iPhone 15', qty: 1, unitPrice: 1800, cost: 1200 } 
+        ], 
+        customer: 'ลูกค้าทั่วไป',
+        customerPhone: '081-234-5678',
+        method: 'transfer', 
+        subtotal: 1800, 
+        discount: 0, 
+        tax: 0, 
+        total: 1800,
+        employee: 'admin'
+      },
+      { 
+        id: 'SAL-20250820-0016', 
+        date: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000), 
+        items: [ 
+          { sku: 'SCREEN-S23', name: 'จอ Samsung S23', qty: 1, unitPrice: 45000, cost: 35000 },
+          { sku: 'BAT-S23', name: 'แบตเตอรี่ Samsung S23', qty: 4, unitPrice: 3400, cost: 2400 }
+        ], 
+        customer: 'ลูกค้าทั่วไป',
+        customerPhone: '089-876-5432',
+        method: 'transfer', 
+        subtotal: 58600, 
+        discount: 0, 
+        tax: 0, 
+        total: 58500,
+        employee: 'admin'
+      },
+      { 
+        id: 'SAL-20250819-0015', 
+        date: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000), 
+        items: [ 
+          { sku: 'CASE-IPHONE', name: 'เคส iPhone 15 Pro', qty: 1, unitPrice: 9900, cost: 6000 } 
+        ], 
+        customer: 'ลูกค้าทั่วไป',
+        customerPhone: '082-345-6789',
+        method: 'cash', 
+        subtotal: 9900, 
+        discount: 0, 
+        tax: 0, 
+        total: 9900,
+        employee: 'admin'
+      }
     ];
     await db.sales.bulkAdd(sales);
 

@@ -104,7 +104,7 @@ export default function JobPrint() {
             <div className="heading">ข้อมูลลูกค้า</div>
             <div>ชื่อลูกค้า: {customer?.name}</div>
             <div>เบอร์: {customer?.phone}</div>
-            <div>Line: {customer?.lineId || '-'}</div>
+            <div>โทรสำรอง: {customer?.altPhone || '-'}</div>
           </div>
           <div className="box">
             <div className="heading">ข้อมูลเครื่อง</div>
@@ -125,7 +125,7 @@ export default function JobPrint() {
           </div>
           <div className="box">
             <div className="heading">สรุปค่าใช้จ่าย</div>
-            <div>อะไหล่: {formatCurrency(job.feeParts || 0)} (ต้นทุน {formatCurrency(job.costParts || 0)})</div>
+                            <div>สินค้า: {formatCurrency(job.feeParts || 0)} (ต้นทุน {formatCurrency(job.costParts || 0)})</div>
             <div>ค่าแรง: {formatCurrency(job.feeLabor || 0)} (ต้นทุน {formatCurrency(job.costLabor || 0)})</div>
             <div>รวมสุทธิ: <b>{formatCurrency(job.total)}</b></div>
             <div>มัดจำ: {formatCurrency(totalPaid)}</div>

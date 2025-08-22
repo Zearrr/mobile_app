@@ -8,6 +8,7 @@ export interface Customer {
   id: string;
   name: string;
   phone: string;
+  altPhone?: string;
   lineId?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -38,7 +39,7 @@ export interface Job {
   // ข้อมูลการเงิน
   costParts: number;
   costLabor: number;
-  feeParts?: number; // ค่าขายอะไหล่
+  feeParts?: number; // ค่าขายสินค้า
   feeLabor?: number; // ค่าแรงคิดลูกค้า
   deposit: number;
   total: number;
@@ -54,6 +55,7 @@ export interface Job {
   
   // รับประกันและข้อตกลง
   warrantyDays: number;
+  warrantyType?: string;
   pdpaConsentAt?: Date;
   customerSign?: string; // base64 signature
   staffSign?: string; // base64 signature
@@ -73,6 +75,7 @@ export interface Part {
   price: number;
   stock: number;
   minStock?: number;
+  imageUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -161,12 +164,15 @@ export interface Sale {
   date: Date;
   items: SaleItem[];
   customerId?: string;
+  customer?: string; // ชื่อลูกค้า
+  customerPhone?: string; // เบอร์โทรลูกค้า
   method: PaymentMethod; // ยังคงไว้เพื่อ backward-compat (กรณีชำระช่องทางเดียว)
   payments?: SalePayment[]; // รองรับหลายช่องทาง
   subtotal: number;
   discount?: number;
   tax?: number;
   total: number;
+  employee?: string; // พนักงานขาย
 }
 
 export interface Expense {

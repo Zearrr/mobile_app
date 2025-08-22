@@ -67,7 +67,7 @@ export default function PublicWarranty() {
           <CardTitle className="thai-text">เงื่อนไขรับประกัน (ย่อ)</CardTitle>
         </CardHeader>
         <CardContent className="thai-text text-sm text-muted-foreground space-y-1">
-          <div>1) รับประกันเฉพาะอาการเดิมและอะไหล่ที่เปลี่ยน</div>
+                          <div>1) รับประกันเฉพาะอาการเดิมและสินค้าที่เปลี่ยน</div>
           <div>2) ไม่ครอบคลุมความเสียหายจากการตกน้ำ/ตกกระแทก/ดัดแปลง</div>
           <div>3) ต้องมีใบงานหรือหลักฐานยืนยันการซ่อม</div>
           <div>4) โปรดสำรองข้อมูลก่อนส่งซ่อม ร้านไม่รับผิดชอบข้อมูลสูญหาย</div>

@@ -58,7 +58,7 @@ export default function Pricing() {
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <Label className="thai-text text-sm font-medium mb-2 block">ต้นทุนอะไหล่</Label>
+                              <Label className="thai-text text-sm font-medium mb-2 block">ต้นทุนสินค้า</Label>
               <Input type="number" min={0} step="1" {...register('parts', { valueAsNumber: true })} className="h-12 text-lg" />
             </div>
             <div>

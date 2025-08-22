@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -11,20 +12,20 @@ import { useRepairStore } from '@/stores/useRepairStore';
 import { PaymentMethod } from '@/types';
 import { endOfDay, format, isWithinInterval, startOfDay } from 'date-fns';
 import {
-    Calculator,
-    Calendar,
-    Clock,
-    Copy,
-    DollarSign,
-    Download,
-    Filter,
-    Plus,
-    RotateCcw,
-    Search,
-    TrendingDown,
-    TrendingUp,
-    Wallet,
-    X
+  Calculator,
+  Calendar,
+  Clock,
+  Copy,
+  DollarSign,
+  Download,
+  Filter,
+  Plus,
+  RotateCcw,
+  Search,
+  TrendingDown,
+  TrendingUp,
+  Wallet,
+  X
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -71,7 +72,7 @@ export default function Cashbook() {
   const [filterSearch, setFilterSearch] = useState<string>('');
 
   // UI states
-  const [showAddForm, setShowAddForm] = useState<boolean>(false);
+  const [addDialogOpen, setAddDialogOpen] = useState<boolean>(false);
   const [showFilters, setShowFilters] = useState<boolean>(false);
 
   const selectedDay = useMemo(() => new Date(dateStr), [dateStr]);
@@ -229,7 +230,7 @@ export default function Cashbook() {
     toast({ title: 'บันทึกสำเร็จ', description: 'เพิ่มรายการเรียบร้อย' });
     setAmount(0); 
     setNote('');
-    setShowAddForm(false);
+    setAddDialogOpen(false);
   };
 
   const resetFilters = () => {
@@ -367,118 +368,104 @@ export default function Cashbook() {
 
         {/* Action Buttons */}
         <div className="flex justify-center gap-4">
-        <Button 
-          onClick={() => setShowAddForm(!showAddForm)} 
-          className="btn-gradient px-8 py-3 text-lg"
-          size="lg"
-        >
-          <Plus className="w-6 h-6 mr-3" />
-          {showAddForm ? 'ซ่อนฟอร์ม' : 'เพิ่มรายการ'}
-        </Button>
-        <Button 
-          onClick={() => setShowFilters(!showFilters)} 
-          variant="outline"
-          size="lg"
-          className="px-8 py-3 text-lg"
-        >
-          <Filter className="w-6 h-6 mr-3" />
-          {showFilters ? 'ซ่อนตัวกรอง' : 'แสดงตัวกรอง'}
-        </Button>
+          <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="btn-gradient px-8 py-3 text-lg" size="lg">
+                <Plus className="w-6 h-6 mr-3" />
+                เพิ่มรายการ
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-3xl">
+              <DialogHeader>
+                <DialogTitle className="thai-text text-green-700">เพิ่มรายการใหม่</DialogTitle>
+              </DialogHeader>
+              <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                <div>
+                  <Label className="thai-text font-medium">ประเภท</Label>
+                  <Select value={type} onValueChange={(v) => setType(v as EntryType)}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="เลือกประเภท" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="income">รายรับ</SelectItem>
+                      <SelectItem value="expense">รายจ่าย</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="thai-text font-medium">หมวดหมู่</Label>
+                  <Input 
+                    value={category} 
+                    onChange={(e) => setCategory(e.target.value)} 
+                    placeholder={type === 'income' ? 'income:other' : 'ค่าใช้จ่ายทั่วไป'}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label className="thai-text font-medium">วันที่</Label>
+                  <Input 
+                    type="date" 
+                    value={dateStr} 
+                    onChange={(e) => setDateStr(e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label className="thai-text font-medium">ช่องทาง</Label>
+                  <Select value={method} onValueChange={(v) => setMethod(v as PaymentMethod)}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="ช่องทางชำระ" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="cash">เงินสด</SelectItem>
+                      <SelectItem value="transfer">โอน</SelectItem>
+                      <SelectItem value="promptpay">พร้อมเพย์</SelectItem>
+                      <SelectItem value="card">บัตร</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="thai-text font-medium">จำนวนเงิน</Label>
+                  <Input 
+                    type="number" 
+                    min={0} 
+                    step="1" 
+                    value={amount} 
+                    onChange={(e) => setAmount(Number(e.target.value))}
+                    className="mt-1"
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <Label className="thai-text font-medium">หมายเหตุ</Label>
+                  <Input 
+                    value={note} 
+                    onChange={(e) => setNote(e.target.value)}
+                    className="mt-1"
+                    placeholder="รายละเอียดเพิ่มเติม"
+                  />
+                </div>
+              </div>
+              <DialogFooter className="pt-4">
+                <Button variant="outline" onClick={() => setAddDialogOpen(false)} className="px-6">
+                  ยกเลิก
+                </Button>
+                <Button className="btn-gradient px-6" type="button" onClick={handleAdd}>
+                  บันทึก
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Button 
+            onClick={() => setShowFilters(!showFilters)} 
+            variant="outline"
+            size="lg"
+            className="px-8 py-3 text-lg"
+          >
+            <Filter className="w-6 h-6 mr-3" />
+            {showFilters ? 'ซ่อนตัวกรอง' : 'แสดงตัวกรอง'}
+          </Button>
         </div>
-
-        {/* Add form - Hidden by default */}
-        {showAddForm && (
-        <Card className="glass-card border-2 border-green-200">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="thai-text text-green-700">เพิ่มรายการใหม่</CardTitle>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setShowAddForm(false)}
-                className="h-8 w-8 p-0 hover:bg-red-100"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-6 gap-4">
-            <div>
-              <Label className="thai-text font-medium">ประเภท</Label>
-              <Select value={type} onValueChange={(v) => setType(v as EntryType)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="เลือกประเภท" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="income">รายรับ</SelectItem>
-                  <SelectItem value="expense">รายจ่าย</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="thai-text font-medium">หมวดหมู่</Label>
-              <Input 
-                value={category} 
-                onChange={(e) => setCategory(e.target.value)} 
-                placeholder={type === 'income' ? 'income:other' : 'ค่าใช้จ่ายทั่วไป'}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label className="thai-text font-medium">วันที่</Label>
-              <Input 
-                type="date" 
-                value={dateStr} 
-                onChange={(e) => setDateStr(e.target.value)}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label className="thai-text font-medium">ช่องทาง</Label>
-              <Select value={method} onValueChange={(v) => setMethod(v as PaymentMethod)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="ช่องทางชำระ" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cash">เงินสด</SelectItem>
-                  <SelectItem value="transfer">โอน</SelectItem>
-                  <SelectItem value="promptpay">พร้อมเพย์</SelectItem>
-                  <SelectItem value="card">บัตร</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="thai-text font-medium">จำนวนเงิน</Label>
-              <Input 
-                type="number" 
-                min={0} 
-                step="1" 
-                value={amount} 
-                onChange={(e) => setAmount(Number(e.target.value))}
-                className="mt-1"
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <Label className="thai-text font-medium">หมายเหตุ</Label>
-              <Input 
-                value={note} 
-                onChange={(e) => setNote(e.target.value)}
-                className="mt-1"
-                placeholder="รายละเอียดเพิ่มเติม"
-              />
-            </div>
-            <div className="md:col-span-6 flex justify-end gap-3 pt-4">
-              <Button variant="outline" onClick={() => setShowAddForm(false)} className="px-6">
-                ยกเลิก
-              </Button>
-              <Button className="btn-gradient px-6" type="button" onClick={handleAdd}>
-                บันทึก
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        )}
 
         {/* Filter Section - Hidden by default */}
         {showFilters && (
@@ -499,35 +486,36 @@ export default function Cashbook() {
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Date Range Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-              <div>
-                <Label className="text-sm font-medium thai-text mb-2 block">วันที่เริ่ม</Label>
+          <CardContent>
+            <div className="flex flex-wrap items-end gap-4">
+              <div className="w-full sm:w-48">
+                <Label className="text-sm font-medium thai-text mb-1 block">วันที่เริ่ม</Label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    type="date" 
-                    value={filterDateFrom} 
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="date"
+                    value={filterDateFrom}
                     onChange={(e) => setFilterDateFrom(e.target.value)}
                     className="pl-10"
                   />
                 </div>
               </div>
-              <div>
-                <Label className="text-sm font-medium thai-text mb-2 block">วันที่สิ้นสุด</Label>
+
+              <div className="w-full sm:w-48">
+                <Label className="text-sm font-medium thai-text mb-1 block">วันที่สิ้นสุด</Label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    type="date" 
-                    value={filterDateTo} 
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="date"
+                    value={filterDateTo}
                     onChange={(e) => setFilterDateTo(e.target.value)}
                     className="pl-10"
                   />
                 </div>
               </div>
-              <div>
-                <Label className="text-sm font-medium thai-text mb-2 block">ประเภท</Label>
+
+              <div className="w-full sm:w-56">
+                <Label className="text-sm font-medium thai-text mb-1 block">ประเภท</Label>
                 <Select value={filterType} onValueChange={setFilterType}>
                   <SelectTrigger>
                     <SelectValue placeholder="ประเภททั้งหมด" />
@@ -541,8 +529,9 @@ export default function Cashbook() {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label className="text-sm font-medium thai-text mb-2 block">ช่องทาง</Label>
+
+              <div className="w-full sm:w-56">
+                <Label className="text-sm font-medium thai-text mb-1 block">ช่องทาง</Label>
                 <Select value={filterMethod} onValueChange={setFilterMethod}>
                   <SelectTrigger>
                     <SelectValue placeholder="ช่องทางทั้งหมด" />
@@ -556,28 +545,26 @@ export default function Cashbook() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
 
-            {/* Search and Actions Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-              <div className="lg:col-span-2">
-                <Label className="text-sm font-medium thai-text mb-2 block">ค้นหา</Label>
+              <div className="min-w-[220px] flex-1">
+                <Label className="text-sm font-medium thai-text mb-1 block">ค้นหา</Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    placeholder="ค้นหา: หมายเหตุ, ประเภท, ช่องทาง" 
-                    value={filterSearch} 
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="ค้นหา: หมายเหตุ, ประเภท, ช่องทาง"
+                    value={filterSearch}
                     onChange={(e) => setFilterSearch(e.target.value)}
                     className="pl-10"
                   />
                 </div>
               </div>
-              <div className="lg:col-span-2 flex gap-3 items-end">
-                <Button variant="outline" onClick={resetFilters} className="flex-1">
+
+              <div className="ml-auto flex gap-3">
+                <Button variant="outline" onClick={resetFilters}>
                   <RotateCcw className="w-4 h-4 mr-2" />
                   ล้าง
                 </Button>
-                <Button variant="outline" onClick={exportCSV} className="flex-1">
+                <Button variant="outline" onClick={exportCSV}>
                   <Download className="w-4 h-4 mr-2" />
                   Export
                 </Button>

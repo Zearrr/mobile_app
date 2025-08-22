@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { useRepairStore } from '@/stores/useRepairStore';
 import {
   AlertCircle,
@@ -53,145 +53,143 @@ const Index = () => {
       <div className="p-6 md:p-8 max-w-7xl mx-auto">
 
 
-      {/* Quick Action Buttons */}
+      {/* Quick Action Buttons - match new dashboard style */}
       <div className="mb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          <Link to="/jobs/new" className="group">
-            <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-6 text-center text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-white/30 transition-all duration-300">
-                <Plus className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-semibold mb-1">แจ้งซ่อมใหม่</h3>
-              <p className="text-white/85 text-xs">สร้างงานซ่อมใหม่สำหรับลูกค้า</p>
-            </div>
+          {/* New Job */}
+          <Link to="/jobs/new" className="group block">
+            <Card className="rounded-2xl shadow-lg border border-emerald-200/60 bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-950/30 dark:to-green-950/30 dark:border-emerald-800/40 hover:shadow-xl transition-all">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-green-600 text-white flex items-center justify-center shadow-md">
+                    <Plus className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold text-emerald-700 dark:text-emerald-300">แจ้งซ่อมใหม่</div>
+                    <p className="text-sm text-emerald-700/80 dark:text-emerald-300/80 thai-text">สร้างงานซ่อมใหม่สำหรับลูกค้า</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </Link>
-          
-          <Link to="/jobs" className="group">
-            <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-6 text-center text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-white/30 transition-all duration-300">
-                <Wrench className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-semibold mb-1">รายการแจ้งซ่อม</h3>
-              <p className="text-white/85 text-xs">ดูและจัดการงานซ่อมทั้งหมด</p>
-            </div>
+
+          {/* Jobs List */}
+          <Link to="/jobs" className="group block">
+            <Card className="rounded-2xl shadow-lg border border-blue-200/60 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-950/30 dark:to-indigo-950/30 dark:border-blue-800/40 hover:shadow-xl transition-all">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md">
+                    <Wrench className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold text-blue-700 dark:text-blue-300">รายการแจ้งซ่อม</div>
+                    <p className="text-sm text-blue-700/80 dark:text-blue-300/80 thai-text">ดูและจัดการงานซ่อมทั้งหมด</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </Link>
-          
-          <Link to="/pricing" className="group">
-            <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-6 text-center text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-white/30 transition-all duration-300">
-                <Calculator className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-semibold mb-1">คำนวณราคา</h3>
-              <p className="text-white/85 text-xs">คำนวณราคาและสร้างใบเสนอราคา</p>
-            </div>
+
+          {/* Pricing */}
+          <Link to="/pricing" className="group block">
+            <Card className="rounded-2xl shadow-lg border border-violet-200/60 bg-gradient-to-br from-violet-100 to-fuchsia-100 dark:from-violet-950/30 dark:to-fuchsia-950/30 dark:border-violet-800/40 hover:shadow-xl transition-all">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white flex items-center justify-center shadow-md">
+                    <Calculator className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold text-violet-700 dark:text-violet-300">คำนวณราคา</div>
+                    <p className="text-sm text-violet-700/80 dark:text-violet-300/80 thai-text">คำนวณราคาและสร้างใบเสนอราคา</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </Link>
         </div>
       </div>
 
-      {/* Work Status Section */}
+      {/* Work Status Section - arranged only (keep original style) */}
       <div className="mb-8">
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="w-1 h-8 bg-gradient-to-b from-blue-500 via-purple-500 to-indigo-500 rounded-full"></div>
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground">สถานะงาน</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-white/85 backdrop-blur-sm border border-border/50 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-300 overflow-hidden group">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-              <CardTitle className="text-xs font-medium text-muted-foreground">งานทั้งหมด</CardTitle>
-              <div className="p-2.5 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg shadow-md">
-                <Wrench className="h-4 w-4 text-white" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* งานทั้งหมด */}
+          <Card className="rounded-2xl shadow-lg bg-gradient-to-br from-blue-100 to-indigo-100 border border-blue-200/60 dark:from-blue-950/30 dark:to-indigo-950/30 dark:border-blue-800/40">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md">
+                  <Wrench className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-3xl md:text-4xl font-extrabold leading-none text-blue-700 dark:text-blue-300">{stats.totalJobs}</div>
+                  <div className="mt-1 text-base md:text-lg font-semibold text-blue-700 dark:text-blue-300 thai-text">งานทั้งหมด</div>
+                </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">{stats.totalJobs}</div>
-              <p className="text-xs text-muted-foreground thai-text">ใหม่วันนี้ +0</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/85 backdrop-blur-sm border border-border/50 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-300 overflow-hidden group">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-              <CardTitle className="text-xs font-medium text-muted-foreground">ซ่อมเสร็จ</CardTitle>
-              <div className="p-2.5 bg-gradient-to-br from-success to-success/80 rounded-lg shadow-md">
-                <CheckCircle className="h-4 w-4 text-white" />
+          {/* กำลังซ่อม */}
+          <Card className="rounded-2xl shadow-lg bg-gradient-to-br from-indigo-100 to-purple-100 border border-indigo-200/60 dark:from-indigo-950/30 dark:to-purple-950/30 dark:border-indigo-800/40">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-md">
+                  <Target className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-3xl md:text-4xl font-extrabold leading-none text-indigo-700 dark:text-indigo-300">{stats.inProgressJobs}</div>
+                  <div className="mt-1 text-base md:text-lg font-semibold text-indigo-700 dark:text-indigo-300 thai-text">กำลังซ่อม</div>
+                </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-success">{stats.completedJobs}</div>
-              <p className="text-xs text-muted-foreground thai-text">อัตราสำเร็จ {stats.totalJobs > 0 ? Math.round((stats.completedJobs / stats.totalJobs) * 100) : 0}%</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/85 backdrop-blur-sm border border-border/50 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-300 overflow-hidden group">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-              <CardTitle className="text-xs font-medium text-muted-foreground">รายได้รวม</CardTitle>
-              <div className="p-2.5 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg shadow-md">
-                <Calculator className="h-4 w-4 text-white" />
+          {/* เสร็จสิ้น */}
+          <Card className="rounded-2xl shadow-lg bg-gradient-to-br from-emerald-100 to-green-100 border border-emerald-200/60 dark:from-emerald-950/30 dark:to-green-950/30 dark:border-emerald-800/40">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-green-600 text-white flex items-center justify-center shadow-md">
+                  <CheckCircle className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-3xl md:text-4xl font-extrabold leading-none text-emerald-700 dark:text-emerald-300">{stats.completedJobs}</div>
+                  <div className="mt-1 text-base md:text-lg font-semibold text-emerald-700 dark:text-emerald-300 thai-text">เสร็จสิ้น</div>
+                </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">฿{jobs.reduce((sum, job) => sum + (job.total || 0), 0).toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground thai-text">จากการชำระเงินทั้งหมด</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/85 backdrop-blur-sm border border-border/50 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-300 overflow-hidden group">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-              <CardTitle className="text-xs font-medium text-muted-foreground">กำไรสุทธิ</CardTitle>
-              <div className="p-2.5 bg-gradient-to-br from-success to-success/80 rounded-lg shadow-md">
-                <CheckCircle className="h-4 w-4 text-white" />
+          {/* ลูกค้าทั้งหมด */}
+          <Card className="rounded-2xl shadow-lg bg-gradient-to-br from-cyan-100 to-blue-100 border border-cyan-200/60 dark:from-cyan-950/30 dark:to-blue-950/30 dark:border-cyan-800/40">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-600 to-blue-600 text-white flex items-center justify-center shadow-md">
+                  <Users className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-3xl md:text-4xl font-extrabold leading-none text-cyan-700 dark:text-cyan-300">{stats.totalCustomers}</div>
+                  <div className="mt-1 text-base md:text-lg font-semibold text-cyan-700 dark:text-cyan-300 thai-text">ลูกค้าทั้งหมด</div>
+                </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-success">฿{(jobs.reduce((sum, job) => sum + (job.total || 0), 0) * 0.3).toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground thai-text">จากงานที่ชำระแล้ว</p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Business Metrics Section */}
-      <div className="mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card className="bg-white/85 backdrop-blur-sm border-l-4 border-l-info shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-300 overflow-hidden group">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground">ลูกค้า</CardTitle>
-              <div className="p-2.5 bg-gradient-to-br from-info to-info/80 rounded-lg shadow-md">
-                <Users className="h-4 w-4 text-white" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-bold text-info">{stats.totalCustomers}</div>
-              <p className="text-xs text-muted-foreground thai-text">คน</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/85 backdrop-blur-sm border-l-4 border-l-primary shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-300 overflow-hidden group">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground">อะไหล่</CardTitle>
-              <div className="p-2.5 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg shadow-md">
-                <Package className="h-4 w-4 text-white" />
+          {/* สต็อกต่ำ */}
+          <Card className="rounded-2xl shadow-lg bg-gradient-to-br from-orange-100 to-amber-100 border border-orange-200/60 dark:from-amber-950/30 dark:to-orange-950/30 dark:border-orange-800/40">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center shadow-md">
+                  <AlertCircle className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-3xl md:text-4xl font-extrabold leading-none text-orange-700 dark:text-orange-300">{stats.lowStockParts}</div>
+                  <div className="mt-1 text-base md:text-lg font-semibold text-orange-700 dark:text-orange-300 thai-text">สต็อกต่ำ</div>
+                </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-bold text-primary">{stats.totalParts}</div>
-              <p className="text-xs text-muted-foreground thai-text">รายการ</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white/85 backdrop-blur-sm border-l-4 border-l-warning shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-300 overflow-hidden group">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground">สต็อกต่ำ</CardTitle>
-              <div className="p-2.5 bg-gradient-to-br from-warning to-warning/80 rounded-lg shadow-md">
-                <AlertCircle className="h-4 w-4 text-white" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-bold text-warning">{stats.lowStockParts}</div>
-              <p className="text-xs text-muted-foreground thai-text">รายการ</p>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Business Metrics Section - removed as requested */}
 
       {/* Recent Jobs Section */}
       <div className="mb-8">
