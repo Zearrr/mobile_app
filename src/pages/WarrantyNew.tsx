@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
 import { useRepairStore } from '@/stores/useRepairStore';
+import { ArrowLeft } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -43,11 +44,30 @@ const WarrantyNew = () => {
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
+      
+      {/* Header with Back Button */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            onClick={() => navigate('/dashboard')}
+            className="rounded-xl border-2 border-primary/20 bg-white/80 hover:bg-primary/5 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md"
+          >
+            <ArrowLeft className="w-5 h-5 mr-2 text-primary" />
+            <span className="font-medium">กลับหน้าแรก</span>
+          </Button>
+        </div>
+        <div className="text-right">
+          <h1 className="text-2xl font-bold text-foreground">เพิ่มข้อมูลการรับประกัน</h1>
+          <p className="text-muted-foreground">เพิ่มข้อมูลการรับประกันสำหรับงานซ่อม</p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
           <Card>
             <CardContent className="p-6 space-y-5">
-              <h1 className="text-2xl font-bold mb-2">เพิ่มข้อมูลการรับประกัน</h1>
+              <h2 className="text-xl font-bold mb-2 text-center">ข้อมูลการรับประกัน</h2>
 
               <div className="space-y-2">
                 <Label htmlFor="job">เลขที่แจ้งซ่อม</Label>
@@ -81,8 +101,8 @@ const WarrantyNew = () => {
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Button onClick={handleSave} className="bg-gradient-to-r from-emerald-600 to-green-600">บันทึกการรับประกัน</Button>
-                <Button variant="outline" onClick={() => navigate(-1)}>ยกเลิก</Button>
+                <Button onClick={handleSave} className="bg-gradient-to-r from-emerald-600 to-green-600 rounded-xl">บันทึกการรับประกัน</Button>
+                <Button variant="outline" onClick={() => navigate('/warranty')} className="rounded-xl">กลับหน้าประกัน</Button>
               </div>
             </CardContent>
           </Card>

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useRepairStore } from '@/stores/useRepairStore';
 import { Loader2, Menu } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 
 export function AppLayout() {
@@ -11,7 +11,8 @@ export function AppLayout() {
   const loadAllData = useRepairStore(state => state.loadAllData);
   const isLoading = useRepairStore(state => state.isLoading);
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
@@ -60,9 +61,9 @@ export function AppLayout() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex h-screen">
-        <Sidebar className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:fixed transition-transform duration-300`} />
+        <Sidebar className={`lg:fixed`} mobileOpen={sidebarOpen} setMobileOpen={setSidebarOpen} />
         
-        <main className={`flex-1 overflow-y-auto h-screen bg-secondary transition-all duration-300 ${sidebarOpen ? 'lg:ml-72' : 'lg:ml-0'}`}>
+        <main className={`flex-1 overflow-y-auto h-screen bg-secondary transition-all duration-300 lg:ml-64`}>
           {/* Top Header Bar - ใช้ร่วมกันในทุกหน้า */}
           <div className="bg-white/95 backdrop-blur-sm border-b border-border/50 shadow-lg w-full sticky top-0 z-40">
             <div className="flex items-center justify-between px-8 py-6">
@@ -70,7 +71,7 @@ export function AppLayout() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  onClick={() => setSidebarOpen(prev => !prev)}
                   className="hover:bg-primary/10 hover:text-primary rounded-xl p-3 transition-all duration-300"
                 >
                   <Menu className="w-6 h-6" />

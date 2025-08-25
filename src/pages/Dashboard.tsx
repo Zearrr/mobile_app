@@ -9,7 +9,6 @@ import {
   AlertTriangle,
   Calculator,
   CalendarDays,
-  Clock,
   Package,
   Plus,
   ShieldCheck,
@@ -211,18 +210,13 @@ const Dashboard = () => {
           </div>
           <div className="hidden sm:flex items-center gap-3">
             <Link to="/jobs/new">
-              <Button className="rounded-xl bg-green-600 hover:bg-green-700 text-white border border-green-600 px-4 py-2 shadow-lg">
+              <Button className="rounded-xl bg-green-600 hover:bg-green-700 text-white border-none px-4 py-2 shadow-lg">
                 <Plus className="w-4 h-4 mr-2" /> แจ้งซ่อมใหม่
               </Button>
             </Link>
             <Link to="/jobs">
-              <Button className="rounded-xl bg-orange-600 hover:bg-orange-700 text-white border border-orange-600 px-4 py-2 shadow-lg">
+              <Button className="rounded-xl bg-orange-600 hover:bg-orange-700 text-white  px-4 py-2 shadow-lg">
                 <Wrench className="w-4 h-4 mr-2" /> รายการแจ้งซ่อม
-              </Button>
-            </Link>
-            <Link to="/pricing">
-              <Button className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white border border-indigo-600 px-4 py-2 shadow-lg">
-                <Calculator className="w-4 h-4 mr-2" /> คำนวณราคา
               </Button>
             </Link>
           </div>
@@ -233,7 +227,7 @@ const Dashboard = () => {
       <section className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Jobs */}
-            <Card onClick={() => (window.location.href = '/jobs')} className="rounded-2xl bg-white/90 backdrop-blur-sm border border-blue-200/60 dark:border-blue-800/40 shadow-lg h-full min-h-[140px] transition-all hover:shadow-xl hover:-translate-y-[2px] cursor-pointer">
+            <Card className="rounded-2xl bg-white/90 backdrop-blur-sm border border-blue-200/60 dark:border-blue-800/40 shadow-lg h-full min-h-[140px] transition-all hover:shadow-xl hover:-translate-y-[2px]">
               <CardContent className="p-5 h-full">
                 <div className="flex items-start justify-between">
                   <div>
@@ -241,7 +235,7 @@ const Dashboard = () => {
                     <div className="text-4xl font-extrabold text-blue-700 mt-2">{stats.totalJobs}</div>
                     <div className="text-sm text-muted-foreground thai-text mt-1">รายการ</div>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md">
+                  <div onClick={() => (window.location.href = '/jobs')} className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md cursor-pointer hover:bg-blue-700 transition-colors">
                     <Wrench className="w-5 h-5" />
                   </div>
                 </div>
@@ -249,7 +243,7 @@ const Dashboard = () => {
             </Card>
 
             {/* In Progress */}
-            <Card onClick={() => (window.location.href = '/jobs')} className="rounded-2xl bg-white/90 backdrop-blur-sm border border-indigo-200/60 dark:border-indigo-800/40 shadow-lg h-full min-h-[140px] transition-all hover:shadow-xl hover:-translate-y-[2px] cursor-pointer">
+            <Card className="rounded-2xl bg-white/90 backdrop-blur-sm border border-indigo-200/60 dark:border-indigo-800/40 shadow-lg h-full min-h-[140px] transition-all hover:shadow-xl hover:-translate-y-[2px]">
               <CardContent className="p-5 h-full">
                 <div className="flex items-start justify-between">
                   <div>
@@ -257,7 +251,7 @@ const Dashboard = () => {
                     <div className="text-4xl font-extrabold text-indigo-700 mt-2">{stats.inProgressJobs}</div>
                     <div className="text-sm text-muted-foreground thai-text mt-1">งาน</div>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
+                  <div onClick={() => (window.location.href = '/jobs')} className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md cursor-pointer hover:bg-indigo-700 transition-colors">
                     <Activity className="w-5 h-5" />
                   </div>
                 </div>
@@ -265,7 +259,7 @@ const Dashboard = () => {
             </Card>
 
             {/* Low Stock */}
-            <Card onClick={() => (window.location.href = '/parts')} className="rounded-2xl bg-white/90 backdrop-blur-sm border border-rose-200/60 dark:border-rose-800/40 shadow-lg h-full min-h-[140px] transition-all hover:shadow-xl hover:-translate-y-[2px] cursor-pointer">
+            <Card className="rounded-2xl bg-white/90 backdrop-blur-sm border border-rose-200/60 dark:border-rose-800/40 shadow-lg h-full min-h-[140px] transition-all hover:shadow-xl hover:-translate-y-[2px]">
               <CardContent className="p-5 h-full">
                 <div className="flex items-start justify-between">
                   <div>
@@ -273,7 +267,7 @@ const Dashboard = () => {
                     <div className="text-4xl font-extrabold text-rose-700 mt-2">{stats.lowStockParts}</div>
                     <div className="text-sm text-muted-foreground thai-text mt-1">รายการ</div>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center shadow-md">
+                  <div onClick={() => (window.location.href = '/parts')} className="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center shadow-md cursor-pointer hover:bg-rose-700 transition-colors">
                     <AlertTriangle className="w-5 h-5" />
                   </div>
                 </div>
@@ -281,7 +275,7 @@ const Dashboard = () => {
             </Card>
 
             {/* Total Claims */}
-            <Card onClick={() => (window.location.href = '/claims')} className="rounded-2xl bg-white/90 backdrop-blur-sm border border-violet-200/60 dark:border-violet-800/40 shadow-lg h-full min-h-[140px] transition-all hover:shadow-xl hover:-translate-y-[2px] cursor-pointer">
+            <Card className="rounded-2xl bg-white/90 backdrop-blur-sm border border-violet-200/60 dark:border-violet-800/40 shadow-lg h-full min-h-[140px] transition-all hover:shadow-xl hover:-translate-y-[2px]">
               <CardContent className="p-5 h-full">
                 <div className="flex items-start justify-between">
                   <div>
@@ -289,7 +283,7 @@ const Dashboard = () => {
                     <div className="text-4xl font-extrabold text-violet-700 mt-2">{stats.totalClaims}</div>
                     <div className="text-sm text-muted-foreground thai-text mt-1">รายการ</div>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-violet-600 text-white flex items-center justify-center shadow-md">
+                  <div onClick={() => (window.location.href = '/claims')} className="w-12 h-12 rounded-2xl bg-violet-600 text-white flex items-center justify-center shadow-md cursor-pointer hover:bg-violet-700 transition-colors">
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                 </div>
@@ -297,66 +291,6 @@ const Dashboard = () => {
             </Card>
 
           </div>
-      </section>
-
-      {/* ===== FINANCE KPI SECTION ===== */}
-      <section className="mb-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card className="rounded-2xl bg-white/90 border border-emerald-200/60 shadow-lg h-full min-h-[120px]">
-            <CardContent className="p-5 flex items-start justify-between">
-              <div>
-                <div className="text-sm text-muted-foreground thai-text">รายรับวันนี้</div>
-                <div className="text-3xl font-extrabold text-emerald-700 mt-1">{formatCurrency(finance.revenueToday)}</div>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center"><Wallet className="w-5 h-5" /></div>
-            </CardContent>
-          </Card>
-          <Card className="rounded-2xl bg-white/90 border border-indigo-200/60 shadow-lg h-full min-h-[120px]">
-            <CardContent className="p-5 flex items-start justify-between">
-              <div>
-                <div className="text-sm text-muted-foreground thai-text">รายรับสัปดาห์นี้</div>
-                <div className="text-3xl font-extrabold text-indigo-700 mt-1">{formatCurrency(finance.revenueWeek)}</div>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center"><Wallet className="w-5 h-5" /></div>
-            </CardContent>
-          </Card>
-          <Card className="rounded-2xl bg-white/90 border border-purple-200/60 shadow-lg h-full min-h-[120px]">
-            <CardContent className="p-5 flex items-start justify-between">
-              <div>
-                <div className="text-sm text-muted-foreground thai-text">รายรับเดือนนี้</div>
-                <div className="text-3xl font-extrabold text-purple-700 mt-1">{formatCurrency(finance.revenueMonth)}</div>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center"><Wallet className="w-5 h-5" /></div>
-            </CardContent>
-          </Card>
-          <Card className="rounded-2xl bg-white/90 border border-slate-200/60 shadow-lg h-full min-h-[120px]">
-            <CardContent className="p-5 flex items-start justify-between">
-              <div>
-                <div className="text-sm text-muted-foreground thai-text">รายรับรวม</div>
-                <div className="text-3xl font-extrabold text-slate-700 mt-1">{formatCurrency(finance.totalRevenue)}</div>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-slate-600 text-white flex items-center justify-center"><Wallet className="w-5 h-5" /></div>
-            </CardContent>
-          </Card>
-          <Card className="rounded-2xl bg-white/90 border border-amber-200/60 shadow-lg h-full min-h-[120px]">
-            <CardContent className="p-5 flex items-start justify-between">
-              <div>
-                <div className="text-sm text-muted-foreground thai-text">ยอดค้างชำระ</div>
-                <div className="text-3xl font-extrabold text-amber-600 mt-1">{formatCurrency(finance.unpaidAmount)}</div>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center"><Clock className="w-5 h-5" /></div>
-            </CardContent>
-          </Card>
-          <Card className="rounded-2xl bg-white/90 border border-slate-200/60 shadow-lg h-full min-h-[120px]">
-            <CardContent className="p-5 flex items-start justify-between">
-              <div>
-                <div className="text-sm text-muted-foreground thai-text">มัดจำคงค้าง (รวม)</div>
-                <div className="text-3xl font-extrabold text-slate-700 mt-1">{formatCurrency(finance.depositsOutstanding)}</div>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-slate-600 text-white flex items-center justify-center"><Wallet className="w-5 h-5" /></div>
-            </CardContent>
-          </Card>
-        </div>
       </section>
 
       {/* ===== ALERTS + STOCK/WARRANTY ===== */}

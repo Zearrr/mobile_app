@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRepairStore } from '@/stores/useRepairStore';
 import { LockType } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Grid3x3, KeyRound, X as XIcon } from 'lucide-react';
+import { ArrowLeft, Grid3x3, KeyRound, X as XIcon } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -126,6 +126,7 @@ function PatternLock({
   const [selected, setSelected] = useState<number[]>([]);
   const selectedSetRef = useRef<Set<number>>(new Set());
   const nodes = useNodes(size);
+  const [hoverId, setHoverId] = useState<number | null>(null);
 
   const hitTest = (p: Point) => {
     for (const n of nodes) {
@@ -179,12 +180,16 @@ function PatternLock({
   };
 
   const onPointerMove: React.PointerEventHandler<SVGSVGElement> = (e) => {
-    if (!isDragging || !svgRef.current) return;
+    if (!svgRef.current) return;
     const svg = svgRef.current;
     const p = pointFromPointerEvent(svg, e.nativeEvent);
-    setPointer(p);
-    // 1) if pointer hits a node directly
+    setPointer(isDragging ? p : null);
+
     const directId = hitTest(p);
+    setHoverId(directId);
+
+    if (!isDragging) return;
+
     // 2) also check if the segment from last node to pointer crosses any node centers
     const lastId = selected[selected.length - 1];
     if (lastId) {
@@ -225,11 +230,15 @@ function PatternLock({
 
   const lastNode = selected.length ? nodes[selected[selected.length - 1] - 1] : null;
 
+  const primary = '#2563eb'; // tailwind blue-600
+  const primaryDark = '#1d4ed8';
+  const mutedStroke = 'rgba(0,0,0,0.25)';
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <svg
         ref={svgRef}
-        className="select-none touch-none"
+        className="select-none touch-none mx-auto"
         width={size}
         height={size}
         viewBox={`0 0 ${size} ${size}`}
@@ -240,14 +249,28 @@ function PatternLock({
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerCancel}
       >
+        <defs>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3.5" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <linearGradient id="nodeFill" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stopColor={primary} />
+            <stop offset="100%" stopColor={primaryDark} />
+          </linearGradient>
+        </defs>
         {selected.length > 1 && (
           <polyline
             points={pathPoints}
             fill="none"
-            stroke="#1e66ff"
-            strokeWidth={6}
+            stroke={primary}
+            strokeWidth={7}
             strokeLinecap="round"
             strokeLinejoin="round"
+            filter="url(#glow)"
           />
         )}
 
@@ -257,24 +280,23 @@ function PatternLock({
             y1={lastNode.y}
             x2={pointer.x}
             y2={pointer.y}
-            stroke="#1e66ff"
-            strokeWidth={6}
+            stroke={primary}
+            strokeWidth={7}
             strokeLinecap="round"
             strokeLinejoin="round"
+            filter="url(#glow)"
           />
         )}
 
         {nodes.map((n) => {
           const isSelected = selected.includes(n.id);
+          const isHover = hoverId === n.id && !isSelected;
           return (
             <g key={n.id} transform={`translate(${n.x}, ${n.y})`}>
-              <circle
-                r={18}
-                fill={isSelected ? '#2e7d32' : '#ffffff'}
-                stroke={isSelected ? '#2e7d32' : 'rgba(0,0,0,0.2)'}
-                strokeWidth={2}
-                aria-label={`จุดที่ ${n.id}`}
-              />
+              {/* outer ring */}
+              <circle r={dotRadius} fill={isSelected ? 'url(#nodeFill)' : '#ffffff'} stroke={isSelected ? 'url(#nodeFill)' : (isHover ? primary : mutedStroke)} strokeWidth={isSelected ? 2 : 1.5} />
+              {/* inner dot */}
+              <circle r={Math.max(6, dotRadius - 14)} fill={isSelected ? '#ffffff' : (isHover ? primary : 'transparent')} opacity={isSelected ? 0.9 : (isHover ? 0.35 : 0)} />
               <text
                 textAnchor="middle"
                 dominantBaseline="central"
@@ -289,9 +311,17 @@ function PatternLock({
         })}
       </svg>
 
-      <div className="flex items-center gap-3">
-        <div className="thai-text text-muted-foreground text-sm">ลำดับการปลดล็อก: {selected.length ? selected.join(' → ') : '-'}</div>
-        <Button type="button" variant="outline" size="sm" onClick={reset}>เริ่มใหม่</Button>
+      <div className="flex items-center justify-between">
+        <div className="thai-text text-muted-foreground text-sm">เคล็ดลับ: แตะค้างแล้วลากผ่านจุดตามลำดับ</div>
+        <div className="flex items-center gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={() => {
+            setSelected(prev => prev.slice(0, -1));
+            const s = new Set(selectedSetRef.current);
+            s.delete(selected[selected.length - 1]);
+            selectedSetRef.current = s;
+          }}>ย้อนกลับ</Button>
+          <Button type="button" variant="outline" size="sm" onClick={reset}>เริ่มใหม่</Button>
+        </div>
       </div>
 
       <div className="sr-only" aria-live="polite">
@@ -387,18 +417,38 @@ export function NewJob() {
   };
 
   return (
-    <div className="space-y-6 mx-auto max-w-6xl">
+    <div className="min-h-screen bg-background">
+      {/* Blue gradient header consistent with system */}
+      <div className="max-w-6xl mx-auto px-6 pt-6">
+        <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+              <ArrowLeft className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-lg md:text-xl font-bold thai-text">แจ้งซ่อมใหม่</div>
+              <div className="text-white/90 thai-text text-sm md:text-base">สร้างงานซ่อมใหม่สำหรับลูกค้า</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => navigate('/')} className="rounded-xl bg-white/10 hover:bg-white/20 text-white border-white/30 px-4 py-2">
+              <ArrowLeft className="w-4 h-4 mr-2" /> กลับไปหน้าแรก
+            </Button>
+          </div>
+        </div>
+      </div>
 
-      <Form {...(form as any)}>
-      <form onSubmit={(form as any).handleSubmit(onSubmit as any)} className="space-y-6">
-        <Card className="glass-card rounded-2xl">
-          <CardHeader>
-            <CardTitle className="thai-text text-2xl">ใบแจ้งซ่อมมือถือ</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-8">
+      <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
+        <Form {...(form as any)}>
+        <form id="new-job-form" onSubmit={(form as any).handleSubmit(onSubmit as any)} className="space-y-8">
+          <Card className="rounded-xl border bg-white shadow-sm">
+            <CardHeader className="border-b px-6 py-4">
+              <CardTitle className="text-lg font-semibold">ใบแจ้งซ่อมมือถือ</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-8">
             {/* ข้อมูลลูกค้า */}
             <div className="space-y-4">
-              <h3 className="thai-text font-semibold">ข้อมูลลูกค้า</h3>
+              <h3 className="thai-text font-medium text-base text-foreground">ข้อมูลลูกค้า</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField control={form.control} name="customer.name" render={({ field }) => (
                   <FormItem>
@@ -433,7 +483,7 @@ export function NewJob() {
 
             {/* ข้อมูลอุปกรณ์ */}
             <div className="space-y-4">
-              <h3 className="thai-text font-semibold">ข้อมูลอุปกรณ์</h3>
+              <h3 className="thai-text font-medium text-base text-foreground">ข้อมูลอุปกรณ์</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField control={form.control} name="device.brand" render={({ field }) => (
                   <FormItem>
@@ -499,7 +549,7 @@ export function NewJob() {
 
             {/* รหัสล็อกหน้าจอ */}
             <div className="space-y-4">
-              <h3 className="thai-text font-semibold">รหัสล็อกหน้าจอ</h3>
+              <h3 className="thai-text font-medium text-base text-foreground">รหัสล็อกหน้าจอ</h3>
               <FormField control={form.control} name="lock.type" render={({ field }) => (
                 <FormItem>
                   <FormLabel className="thai-text">เลือกประเภท</FormLabel>
@@ -530,7 +580,7 @@ export function NewJob() {
                         <FormControl>
                           <div className="py-2">
                             <PatternLock
-                              size={320}
+                              size={340}
                               onComplete={(path) => {
                                 // Save as dash-separated string: "1-2-3"
                                 field.onChange(path.join('-'));
@@ -550,7 +600,7 @@ export function NewJob() {
 
             {/* อาการเสีย */}
             <div className="space-y-4">
-              <h3 className="thai-text font-semibold">อาการเสีย / รายละเอียด</h3>
+              <h3 className="thai-text font-medium text-base text-foreground">อาการเสีย / รายละเอียด</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField control={form.control} name="details.issueDesc" render={({ field }) => (
                   <FormItem className="md:col-span-2">
@@ -584,7 +634,7 @@ export function NewJob() {
 
             {/* ประเมินค่าใช้จ่าย */}
             <div className="space-y-4">
-              <h3 className="thai-text font-semibold">ประเมินค่าใช้จ่าย</h3>
+              <h3 className="thai-text font-medium text-base text-foreground">ประเมินค่าใช้จ่าย</h3>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <FormField control={form.control} name="pricing.estimateParts" render={({ field }) => (
                   <FormItem>
@@ -621,7 +671,7 @@ export function NewJob() {
 
             {/* กำหนดการ */}
             <div className="space-y-4">
-              <h3 className="thai-text font-semibold">กำหนดการ</h3>
+              <h3 className="thai-text font-medium text-base text-foreground">กำหนดการ</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField control={form.control} name="schedule.dueAt" render={({ field }) => (
                   <FormItem>
@@ -652,12 +702,19 @@ export function NewJob() {
           </CardContent>
         </Card>
 
-        <div className="sticky bottom-0 z-10 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t border-border pt-4 flex items-center justify-end gap-3">
-          <Button type="button" variant="outline" onClick={() => navigate('/dashboard')} className="thai-text">ยกเลิก</Button>
-          <Button type="submit" className="btn-gradient thai-text">บันทึกการแจ้งซ่อม</Button>
+        <div className="sticky bottom-0 z-10 bg-white border-t pt-4 pb-4">
+          <div className="max-w-6xl mx-auto px-6 flex items-center justify-end gap-3">
+            <Button type="button" variant="outline" className="rounded-lg" onClick={() => navigate('/jobs')}>
+              ยกเลิก
+            </Button>
+            <Button type="submit" className="rounded-lg">
+              บันทึกการแจ้งซ่อม
+            </Button>
+          </div>
         </div>
       </form>
       </Form>
+      </div>
     </div>
   );
 }

@@ -10,9 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { formatCurrency } from '@/lib/utils';
 import { useRepairStore } from '@/stores/useRepairStore';
-import { AlertTriangle, Barcode, Battery, Camera, Database, Link, Monitor, Package, Plus, Printer, Smartphone, SquarePen, Trash2, Upload, Wallet, Wrench } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Barcode, Battery, Camera, Database, Link, Monitor, Package, Plus, Printer, Smartphone, SquarePen, Trash2, Upload, Wallet, Wrench } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { useReactToPrint } from 'react-to-print';
 
 interface OutletContext {
@@ -26,6 +26,7 @@ interface OutletContext {
 
 export default function Parts() {
   const { sidebarOpen, setSidebarOpen, currentPageInfo } = useOutletContext<OutletContext>();
+  const navigate = useNavigate();
   const { parts, createPart, updatePart, deletePart } = useRepairStore();
   const [search, setSearch] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -268,112 +269,122 @@ export default function Parts() {
             </div>
           </div>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="rounded-xl"> 
-              <Plus className="w-4 h-4 mr-2" /> เพิ่มสินค้า
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle className="thai-text">เพิ่มสินค้าใหม่</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="outline"
+            onClick={() => navigate('/dashboard')}
+            className="rounded-xl bg-white/20 hover:bg-white/30 text-white border border-white/30"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            กลับหน้าแรก
+          </Button>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="rounded-xl"> 
+                <Plus className="w-4 h-4 mr-2" /> เพิ่มสินค้า
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="thai-text">เพิ่มสินค้าใหม่</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="thai-text">SKU</Label>
+                    <Input
+                      value={newPart.sku}
+                      onChange={(e) => setNewPart({ ...newPart, sku: e.target.value })}
+                      placeholder="รหัสสินค้า"
+                    />
+                  </div>
+                  <div>
+                    <Label className="thai-text">หน่วย</Label>
+                    <Select value={newPart.unit} onValueChange={(value) => setNewPart({ ...newPart, unit: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ชิ้น">ชิ้น</SelectItem>
+                        <SelectItem value="ชุด">ชุด</SelectItem>
+                        <SelectItem value="กล่อง">กล่อง</SelectItem>
+                        <SelectItem value="เมตร">เมตร</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
                 <div>
-                  <Label className="thai-text">SKU</Label>
+                  <Label className="thai-text">ชื่อสินค้า</Label>
                   <Input
-                    value={newPart.sku}
-                    onChange={(e) => setNewPart({ ...newPart, sku: e.target.value })}
-                    placeholder="รหัสสินค้า"
+                    value={newPart.name}
+                    onChange={(e) => setNewPart({ ...newPart, name: e.target.value })}
+                    placeholder="ชื่อสินค้า"
                   />
                 </div>
-                <div>
-                  <Label className="thai-text">หน่วย</Label>
-                  <Select value={newPart.unit} onValueChange={(value) => setNewPart({ ...newPart, unit: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ชิ้น">ชิ้น</SelectItem>
-                      <SelectItem value="ชุด">ชุด</SelectItem>
-                      <SelectItem value="กล่อง">กล่อง</SelectItem>
-                      <SelectItem value="เมตร">เมตร</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="thai-text">ยี่ห้อ</Label>
+                    <Input
+                      value={newPart.forBrand}
+                      onChange={(e) => setNewPart({ ...newPart, forBrand: e.target.value })}
+                      placeholder="ยี่ห้อ"
+                    />
+                  </div>
+                  <div>
+                    <Label className="thai-text">รุ่น</Label>
+                    <Input
+                      value={newPart.forModel}
+                      onChange={(e) => setNewPart({ ...newPart, forModel: e.target.value })}
+                      placeholder="รุ่น"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div>
-                <Label className="thai-text">ชื่อสินค้า</Label>
-                <Input
-                  value={newPart.name}
-                  onChange={(e) => setNewPart({ ...newPart, name: e.target.value })}
-                  placeholder="ชื่อสินค้า"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="thai-text">ยี่ห้อ</Label>
-                  <Input
-                    value={newPart.forBrand}
-                    onChange={(e) => setNewPart({ ...newPart, forBrand: e.target.value })}
-                    placeholder="ยี่ห้อ"
-                  />
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label className="thai-text">ต้นทุน</Label>
+                    <Input
+                      type="number"
+                      value={newPart.cost}
+                      onChange={(e) => setNewPart({ ...newPart, cost: Number(e.target.value) })}
+                      placeholder="0"
+                    />
+                  </div>
+                  <div>
+                    <Label className="thai-text">ราคาขาย</Label>
+                    <Input
+                      type="number"
+                      value={newPart.price}
+                      onChange={(e) => setNewPart({ ...newPart, price: Number(e.target.value) })}
+                      placeholder="0"
+                    />
+                  </div>
+                  <div>
+                    <Label className="thai-text">สต็อก</Label>
+                    <Input
+                      type="number"
+                      value={newPart.stock}
+                      onChange={(e) => setNewPart({ ...newPart, stock: Number(e.target.value) })}
+                      placeholder="0"
+                    />
+                  </div>
                 </div>
                 <div>
-                  <Label className="thai-text">รุ่น</Label>
-                  <Input
-                    value={newPart.forModel}
-                    onChange={(e) => setNewPart({ ...newPart, forModel: e.target.value })}
-                    placeholder="รุ่น"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label className="thai-text">ต้นทุน</Label>
+                  <Label className="thai-text">สต็อกขั้นต่ำ</Label>
                   <Input
                     type="number"
-                    value={newPart.cost}
-                    onChange={(e) => setNewPart({ ...newPart, cost: Number(e.target.value) })}
-                    placeholder="0"
+                    value={newPart.minStock}
+                    onChange={(e) => setNewPart({ ...newPart, minStock: Number(e.target.value) })}
+                    placeholder="5"
                   />
                 </div>
-                <div>
-                  <Label className="thai-text">ราคาขาย</Label>
-                  <Input
-                    type="number"
-                    value={newPart.price}
-                    onChange={(e) => setNewPart({ ...newPart, price: Number(e.target.value) })}
-                    placeholder="0"
-                  />
-                </div>
-                <div>
-                  <Label className="thai-text">สต็อก</Label>
-                  <Input
-                    type="number"
-                    value={newPart.stock}
-                    onChange={(e) => setNewPart({ ...newPart, stock: Number(e.target.value) })}
-                    placeholder="0"
-                  />
+                <div className="flex gap-2 pt-4">
+                  <Button onClick={handleAddPart} className="flex-1 thai-text">เพิ่มสินค้า</Button>
+                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="thai-text">ยกเลิก</Button>
                 </div>
               </div>
-              <div>
-                <Label className="thai-text">สต็อกขั้นต่ำ</Label>
-                <Input
-                  type="number"
-                  value={newPart.minStock}
-                  onChange={(e) => setNewPart({ ...newPart, minStock: Number(e.target.value) })}
-                  placeholder="5"
-                />
-              </div>
-              <div className="flex gap-2 pt-4">
-                <Button onClick={handleAddPart} className="flex-1 thai-text">เพิ่มสินค้า</Button>
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="thai-text">ยกเลิก</Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Search */}

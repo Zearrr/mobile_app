@@ -3,11 +3,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useRepairStore } from '@/stores/useRepairStore';
-import { AlertTriangle, CheckCircle, Eye, Hash, LayoutGrid, List as ListIcon, Pencil, Phone, Printer, Search, Timer, User, Wrench } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, CheckCircle, Eye, Hash, LayoutGrid, List as ListIcon, Pencil, Phone, Printer, Search, Timer, User, Wrench } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Claims = () => {
+  const navigate = useNavigate();
   const { jobs, getCustomerById, updateJob } = useRepairStore();
   const [searchPhone, setSearchPhone] = useState('');
   const [searchName, setSearchName] = useState('');
@@ -50,11 +51,13 @@ const Claims = () => {
               เพิ่มเครมใหม่
             </Button>
           </Link>
-          <Link to="/">
-            <Button className="rounded-xl bg-white/20 hover:bg-white/30 text-white border border-white/30 px-4 py-2 shadow-lg">
-              กลับหน้าหลัก
-            </Button>
-          </Link>
+          <Button 
+            onClick={() => navigate('/dashboard')}
+            className="rounded-xl bg-white/20 hover:bg-white/30 text-white border border-white/30 px-4 py-2 shadow-lg"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            กลับหน้าแรก
+          </Button>
           <div className="ml-2 flex rounded-md overflow-hidden border border-white/30">
             <Tooltip>
               <TooltipTrigger asChild>

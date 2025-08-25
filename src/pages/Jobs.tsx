@@ -8,24 +8,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useRepairStore } from '@/stores/useRepairStore';
 import type { JobStatus, PaymentStatus } from '@/types';
 import {
-    AlertTriangle,
-    Calendar,
-    CheckCircle,
-    Clock,
-    CreditCard,
-    Edit,
-    Eye,
-    Filter,
-    Plus,
-    Printer,
-    RotateCcw,
-    Search,
-    Trash2,
-    TrendingUp,
-    Wrench
+	AlertTriangle,
+	ArrowLeft,
+	Calendar,
+	CheckCircle,
+	Clock,
+	CreditCard,
+	Edit,
+	Eye,
+	Filter,
+	Plus,
+	Printer,
+	RotateCcw,
+	Search,
+	Trash2,
+	TrendingUp,
+	Wrench
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useOutletContext } from 'react-router-dom';
+import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 
 interface OutletContext {
 	sidebarOpen: boolean;
@@ -38,6 +39,7 @@ interface OutletContext {
 
 const Jobs = () => {
 	const { sidebarOpen, setSidebarOpen, currentPageInfo } = useOutletContext<OutletContext>();
+	const navigate = useNavigate();
 	const {
 		getFilteredJobs,
 		setFilters,
@@ -123,29 +125,27 @@ const Jobs = () => {
 			{/* Container ให้เว้นระยะจาก sidebar และจัดกึ่งกลางเหมือนหน้าแรก */}
 			<div className="p-6 md:p-8 max-w-7xl mx-auto">
 
-				{/* Quick Repair Card */}
-				<div className="mb-8">
-					<Card className="bg-gradient-to-r from-primary to-primary-dark text-white shadow-2xl border-0 overflow-hidden rounded-2xl">
-						<CardContent className="p-6">
-							<div className="flex items-center justify-between">
-								<div className="flex items-center gap-4">
-									<div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
-										<Wrench className="w-6 h-6" />
-									</div>
-									<div>
-										<h2 className="text-xl font-bold mb-1">แจ้งซ่อมด่วน</h2>
-										<p className="text-white/80 thai-text">สร้างงานซ่อมใหม่สำหรับลูกค้าได้ทันที</p>
-									</div>
-								</div>
-								<Link to="/jobs/new">
-									<Button className="bg-white text-primary hover:bg-white/90 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 px-6 py-3 text-base rounded-xl">
-										<Plus className="w-6 h-6 mr-2" />
-										แจ้งซ่อมใหม่
-									</Button>
-								</Link>
-							</div>
-						</CardContent>
-					</Card>
+				{/* Gradient Header with Back + New Job */}
+				<div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between mb-8">
+					<div className="flex items-center gap-4">
+						<div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+							<Wrench className="w-6 h-6" />
+						</div>
+						<div>
+							<div className="text-lg md:text-xl font-bold thai-text">จัดการงานซ่อม</div>
+							<div className="text-white/90 thai-text text-sm md:text-base">ดูและจัดการงานซ่อมทั้งหมดในระบบ</div>
+						</div>
+					</div>
+					<div className="flex items-center gap-2">
+						<Button variant="outline" onClick={() => navigate(-1)} className="rounded-xl bg-white/10 hover:bg-white/20 text-white border-white/30 px-4 py-2">
+							<ArrowLeft className="w-4 h-4 mr-2" /> กลับหน้าแรก
+						</Button>
+						<Link to="/jobs/new">
+							<Button className="rounded-xl bg-white text-primary hover:bg-white/90 border border-white/20 px-4 py-2">
+								<Plus className="w-4 h-4 mr-2" /> แจ้งซ่อมใหม่
+							</Button>
+						</Link>
+					</div>
 				</div>
 
 				{/* Dashboard Stats (colored tiles) */}
@@ -286,72 +286,72 @@ const Jobs = () => {
 									<div className="font-semibold text-success">฿{filteredStats.profit.toLocaleString()}</div>
 									<div className="text-muted-foreground thai-text">กำไร</div>
 								</div>
+						</div>
+					</div>
+					<div className="mt-4 rounded-xl border border-border p-4 bg-white/60">
+						<div className="flex items-center gap-2 mb-4">
+							<Filter className="h-5 w-5 text-primary" />
+							<span className="thai-text font-medium">ตัวกรองและค้นหา</span>
+						</div>
+					<div className="flex flex-col md:flex-row md:items-end md:gap-3 gap-4">
+						<Input placeholder="ค้นหา: รหัสงาน, ลูกค้า, เบอร์, รุ่น, อาการเสีย" value={search} onChange={(e) => setSearch(e.target.value)} className="thai-text md:flex-[2]" />
+						<div className="md:w-56">
+							<Select value={status} onValueChange={(v) => setStatus(v as any)}>
+								<SelectTrigger>
+									<SelectValue placeholder="สถานะงาน" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">สถานะทั้งหมด</SelectItem>
+									<SelectItem value="received">รับงานแล้ว</SelectItem>
+									<SelectItem value="checking">กำลังตรวจเช็ค</SelectItem>
+									                <SelectItem value="waiting_parts">รอสินค้า</SelectItem>
+									<SelectItem value="in_progress">กำลังซ่อม</SelectItem>
+									<SelectItem value="testing">ทดสอบ</SelectItem>
+									<SelectItem value="done">ซ่อมเสร็จ</SelectItem>
+									<SelectItem value="delivered">ส่งมอบแล้ว</SelectItem>
+									<SelectItem value="returned">รับคืนแล้ว</SelectItem>
+									<SelectItem value="cancelled">ยกเลิก</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+						<div className="md:w-56">
+							<Select value={payment} onValueChange={(v) => setPayment(v as any)}>
+								<SelectTrigger>
+									<SelectValue placeholder="สถานะชำระ" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">ชำระทั้งหมด</SelectItem>
+									<SelectItem value="unpaid">ยังไม่ชำระ</SelectItem>
+									<SelectItem value="deposit">มัดจำ</SelectItem>
+									<SelectItem value="paid">ชำระแล้ว</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+						<div className="md:w-44">
+							<label className="text-sm font-medium thai-text mb-2 block md:mb-1">วันที่เริ่ม</label>
+							<div className="relative">
+								<Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+								<Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="pl-10 thai-text" />
 							</div>
 						</div>
-						<div className="mt-4 rounded-xl border border-border p-4 bg-white/60">
-							<div className="flex items-center gap-2 mb-4">
-								<Filter className="h-5 w-5 text-primary" />
-								<span className="thai-text font-medium">ตัวกรองและค้นหา</span>
-							</div>
-						<div className="flex flex-col md:flex-row md:items-end md:gap-3 gap-4">
-							<Input placeholder="ค้นหา: รหัสงาน, ลูกค้า, เบอร์, รุ่น, อาการเสีย" value={search} onChange={(e) => setSearch(e.target.value)} className="thai-text md:flex-[2]" />
-							<div className="md:w-56">
-								<Select value={status} onValueChange={(v) => setStatus(v as any)}>
-									<SelectTrigger>
-										<SelectValue placeholder="สถานะงาน" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">สถานะทั้งหมด</SelectItem>
-										<SelectItem value="received">รับงานแล้ว</SelectItem>
-										<SelectItem value="checking">กำลังตรวจเช็ค</SelectItem>
-										                <SelectItem value="waiting_parts">รอสินค้า</SelectItem>
-										<SelectItem value="in_progress">กำลังซ่อม</SelectItem>
-										<SelectItem value="testing">ทดสอบ</SelectItem>
-										<SelectItem value="done">ซ่อมเสร็จ</SelectItem>
-										<SelectItem value="delivered">ส่งมอบแล้ว</SelectItem>
-										<SelectItem value="returned">รับคืนแล้ว</SelectItem>
-										<SelectItem value="cancelled">ยกเลิก</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-							<div className="md:w-56">
-								<Select value={payment} onValueChange={(v) => setPayment(v as any)}>
-									<SelectTrigger>
-										<SelectValue placeholder="สถานะชำระ" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">ชำระทั้งหมด</SelectItem>
-										<SelectItem value="unpaid">ยังไม่ชำระ</SelectItem>
-										<SelectItem value="deposit">มัดจำ</SelectItem>
-										<SelectItem value="paid">ชำระแล้ว</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-							<div className="md:w-44">
-								<label className="text-sm font-medium thai-text mb-2 block md:mb-1">วันที่เริ่ม</label>
-								<div className="relative">
-									<Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-									<Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="pl-10 thai-text" />
-								</div>
-							</div>
-							<div className="md:w-44">
-								<label className="text-sm font-medium thai-text mb-2 block md:mb-1">วันที่สิ้นสุด</label>
-								<div className="relative">
-									<Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-									<Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="pl-10 thai-text" />
-								</div>
-							</div>
-							<div className="flex gap-2 md:w-64">
-								<Button variant="outline" onClick={resetFilters} className="flex-1 btn-outline">
-									<RotateCcw className="w-4 h-4 mr-2" />
-									ล้าง
-								</Button>
-								<Button onClick={applyFilters} className="flex-1 btn-primary">
-									<Search className="w-4 h-4 mr-2" />
-									ค้นหา
-								</Button>
+						<div className="md:w-44">
+							<label className="text-sm font-medium thai-text mb-2 block md:mb-1">วันที่สิ้นสุด</label>
+							<div className="relative">
+								<Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+								<Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="pl-10 thai-text" />
 							</div>
 						</div>
+						<div className="flex gap-2 md:w-64">
+							<Button variant="outline" onClick={resetFilters} className="flex-1 btn-outline">
+								<RotateCcw className="w-4 h-4 mr-2" />
+								ล้าง
+							</Button>
+							<Button onClick={applyFilters} className="flex-1 btn-primary">
+								<Search className="w-4 h-4 mr-2" />
+								ค้นหา
+							</Button>
+						</div>
+					</div>
 					</div>
 					</CardHeader>
 					<CardContent>
@@ -443,14 +443,14 @@ const Jobs = () => {
 															</Button>
 														</div>
 													</TableCell>
-												</TableRow>
-											);
-										})}
-									</TableBody>
-								</Table>
-							</div>
+											</TableRow>
+										);
+									})}
+								</TableBody>
+							</Table>
+						</div>
 						)}
-					</CardContent>
+						</CardContent>
 				</Card>
 			</div>
 		</div>

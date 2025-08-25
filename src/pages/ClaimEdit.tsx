@@ -126,6 +126,14 @@ const ClaimEdit = () => {
           </div>
           
           <div className="flex justify-center gap-4 mt-6">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/dashboard')}
+              className="bg-gray-600 text-white hover:bg-gray-700 border-gray-600"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              กลับหน้าแรก
+            </Button>
             <Link to="/claims">
               <Button variant="outline" className="bg-bull-500 text-white hover:bg-bull-600 border-bull-500">
                 <ArrowLeft className="w-4 h-4 mr-2" />

@@ -68,6 +68,13 @@ const Warranty = () => {
           </div>
         </div>
         <div className="hidden sm:flex items-center gap-3">
+          <Button 
+            onClick={() => navigate('/dashboard')}
+            className="rounded-xl bg-white/20 hover:bg-white/30 text-white border border-white/30 px-4 py-2 shadow-lg"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            กลับหน้าแรก
+          </Button>
           <Link to="/claims">
             <Button className="rounded-xl bg-white/20 hover:bg-white/30 text-white border border-white/30 px-4 py-2 shadow-lg">
               จัดการเครมการซ่อม
