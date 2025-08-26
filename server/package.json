@@ -1,0 +1,21 @@
+{
+  "name": "inventory-issue-server",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "set PRISMA_PROVIDER=sqlite&& set DATABASE_URL=file:./test.db&& prisma generate && prisma db push --accept-data-loss && jest -c jest.config.cjs"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.18.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.30",
+    "jest": "^29.7.0",
+    "prisma": "^5.18.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.4.5"
+  }
+}
+
+

@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Part {
+  id            Int      @id @default(autoincrement())
+  sku           String   @unique
+  name          String
+  onHandQty     Float    @default(0)
+  movingAvgCost Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  batches    Batch[]
+  stockMoves StockMove[]
+}
+
+model Batch {
+  id           Int      @id @default(autoincrement())
+  partId       Int
+  receivedQty  Float
+  remainingQty Float
+  unitCost     Float
+  reference    String?
+  createdAt    DateTime @default(now())
+
+  part Part @relation(fields: [partId], references: [id])
+  stockMoves StockMove[]
+  @@index([partId])
+}
+
+model StockMove {
+  id        Int      @id @default(autoincrement())
+  partId    Int
+  batchId   Int?
+  type      String
+  qty       Float // negative for issue
+  unitCost  Float
+  totalCost Float
+  reference String?
+  createdAt DateTime @default(now())
+
+  part  Part  @relation(fields: [partId], references: [id])
+  batch Batch? @relation(fields: [batchId], references: [id])
+
+  @@index([partId])
+  @@index([batchId])
+}
+
+// MoveType string: 'RECEIVE' | 'ISSUE'
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  entity    String
+  action    String
+  ref       String?
+  meta      Json
+  createdAt DateTime @default(now())
+}
+
+model Sale {
+  id         Int      @id @default(autoincrement())
+  number     String   @unique
+  status     String   @default("OPEN") // OPEN | PAID | VOID
+  grandTotal Float    @default(0)
+  createdAt  DateTime @default(now())
+  payments   Payment[]
+}
+
+model Payment {
+  id               Int      @id @default(autoincrement())
+  saleId           Int
+  amount           Float
+  method           String
+  refund           Boolean  @default(false)
+  idempotencyKeyId Int?
+  createdAt        DateTime @default(now())
+  voidedAt         DateTime?
+
+  sale             Sale     @relation(fields: [saleId], references: [id])
+  idempotencyKey   IdempotencyKey? @relation(fields: [idempotencyKeyId], references: [id])
+}
+
+model IdempotencyKey {
+  id         Int      @id @default(autoincrement())
+  key        String   @unique
+  endpoint   String
+  requestHash String
+  response   Json?
+  createdAt  DateTime @default(now())
+  payments   Payment[]
+}
+
+// Purchasing models for GR
+model PO {
+  id         Int      @id @default(autoincrement())
+  number     String   @unique
+  status     String   @default("OPEN") // OPEN | APPROVED | PARTIAL | RECEIVED
+  createdAt  DateTime @default(now())
+  items      POItem[]
+  receipts   GoodsReceipt[]
+}
+
+model POItem {
+  id          Int      @id @default(autoincrement())
+  poId        Int
+  partId      Int
+  qtyOrdered  Float
+  qtyReceived Float   @default(0)
+  unitCost    Float
+  po          PO      @relation(fields: [poId], references: [id])
+  part        Part    @relation(fields: [partId], references: [id])
+}
+
+model GoodsReceipt {
+  id        Int      @id @default(autoincrement())
+  poId      Int
+  number    String   @unique
+  createdAt DateTime @default(now())
+  items     GRItem[]
+  po        PO       @relation(fields: [poId], references: [id])
+}
+
+model GRItem {
+  id          Int      @id @default(autoincrement())
+  grId        Int
+  poItemId    Int
+  qtyReceived Float
+  unitCost    Float
+  gr          GoodsReceipt @relation(fields: [grId], references: [id])
+  poItem      POItem       @relation(fields: [poItemId], references: [id])
+}
+
+// Jobs, Warranties, Claims
+model Customer {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String?
+  email     String?
+  createdAt DateTime @default(now())
+  jobs      Job[]
+}
+
+model Job {
+  id          Int       @id @default(autoincrement())
+  number      String    @unique
+  customerId  Int
+  status      String    @default("OPEN") // OPEN | CLOSED
+  createdAt   DateTime  @default(now())
+  closedAt    DateTime?
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  items       JobItem[]
+  warranties  Warranty[]
+}
+
+model JobItem {
+  id           Int      @id @default(autoincrement())
+  jobId        Int
+  partId       Int?
+  description  String
+  qty          Float    @default(1)
+  price        Float    @default(0)
+  warrantyDays Int      @default(0)
+  job          Job      @relation(fields: [jobId], references: [id])
+  part         Part?    @relation(fields: [partId], references: [id])
+  warranties   Warranty[]
+}
+
+model Warranty {
+  id          Int      @id @default(autoincrement())
+  jobId       Int
+  jobItemId   Int
+  customerId  Int
+  partId      Int?
+  serial      String?
+  startAt     DateTime
+  endAt       DateTime
+  status      String   @default("ACTIVE") // ACTIVE | EXPIRED | CLAIMED
+  job         Job      @relation(fields: [jobId], references: [id])
+  jobItem     JobItem  @relation(fields: [jobItemId], references: [id])
+  customer    Customer @relation(fields: [customerId], references: [id])
+  part        Part?    @relation(fields: [partId], references: [id])
+  claims      Claim[]
+}
+
+model Claim {
+  id          Int      @id @default(autoincrement())
+  warrantyId  Int
+  customerId  Int
+  jobId       Int?
+  partId      Int?
+  status      String   @default("SUBMITTED") // SUBMITTED | APPROVED | REJECTED | RESOLVED
+  createdAt   DateTime @default(now())
+  warranty    Warranty @relation(fields: [warrantyId], references: [id])
+  customer    Customer @relation(fields: [customerId], references: [id])
+  job         Job?     @relation(fields: [jobId], references: [id])
+  part        Part?    @relation(fields: [partId], references: [id])
+}
+
+

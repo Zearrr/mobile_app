@@ -1,21 +1,10 @@
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { exportAll, importAll } from '@/lib/database';
 import { useRepairStore } from '@/stores/useRepairStore';
-import { LogOut, Settings as SettingsIcon } from 'lucide-react';
+import { Settings as SettingsIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
 type FormData = {
@@ -30,8 +19,6 @@ type FormData = {
 export default function Settings() {
   const settings = useRepairStore(s => s.settings);
   const updateSettings = useRepairStore(s => s.updateSettings);
-  const logout = useRepairStore(state => state.logout);
-  const currentUser = useRepairStore(state => state.currentUser);
   const { register, handleSubmit, reset } = useForm<FormData>({
     values: {
       storeName: settings?.storeName || 'Mobile Repair Pro',
@@ -71,11 +58,6 @@ export default function Settings() {
     const data = JSON.parse(text);
     await importAll(data);
     window.location.reload();
-  };
-
-  const handleLogout = () => {
-    logout();
-    window.location.href = '/login';
   };
 
   return (
@@ -146,59 +128,6 @@ export default function Settings() {
           <Button type="submit" className="btn-gradient">บันทึกการตั้งค่า</Button>
         </div>
       </form>
-
-      {/* Account Management Section */}
-      <Card className="glass-card overflow-hidden">
-        <CardHeader>
-          <CardTitle className="thai-text text-red-600">จัดการบัญชี</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="relative rounded-xl border border-red-200/60 dark:border-red-900/30 bg-gradient-to-r from-rose-500/5 via-red-500/5 to-orange-500/5 p-5 md:p-6 shadow-sm">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 text-white flex items-center justify-center shadow-md">
-                  <LogOut className="w-6 h-6" />
-                </div>
-                <div>
-                  <div className="thai-text text-sm text-gray-600 dark:text-gray-300">ผู้ใช้ปัจจุบัน</div>
-                  <div className="text-lg font-semibold">{currentUser?.name || 'ไม่ระบุ'}</div>
-                  <div className="mt-1">
-                    <span className="inline-flex items-center rounded-full bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/20 px-2.5 py-0.5 text-xs thai-text">
-                      {currentUser?.role === 'owner' ? 'เจ้าของร้าน' : currentUser?.role === 'cashier' ? 'แคชเชียร์' : currentUser?.role === 'tech' ? 'ช่างซ่อม' : 'พนักงาน'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="hidden md:block text-sm text-muted-foreground thai-text">ออกจากระบบเพื่อเปลี่ยนบัญชีผู้ใช้</div>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button className="bg-gradient-to-r from-red-500 to-rose-600 text-white hover:from-red-600 hover:to-rose-700 shadow-lg hover:shadow-xl">
-                      <LogOut className="w-4 h-4 mr-2" />
-                      ออกจากระบบ
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="bg-white rounded-2xl shadow-2xl">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="thai-text text-xl">ออกจากระบบ?</AlertDialogTitle>
-                      <AlertDialogDescription className="thai-text text-gray-600">
-                        คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ ข้อมูลที่ยังไม่ได้บันทึกอาจหายไป
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel className="thai-text bg-gray-100 hover:bg-gray-200 rounded-xl">ยกเลิก</AlertDialogCancel>
-                      <AlertDialogAction className="bg-gradient-to-r from-red-500 to-rose-600 text-white hover:from-red-600 hover:to-rose-700 thai-text rounded-xl" onClick={handleLogout}>
-                        ออกจากระบบ
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
       </div>
     </div>
   );
