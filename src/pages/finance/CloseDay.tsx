@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/layout/Topbar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,13 +11,11 @@ import { useRepairStore } from '@/stores/useRepairStore';
 import { CloseDay, PaymentMethod } from '@/types';
 import { endOfDay, format, isWithinInterval, startOfDay } from 'date-fns';
 import {
-  ArrowRight,
-  Calculator,
-  Printer,
-  Save,
-  TrendingDown,
-  TrendingUp,
-  Wallet
+    ArrowRight,
+    Calculator,
+    TrendingDown,
+    TrendingUp,
+    Wallet
 } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -107,29 +106,11 @@ export default function CloseDayPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold gradient-text">ปิดยอดสิ้นวัน</h1>
-          <p className="thai-text text-muted-foreground text-lg">สรุปยอดและบันทึกปิดวัน</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Input 
-            type="date" 
-            value={dateStr} 
-            onChange={(e) => setDateStr(e.target.value)}
-            className="w-auto"
-          />
-          <Button variant="outline" onClick={handlePrint}>
-            <Printer className="w-4 h-4 mr-2" />
-            พิมพ์รายงาน
-          </Button>
-          <Button className="btn-gradient" onClick={handleSave}>
-            <Save className="w-4 h-4 mr-2" />
-            บันทึกปิดยอด
-          </Button>
-        </div>
-      </div>
+      <PageHeader 
+        title="ปิดยอดสิ้นวัน" 
+        description="สรุปยอดและบันทึกปิดวัน" 
+        showActions={false} 
+      />
 
       {/* Quick Navigation */}
       <Card className="glass-card border-2 border-blue-200 bg-blue-50/30">

@@ -1,10 +1,10 @@
+import { PageHeader } from '@/components/layout/Topbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { exportAll, importAll } from '@/lib/database';
 import { useRepairStore } from '@/stores/useRepairStore';
-import { Settings as SettingsIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
 type FormData = {
@@ -63,18 +63,11 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
       <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
-        {/* Gradient Header */}
-        <div className="rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
-              <SettingsIcon className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="text-xl md:text-2xl font-bold">ตั้งค่า</div>
-              <div className="text-white/90 thai-text text-sm md:text-base">ข้อมูลร้านและค่าตั้งต้นต่าง ๆ</div>
-            </div>
-          </div>
-        </div>
+        <PageHeader 
+          title="ตั้งค่า" 
+          description="ข้อมูลร้านและค่าตั้งต้นต่าง ๆ" 
+          showActions={false} 
+        />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <Card className="glass-card">

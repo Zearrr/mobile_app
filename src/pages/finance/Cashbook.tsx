@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/layout/Topbar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,23 +13,20 @@ import { useRepairStore } from '@/stores/useRepairStore';
 import { PaymentMethod } from '@/types';
 import { endOfDay, format, isWithinInterval, startOfDay } from 'date-fns';
 import {
-  Calculator,
-  Calendar,
-  Clock,
-  Copy,
-  DollarSign,
-  Download,
-  Filter,
-  Plus,
-  RotateCcw,
-  Search,
-  TrendingDown,
-  TrendingUp,
-  Wallet,
-  X
+    Calendar,
+    Clock,
+    DollarSign,
+    Download,
+    Filter,
+    Plus,
+    RotateCcw,
+    Search,
+    TrendingDown,
+    TrendingUp,
+    Wallet,
+    X
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 
 type EntryType = 'income' | 'expense';
 
@@ -273,35 +271,11 @@ export default function Cashbook() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
       <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
-        {/* Gradient Header */}
-        <div className="rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between">
-          <div>
-            <div className="text-xl md:text-2xl font-bold">รายรับ–รายจ่าย</div>
-            <div className="text-white/90 thai-text text-sm md:text-base">จัดการการเงินและติดตามรายรับ-รายจ่าย</div>
-          </div>
-          <div className="flex items-center gap-2 md:gap-3">
-            <Input 
-              type="date" 
-              value={dateStr} 
-              onChange={(e) => setDateStr(e.target.value)}
-              className="w-auto bg-white text-foreground"
-            />
-            <Button variant="outline" onClick={exportCSV} className="bg-white/10 text-white hover:bg-white/20 border-white/30">
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-            <Button className="rounded-xl" onClick={copyToCloseDay}>
-              <Copy className="w-4 h-4 mr-2" />
-              คัดลอกยอด
-            </Button>
-            <Link to="/close-day">
-              <Button variant="outline" className="bg-white/10 text-white hover:bg-white/20 border-white/30">
-                <Calculator className="w-4 h-4 mr-2" />
-                ปิดยอดสิ้นวัน
-              </Button>
-            </Link>
-          </div>
-        </div>
+        <PageHeader 
+          title="รายรับ–รายจ่าย" 
+          description="จัดการการเงินและติดตามรายรับ-รายจ่าย" 
+          showActions={false} 
+        />
 
         {/* Main Stats Dashboard - compact tiles */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

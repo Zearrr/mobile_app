@@ -1,10 +1,9 @@
 // Main Application Layout
-import { Button } from '@/components/ui/button';
 import { useRepairStore } from '@/stores/useRepairStore';
-import { Loader2, Menu } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Sidebar } from './Sidebar';
+import { Topbar } from './Topbar';
 
 export function AppLayout() {
   const currentUser = useRepairStore(state => state.currentUser);
@@ -61,29 +60,10 @@ export function AppLayout() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex h-screen">
-        <Sidebar className={`lg:fixed`} mobileOpen={sidebarOpen} setMobileOpen={setSidebarOpen} />
-        
-        <main className={`flex-1 overflow-y-auto h-screen bg-secondary transition-all duration-300 lg:ml-64`}>
-          {/* Top Header Bar - ใช้ร่วมกันในทุกหน้า */}
-          <div className="bg-white/95 backdrop-blur-sm border-b border-border/50 shadow-lg w-full sticky top-0 z-40">
-            <div className="flex items-center justify-between px-8 py-6">
-              <div className="flex items-center gap-6">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSidebarOpen(prev => !prev)}
-                  className="hover:bg-primary/10 hover:text-primary rounded-xl p-3 transition-all duration-300"
-                >
-                  <Menu className="w-6 h-6" />
-                </Button>
-                <div className="text-base font-medium text-muted-foreground thai-text">{currentPageInfo.title}</div>
-              </div>
-              
-              {/* Store Name */}
-              <div className="font-bold text-xl text-primary thai-text bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
-                ร้านซ่อมมือถือ
-              </div>
-            </div>
+        <main className={`flex-1 overflow-y-auto h-screen bg-secondary transition-all duration-300`}>
+          {/* Top navigation bar only */}
+          <div className="w-full sticky top-0 z-40">
+            <Topbar />
           </div>
 
           {/* Loading overlay */}

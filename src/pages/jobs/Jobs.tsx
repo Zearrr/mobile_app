@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/layout/Topbar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,22 +9,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useRepairStore } from '@/stores/useRepairStore';
 import type { JobStatus, PaymentStatus } from '@/types';
 import {
-	AlertTriangle,
-	ArrowLeft,
-	Calendar,
-	CheckCircle,
-	Clock,
-	CreditCard,
-	Edit,
-	Eye,
-	Filter,
-	Plus,
-	Printer,
-	RotateCcw,
-	Search,
-	Trash2,
-	TrendingUp,
-	Wrench
+    AlertTriangle,
+    Calendar,
+    CheckCircle,
+    Clock,
+    CreditCard,
+    Edit,
+    Eye,
+    Filter,
+    Printer,
+    RotateCcw,
+    Search,
+    Trash2,
+    TrendingUp,
+    Wrench
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
@@ -46,7 +45,8 @@ const Jobs = () => {
 		clearFilters,
 		filters,
 		getCustomerById,
-		jobs
+		jobs,
+		updatePaymentStatus
 	} = useRepairStore();
 
 	const [search, setSearch] = useState(filters.search || '');
@@ -115,7 +115,7 @@ const Jobs = () => {
 		const count = items.length;
 		const revenue = items.reduce((s, j) => s + (j.total || 0), 0);
 		const profit = items.reduce((s, j) => s + (j.profit || 0), 0);
-		const cost = items.reduce((s, j) => s + (j.costParts + j.costLabor), 0);
+		const cost = items.reduce((s, j) => s + ((j.costParts ?? 0) + (j.costLabor ?? 0)), 0);
 		
 		return { count, revenue, profit, cost };
 	}, [items]);
@@ -123,28 +123,11 @@ const Jobs = () => {
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
 			<div className="p-6 md:p-8 max-w-7xl mx-auto">
-				{/* Gradient Header with Back + New Job */}
-				<div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between mb-8">
-					<div className="flex items-center gap-4">
-						<div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
-							<Wrench className="w-6 h-6" />
-						</div>
-						<div>
-							<div className="text-lg md:text-xl font-bold thai-text">จัดการงานซ่อม</div>
-							<div className="text-white/90 thai-text text-sm md:text-base">ดูและจัดการงานซ่อมทั้งหมดในระบบ</div>
-						</div>
-					</div>
-					<div className="flex items-center gap-2">
-						<Button variant="outline" onClick={() => navigate(-1)} className="rounded-xl bg-white/10 hover:bg-white/20 text-white border-white/30 px-4 py-2">
-							<ArrowLeft className="w-4 h-4 mr-2" /> กลับหน้าแรก
-						</Button>
-						<Link to="/jobs/new">
-							<Button className="rounded-xl bg-white text-primary hover:bg-white/90 border border-white/20 px-4 py-2">
-								<Plus className="w-4 h-4 mr-2" /> แจ้งซ่อมใหม่
-							</Button>
-						</Link>
-					</div>
-				</div>
+				<PageHeader 
+					title="จัดการงานซ่อม" 
+					description="ดูและจัดการงานซ่อมทั้งหมดในระบบ" 
+					showActions={true} 
+				/>
 
 				{/* Dashboard Stats (colored tiles) */}
 				<div className="mb-6">
@@ -383,8 +366,11 @@ const Jobs = () => {
 									<TableBody>
 										{items.map((job) => {
 											const customer = getCustomerById(job.customerId);
-											const totalCost = job.costParts + job.costLabor;
-											const profit = job.profit || (job.total - totalCost);
+											const total = job.total ?? 0;
+											const costParts = job.costParts ?? 0;
+											const costLabor = job.costLabor ?? 0;
+											const totalCost = costParts + costLabor;
+											const profit = job.profit ?? (total - totalCost);
 											
 											return (
 												<TableRow key={job.id} className="hover:bg-accent/50">
@@ -400,7 +386,7 @@ const Jobs = () => {
 														{job.issueDesc}
 													</TableCell>
 													<TableCell className="font-semibold text-success">
-														฿{job.total.toLocaleString()}
+														฿{total.toLocaleString()}
 													</TableCell>
 													<TableCell className="text-sm">
 														<div className="flex items-center gap-1">
@@ -422,7 +408,7 @@ const Jobs = () => {
 														<PaymentBadge status={job.paymentStatus} />
 													</TableCell>
 													<TableCell className="text-right">
-														<div className="flex justify-end gap-1">
+														<div className="flex justify-end gap-2">
 															<Button variant="outline" size="sm" asChild className="h-8 w-8 p-0 btn-outline">
 																<Link to={`/jobs/${job.id}`} title="ดู">
 																	<Eye className="w-4 h-4" />
@@ -433,12 +419,33 @@ const Jobs = () => {
 																	<Edit className="w-4 h-4" />
 																</Link>
 															</Button>
+															{job.paymentStatus !== 'paid' ? (
+																<Button
+																	variant="outline"
+																	size="sm"
+																	className="h-8 px-2 thai-text bg-green-600/90 hover:bg-green-700 text-white border-0"
+																	onClick={() => updatePaymentStatus(job.id, 'paid')}
+																	title="ทำเครื่องหมายว่าชำระแล้ว"
+																>
+																	<CreditCard className="w-4 h-4 mr-1" /> ชำระแล้ว
+																</Button>
+															) : (
+																<Button
+																	variant="outline"
+																	size="sm"
+																	className="h-8 px-2 thai-text bg-rose-600/90 hover:bg-rose-700 text-white border-0"
+																	onClick={() => updatePaymentStatus(job.id, 'unpaid')}
+																	title="เปลี่ยนเป็นยังไม่ชำระ"
+																>
+																	<CreditCard className="w-4 h-4 mr-1" /> ยังไม่ชำระ
+																</Button>
+															)}
 															<Button variant="outline" size="sm" asChild className="h-8 w-8 p-0 btn-outline">
 																<Link to={`/print/jobs/${job.id}`} title="พิมพ์">
 																	<Printer className="w-4 h-4" />
 																</Link>
 															</Button>
-															<Button variant="outline" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive btn-outline" title="ลบ">
+															<Button variant="outline" size="sm" className="h-8 w-8 p-0 btn-outline text-rose-600 hover:bg-rose-50" title="ลบ">
 																<Trash2 className="w-4 h-4" />
 															</Button>
 														</div>

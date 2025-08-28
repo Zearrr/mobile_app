@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/layout/Topbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useRepairStore } from '@/stores/useRepairStore';
@@ -12,19 +13,9 @@ import {
   Wrench
 } from 'lucide-react';
 import { useMemo } from 'react';
-import { Link, useOutletContext } from 'react-router-dom';
-
-interface OutletContext {
-  sidebarOpen: boolean;
-  setSidebarOpen: (open: boolean) => void;
-  currentPageInfo: {
-    title: string;
-    description: string;
-  };
-}
+import { Link } from 'react-router-dom';
 
 const Index = () => {
-  const { sidebarOpen, setSidebarOpen, currentPageInfo } = useOutletContext<OutletContext>();
   const { jobs, customers, parts } = useRepairStore();
 
   const stats = useMemo(() => {
@@ -50,68 +41,12 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
       {/* Main Content */}
-      <div className="p-6 md:p-8 max-w-7xl mx-auto">
+      <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+        <PageHeader title="หน้าแรก" description="ภาพรวมและทางลัดการทำงานในระบบ" showActions={false} />
 
-
-      {/* Quick Action Buttons - match new dashboard style */}
+      {/* Work Status Section - move to top to show 6 cards first */}
       <div className="mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {/* New Job */}
-          <Link to="/jobs/new" className="group block">
-            <Card className="rounded-2xl shadow-lg border border-emerald-200/60 bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-950/30 dark:to-green-950/30 dark:border-emerald-800/40 hover:shadow-xl transition-all">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-green-600 text-white flex items-center justify-center shadow-md">
-                    <Plus className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <div className="text-lg font-semibold text-emerald-700 dark:text-emerald-300">แจ้งซ่อมใหม่</div>
-                    <p className="text-sm text-emerald-700/80 dark:text-emerald-300/80 thai-text">สร้างงานซ่อมใหม่สำหรับลูกค้า</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          {/* Jobs List */}
-          <Link to="/jobs" className="group block">
-            <Card className="rounded-2xl shadow-lg border border-blue-200/60 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-950/30 dark:to-indigo-950/30 dark:border-blue-800/40 hover:shadow-xl transition-all">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md">
-                    <Wrench className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <div className="text-lg font-semibold text-blue-700 dark:text-blue-300">รายการแจ้งซ่อม</div>
-                    <p className="text-sm text-blue-700/80 dark:text-blue-300/80 thai-text">ดูและจัดการงานซ่อมทั้งหมด</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          {/* Pricing */}
-          <Link to="/pricing" className="group block">
-            <Card className="rounded-2xl shadow-lg border border-violet-200/60 bg-gradient-to-br from-violet-100 to-fuchsia-100 dark:from-violet-950/30 dark:to-fuchsia-950/30 dark:border-violet-800/40 hover:shadow-xl transition-all">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white flex items-center justify-center shadow-md">
-                    <Calculator className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <div className="text-lg font-semibold text-violet-700 dark:text-violet-300">คำนวณราคา</div>
-                    <p className="text-sm text-violet-700/80 dark:text-violet-300/80 thai-text">คำนวณราคาและสร้างใบเสนอราคา</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
-      </div>
-
-      {/* Work Status Section - arranged only (keep original style) */}
-      <div className="mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {/* งานทั้งหมด */}
           <Card className="rounded-2xl shadow-lg bg-gradient-to-br from-blue-100 to-indigo-100 border border-blue-200/60 dark:from-blue-950/30 dark:to-indigo-950/30 dark:border-blue-800/40">
             <CardContent className="p-6">
@@ -122,6 +57,21 @@ const Index = () => {
                 <div>
                   <div className="text-3xl md:text-4xl font-extrabold leading-none text-blue-700 dark:text-blue-300">{stats.totalJobs}</div>
                   <div className="mt-1 text-base md:text-lg font-semibold text-blue-700 dark:text-blue-300 thai-text">งานทั้งหมด</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* รอดำเนินการ */}
+          <Card className="rounded-2xl shadow-lg bg-gradient-to-br from-sky-100 to-blue-100 border border-sky-200/60 dark:from-sky-950/30 dark:to-blue-950/30 dark:border-sky-800/40">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-600 to-blue-600 text-white flex items-center justify-center shadow-md">
+                  <AlertCircle className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-3xl md:text-4xl font-extrabold leading-none text-sky-700 dark:text-sky-300">{stats.pendingJobs}</div>
+                  <div className="mt-1 text-base md:text-lg font-semibold text-sky-700 dark:text-sky-300 thai-text">รอดำเนินการ</div>
                 </div>
               </div>
             </CardContent>
@@ -189,6 +139,62 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Quick Action Buttons - moved below status cards */}
+      <div className="mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* New Job */}
+          <Link to="/jobs/new" className="group block">
+            <Card className="rounded-2xl shadow-lg border border-emerald-200/60 bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-950/30 dark:to-green-950/30 dark:border-emerald-800/40 hover:shadow-xl transition-all">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-green-600 text-white flex items-center justify-center shadow-md">
+                    <Plus className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold text-emerald-700 dark:text-emerald-300">แจ้งซ่อมใหม่</div>
+                    <p className="text-sm text-emerald-700/80 dark:text-emerald-300/80 thai-text">สร้างงานซ่อมใหม่สำหรับลูกค้า</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Jobs List */}
+          <Link to="/jobs" className="group block">
+            <Card className="rounded-2xl shadow-lg border border-blue-200/60 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-950/30 dark:to-indigo-950/30 dark:border-blue-800/40 hover:shadow-xl transition-all">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md">
+                    <Wrench className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold text-blue-700 dark:text-blue-300">รายการแจ้งซ่อม</div>
+                    <p className="text-sm text-blue-700/80 dark:text-blue-300/80 thai-text">ดูและจัดการงานซ่อมทั้งหมด</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Pricing */}
+          <Link to="/pricing" className="group block">
+            <Card className="rounded-2xl shadow-lg border border-violet-200/60 bg-gradient-to-br from-violet-100 to-fuchsia-100 dark:from-violet-950/30 dark:to-fuchsia-950/30 dark:border-violet-800/40 hover:shadow-xl transition-all">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white flex items-center justify-center shadow-md">
+                    <Calculator className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold text-violet-700 dark:text-violet-300">คำนวณราคา</div>
+                    <p className="text-sm text-violet-700/80 dark:text-violet-300/80 thai-text">คำนวณราคาและสร้างใบเสนอราคา</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+      </div>
+
       {/* Business Metrics Section - removed as requested */}
 
       {/* Recent Jobs Section */}
@@ -223,7 +229,7 @@ const Index = () => {
                       <div className="text-left">
                         <div className="font-mono text-xs text-primary mb-1 bg-primary/10 px-2.5 py-0.5 rounded-full inline-block">R{String(job.id).padStart(5, '0')}</div>
                         <div className="flex gap-2 mb-2">
-                          <span className="px-2.5 py-0.5 bg-primary/20 text-primary text-[11px] rounded-full font-medium">รับงาน</span>
+                          <span className="px-2.5 py-0.5 bg-blue-100 text-blue-700 border border-blue-300 text-[11px] rounded-full font-medium">รับงาน</span>
                           <span className="px-2.5 py-0.5 bg-success/20 text-success text-[11px] rounded-full font-medium">ชำระมัดจำ</span>
                         </div>
                         <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors text-base mb-1">

@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/layout/Topbar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -7,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatCurrency } from '@/lib/utils';
 import { useRepairStore } from '@/stores/useRepairStore';
-import { AlertTriangle, ArrowLeft, Barcode, Battery, Database, Edit, Eye, Filter, Monitor, Package, Plus, RotateCcw, Smartphone, Trash2, Wallet } from 'lucide-react';
+import { AlertTriangle, Barcode, Battery, Database, Edit, Eye, Filter, Monitor, Package, RotateCcw, Smartphone, Trash2, Wallet } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 
@@ -96,28 +97,11 @@ export default function Parts() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
       <div className="p-6 md:p-8 max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
-              <Package className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="text-lg md:text-xl font-bold thai-text">จัดการอะไหล่/สินค้า</div>
-              <div className="text-white/90 thai-text text-sm md:text-base">จัดการสต็อกอะไหล่และสินค้าทั้งหมด</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => navigate(-1)} className="rounded-xl bg-white/10 hover:bg-white/20 text-white border-white/30 px-4 py-2">
-              <ArrowLeft className="w-4 h-4 mr-2" /> กลับหน้าแรก
-            </Button>
-            <Link to="/parts/add">
-              <Button className="rounded-xl bg-white text-primary hover:bg-white/90 border border-white/20 px-4 py-2">
-                <Plus className="w-4 h-4 mr-2" /> เพิ่มอะไหล่
-              </Button>
-            </Link>
-          </div>
-        </div>
+        <PageHeader 
+          title="จัดการอะไหล่/สินค้า" 
+          description="จัดการสต็อกอะไหล่และสินค้าทั้งหมด" 
+          showActions={true} 
+        />
 
         {/* Dashboard Stats */}
         <div className="mb-6">
@@ -161,7 +145,7 @@ export default function Parts() {
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="text-xs text-muted-foreground">มูลค่าสต็อก</div>
-                    <div className="text-3xl font-bold text-cyan-700 mt-1">฿{formatCurrency(totals.value)}</div>
+                    <div className="text-3xl font-bold text-cyan-700 mt-1">{formatCurrency(totals.value)}</div>
                     <div className="text-xs text-cyan-700/70">บาท</div>
                   </div>
                   <div className="w-10 h-10 rounded-xl bg-cyan-600 text-white flex items-center justify-center shadow-md">
@@ -282,9 +266,9 @@ export default function Parts() {
                                   </Badge>
                                 </div>
                               </TableCell>
-                              <TableCell className="font-mono">฿{formatCurrency(part.cost)}</TableCell>
-                              <TableCell className="font-mono">฿{formatCurrency(part.price)}</TableCell>
-                              <TableCell className="font-mono font-semibold">฿{formatCurrency(part.stock * part.cost)}</TableCell>
+                              <TableCell className="font-mono">{formatCurrency(part.cost)}</TableCell>
+                              <TableCell className="font-mono">{formatCurrency(part.price)}</TableCell>
+                              <TableCell className="font-mono font-semibold">{formatCurrency(part.stock * part.cost)}</TableCell>
                               <TableCell className="text-right">
                                 <div className="flex justify-end gap-1">
                                   <Button variant="outline" size="sm" asChild className="h-8 w-8 p-0 btn-outline">

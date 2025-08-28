@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/layout/Topbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -10,9 +11,9 @@ import { saleRepo, stockMoveRepo } from '@/lib/repositories';
 import { formatCurrency } from '@/lib/utils';
 import { useRepairStore } from '@/stores/useRepairStore';
 import { Part, PaymentMethod, Sale, SaleItem } from '@/types';
-import { Banknote, CreditCard, History, Landmark, Minus, Plus, Search as SearchIcon, ShoppingCart, Trash2 } from 'lucide-react';
+import { Banknote, CreditCard, Landmark, Minus, Plus, Search as SearchIcon, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 type PaymentEntry = { method: PaymentMethod; amount: number };
 
@@ -117,26 +118,11 @@ export default function POSSale() {
     <>
     <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
       <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
-        {/* Gradient Header */}
-        <div className="rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
-              <ShoppingCart className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="text-xl md:text-2xl font-bold">ขายหน้าร้าน (POS)</div>
-              <div className="text-white/90 thai-text text-sm md:text-base">สแกน/ค้นหา SKU หรือชื่อสินค้า เพื่อเพิ่มลงตะกร้า</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button asChild variant="outline" className="bg-white/10 hover:bg-white/20 text-white border-white/20">
-              <Link to="/sales/history">
-                <History className="w-4 h-4 mr-2" />
-                ประวัติการขาย
-              </Link>
-            </Button>
-          </div>
-        </div>
+        <PageHeader 
+          title="ขายหน้าร้าน (POS)" 
+          description="สแกน/ค้นหา SKU หรือชื่อสินค้า เพื่อเพิ่มลงตะกร้า" 
+          showActions={false} 
+        />
 
       <Card className="glass-card">
         <CardHeader className="pb-3">

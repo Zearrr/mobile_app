@@ -26,7 +26,7 @@ export default function SaleDetail() {
   if (!sale) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
-        <div className="p-6 md:p-8 max-w-4xl mx-auto space-y-6">
+        <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
           <div className="text-center py-12">
             <div className="text-muted-foreground thai-text">ไม่พบรายการขาย</div>
             <Button asChild className="mt-4">
@@ -43,7 +43,7 @@ export default function SaleDetail() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
-      <div className="p-6 md:p-8 max-w-4xl mx-auto space-y-6">
+      <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">

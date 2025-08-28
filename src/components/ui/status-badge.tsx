@@ -18,12 +18,12 @@ import {
 } from "lucide-react";
 
 interface StatusBadgeProps {
-  status: JobStatus;
+  status?: JobStatus;
   className?: string;
 }
 
 interface PaymentBadgeProps {
-  status: PaymentStatus;
+  status?: PaymentStatus;
   className?: string;
 }
 
@@ -93,8 +93,20 @@ const paymentConfig = {
   }
 };
 
+const defaultStatusConfig = {
+  label: 'ไม่ทราบสถานะ',
+  icon: AlertCircle,
+  className: 'bg-gradient-to-b from-slate-500 to-slate-400 text-white border border-slate-600/30 hover:from-slate-600 hover:to-slate-500 shadow-md'
+};
+
+const defaultPaymentConfig = {
+  label: 'ไม่ทราบการชำระ',
+  icon: AlertCircle,
+  className: 'bg-gradient-to-b from-slate-500 to-slate-400 text-white border border-slate-600/30 hover:from-slate-600 hover:to-slate-500 shadow-md'
+};
+
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const config = statusConfig[status];
+  const config = (status ? (statusConfig as any)[status] : undefined) || defaultStatusConfig;
   const Icon = config.icon;
 
   return (
@@ -106,14 +118,14 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
         className
       )}
     >
-      <Icon className="w- h-3.5" />
+      <Icon className="w-3.5 h-3.5" />
       {config.label}
     </Badge>
   );
 }
 
 export function PaymentBadge({ status, className }: PaymentBadgeProps) {
-  const config = paymentConfig[status];
+  const config = (status ? (paymentConfig as any)[status] : undefined) || defaultPaymentConfig;
   const Icon = config.icon;
 
   return (
@@ -133,7 +145,7 @@ export function PaymentBadge({ status, className }: PaymentBadgeProps) {
 
 // Status dot component for compact display
 export function StatusDot({ status, className }: { status: JobStatus, className?: string }) {
-  const config = statusConfig[status];
+  const config = (status ? (statusConfig as any)[status] : undefined) || defaultStatusConfig;
   
   const dotColors = {
     received: 'bg-blue-500',
@@ -145,13 +157,13 @@ export function StatusDot({ status, className }: { status: JobStatus, className?
     delivered: 'bg-emerald-500',
     returned: 'bg-gray-500',
     cancelled: 'bg-red-500'
-  };
+  } as Record<string, string>;
   
   return (
     <div 
       className={cn(
         'w-2.5 h-2.5 rounded-full',
-        dotColors[status],
+        dotColors[status as any] || 'bg-slate-400',
         className
       )}
       title={config.label}
@@ -160,19 +172,19 @@ export function StatusDot({ status, className }: { status: JobStatus, className?
 }
 
 export function PaymentDot({ status, className }: { status: PaymentStatus, className?: string }) {
-  const config = paymentConfig[status];
+  const config = (status ? (paymentConfig as any)[status] : undefined) || defaultPaymentConfig;
   
   const dotColors = {
     unpaid: 'bg-red-500',
     deposit: 'bg-yellow-500',
     paid: 'bg-green-500'
-  };
+  } as Record<string, string>;
   
   return (
     <div 
       className={cn(
         'w-2.5 h-2.5 rounded-full',
-        dotColors[status],
+        dotColors[status as any] || 'bg-slate-400',
         className
       )}
       title={config.label}

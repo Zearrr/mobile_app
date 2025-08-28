@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/layout/Topbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -5,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useRepairStore } from '@/stores/useRepairStore';
-import { ArrowLeft, Package, Save } from 'lucide-react';
+import { Package, Save } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -52,24 +53,12 @@ const PartsAdd = () => {
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
-			<div className="p-6 md:p-8 max-w-4xl mx-auto">
-				{/* Header */}
-				<div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between mb-8">
-					<div className="flex items-center gap-4">
-						<Button variant="outline" onClick={() => navigate('/parts')} className="rounded-xl bg-white/10 hover:bg-white/20 text-white border-white/30 px-4 py-2">
-							<ArrowLeft className="w-4 h-4 mr-2" /> กลับไปรายการ
-						</Button>
-						<div>
-							<div className="text-lg md:text-xl font-bold thai-text">เพิ่มอะไหล่ใหม่</div>
-							<div className="text-white/90 thai-text text-sm md:text-base">เพิ่มอะไหล่หรือสินค้าใหม่เข้าสต็อก</div>
-						</div>
-					</div>
-					<div className="flex items-center gap-2">
-						<Button type="submit" form="add-part-form" disabled={isSubmitting} className="rounded-xl bg-white text-primary hover:bg-white/90 border border-white/20 px-4 py-2">
-							<Save className="w-4 h-4 mr-2" /> บันทึก
-						</Button>
-					</div>
-				</div>
+			<div className="p-6 md:p-8 max-w-7xl mx-auto">
+				<PageHeader 
+					title="เพิ่มอะไหล่ใหม่" 
+					description="เพิ่มอะไหล่หรือสินค้าใหม่เข้าสต็อก" 
+					showActions={false} 
+				/>
 
 				<form id="add-part-form" onSubmit={handleSubmit} className="space-y-6">
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

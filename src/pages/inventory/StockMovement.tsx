@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/layout/Topbar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { useRepairStore } from '@/stores/useRepairStore';
-import { ArrowLeft, ArrowUpDown, Package, Plus, TrendingDown, TrendingUp } from 'lucide-react';
+import { ArrowUpDown, Package, Plus, TrendingDown, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -137,18 +138,11 @@ const StockMovement = () => {
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
 			<div className="p-6 md:p-8 max-w-7xl mx-auto">
-				{/* Header */}
-				<div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between mb-8">
-					<div className="flex items-center gap-4">
-						<Button variant="outline" onClick={() => navigate('/parts')} className="rounded-xl bg-white/10 hover:bg-white/20 text-white border-white/30 px-4 py-2">
-							<ArrowLeft className="w-4 h-4 mr-2" /> กลับไปรายการ
-						</Button>
-						<div>
-							<div className="text-lg md:text-xl font-bold thai-text">การเคลื่อนไหวสต็อก</div>
-							<div className="text-white/90 thai-text text-sm md:text-base">ติดตามการเปลี่ยนแปลงสต็อกสินค้า</div>
-						</div>
-					</div>
-				</div>
+				<PageHeader 
+					title="การเคลื่อนไหวสต็อก" 
+					description="ติดตามการเปลี่ยนแปลงสต็อกสินค้า" 
+					showActions={false} 
+				/>
 
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 					{/* สรุปการเคลื่อนไหว */}

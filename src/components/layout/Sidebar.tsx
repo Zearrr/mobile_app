@@ -4,16 +4,15 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useRepairStore } from '@/stores/useRepairStore';
 import {
-  BarChart3,
-  Calculator,
-  LayoutDashboard,
-  LogOut,
-  Menu,
-  Package,
-  Settings,
-  ShieldCheck,
-  Users,
-  Wallet
+    Calculator,
+    LayoutDashboard,
+    LogOut,
+    Menu,
+    Package,
+    Settings,
+    ShieldCheck,
+    Users,
+    Wallet
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
@@ -51,12 +50,6 @@ const navigation = [
     name: 'รับประกัน',
     href: '/warranty',
     icon: ShieldCheck
-  },
-
-  {
-    name: 'รายงาน',
-    href: '/reports',
-    icon: BarChart3
   },
   {
     name: 'ผู้ใช้',

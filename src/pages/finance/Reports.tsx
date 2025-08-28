@@ -1,12 +1,11 @@
+import { PageHeader } from '@/components/layout/Topbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { formatCurrency } from '@/lib/utils';
 import { useRepairStore } from '@/stores/useRepairStore';
 import { format } from 'date-fns';
-import { BarChart3, DollarSign, List, Package, Receipt, TrendingDown, TrendingUp } from 'lucide-react';
+import { DollarSign, List, Package, Receipt, TrendingDown, TrendingUp } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -176,26 +175,11 @@ export default function Reports() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
       <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
-        {/* Gradient Header */}
-        <div className="rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
-              <BarChart3 className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="text-xl md:text-2xl font-bold">รายงานภาพรวม</div>
-              <div className="text-white/90 thai-text text-sm md:text-base">สรุปยอดและสถิติต่าง ๆ</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Label className="thai-text text-white">โหมด</Label>
-            <select className="h-10 rounded-md border px-3 bg-white text-slate-900" value={granularity} onChange={(e)=> setGranularity(e.target.value as Granularity)}>
-              <option value="daily">รายวัน</option>
-              <option value="monthly">รายเดือน</option>
-            </select>
-            <Input type="date" value={dateStr} onChange={(e)=> setDateStr(e.target.value)} className="bg-white text-slate-900 placeholder:text-slate-600" />
-          </div>
-        </div>
+        <PageHeader 
+          title="รายงานภาพรวม" 
+          description="สรุปยอดและสถิติต่าง ๆ" 
+          showActions={false} 
+        />
 
       {/* Summary tiles styled like Parts */}
       {(() => {

@@ -46,12 +46,12 @@ export default function Pricing() {
             {currentPageInfo.title}
           </h1>
         </div>
-        <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed thai-text">
+        <p className="text-xl text-muted-foreground leading-relaxed thai-text">
           {currentPageInfo.description}
         </p>
       </div>
 
-      <div className="p-8 max-w-4xl mx-auto space-y-8">
+      <div className="p-8 max-w-7xl mx-auto space-y-8">
         <Card className="bg-white/80 backdrop-blur-sm border border-border/50 shadow-xl">
           <CardHeader>
             <CardTitle className="thai-text text-xl">กรอกข้อมูลต้นทุน</CardTitle>

@@ -203,26 +203,11 @@ function PatternLock({
           </filter>
         </defs>
         
-        {/* Background grid lines */}
-        <g stroke="#e5e7eb" strokeWidth="1" fill="none">
-          {nodes.map((n, i) => {
-            const row = Math.floor(i / 3);
-            const col = i % 3;
-            if (col < 2) {
-              const next = nodes[i + 1];
-              return <line key={`h-${i}`} x1={n.x} y1={n.y} x2={next.x} y2={next.y} />;
-            }
-            if (row < 2) {
-              const next = nodes[i + 3];
-              return <line key={`v-${i}`} x1={n.x} y1={n.y} x2={next.x} y2={next.y} />;
-            }
-            return null;
-          })}
-        </g>
+        {/* Background grid lines removed per request */}
 
         {/* Connection lines */}
         {selected.length > 1 && (
-          <g stroke="#3b82f6" strokeWidth="3" fill="none" filter="url(#glow)">
+          <g stroke="#16a34a" strokeWidth="3" fill="none" filter="url(#glow)">
             {selected.slice(1).map((id, i) => {
               const prev = nodes[selected[i] - 1];
               const curr = nodes[id - 1];
@@ -252,33 +237,31 @@ function PatternLock({
                 cx={n.x}
                 cy={n.y}
                 r={dotRadius}
-                fill={isSelected ? '#3b82f6' : isHovered ? '#dbeafe' : '#f3f4f6'}
-                stroke={isSelected ? '#2563eb' : isHovered ? '#3b82f6' : '#d1d5db'}
+                fill={isSelected ? '#22c55e' : isHovered ? '#eff6ff' : '#ffffff'}
+                stroke={isSelected ? '#16a34a' : '#1d4ed8'}
                 strokeWidth={isSelected || isHovered ? '3' : '2'}
                 filter={isSelected ? 'url(#glow)' : undefined}
               />
               
-              {/* Order number */}
-              {showOrderText && isSelected && order >= 0 && (
-                <text
-                  x={n.x}
-                  y={n.y}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  fill="white"
-                  fontSize="16"
-                  fontWeight="bold"
-                >
-                  {order + 1}
-                </text>
-              )}
+              {/* Number or order */}
+              <text
+                x={n.x}
+                y={n.y}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill={isSelected ? 'white' : '#1d4ed8'}
+                fontSize="16"
+                fontWeight="bold"
+              >
+                {isSelected && showOrderText && order >= 0 ? (order + 1) : n.id}
+              </text>
             </g>
           );
         })}
 
         {/* Pointer line */}
         {isDragging && pointer && selected.length > 0 && (
-          <g stroke="#3b82f6" strokeWidth="2" fill="none" opacity="0.6">
+          <g stroke="#16a34a" strokeWidth="2" fill="none" opacity="0.6">
             <line
               x1={nodes[selected[selected.length - 1] - 1].x}
               y1={nodes[selected[selected.length - 1] - 1].y}

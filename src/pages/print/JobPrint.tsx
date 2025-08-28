@@ -43,6 +43,17 @@ export default function JobPrint() {
 
   if (!job) return <div className="p-6">ไม่พบงาน</div>;
 
+  const formatDateSafe = (value: any) => {
+    if (!value) return '-';
+    try {
+      const d = value instanceof Date ? value : new Date(value);
+      if (isNaN(d.getTime())) return '-';
+      return format(d, 'dd/MM/yyyy');
+    } catch {
+      return '-';
+    }
+  };
+
   return (
     <div className="p-4 space-y-3">
       <div className="flex gap-2 print:hidden">
@@ -81,8 +92,8 @@ export default function JobPrint() {
           <div className="box">
             <div className="heading">ใบรับซ่อม</div>
             <div>เลขที่งาน: <b>{job.id}</b></div>
-            <div>วันที่รับ: {format(new Date(job.receivedAt), 'dd/MM/yyyy')}</div>
-            <div>กำหนดส่ง: {job.dueAt ? format(new Date(job.dueAt), 'dd/MM/yyyy') : '-'}</div>
+            <div>วันที่รับ: {formatDateSafe(job.receivedAt)}</div>
+            <div>กำหนดส่ง: {formatDateSafe(job.dueAt)}</div>
           </div>
           <div className="box" style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
             {settings?.promptPayId && (

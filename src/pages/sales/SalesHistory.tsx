@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/layout/Topbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -93,35 +94,11 @@ export default function SalesHistory() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
       <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
-        {/* Gradient Header */}
-        <div className="rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
-              <BarChart3 className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="text-xl md:text-2xl font-bold">ประวัติการขาย</div>
-              <div className="text-white/90 thai-text text-sm md:text-base">ดูและจัดการข้อมูลการขายทั้งหมด</div>
-            </div>
-            <Button variant="ghost" size="sm" onClick={handleRefresh} className="text-white hover:bg-white/10">
-              <RefreshCw className="w-4 h-4" />
-            </Button>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button asChild>
-              <Link to="/pos/sale">
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                POS
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="bg-white/10 hover:bg-white/20 text-white border-white/20">
-              <Link to="/reports">
-                <BarChart3 className="w-4 h-4 mr-2" />
-                รายงาน
-              </Link>
-            </Button>
-          </div>
-        </div>
+        <PageHeader 
+          title="ประวัติการขาย" 
+          description="ดูและจัดการข้อมูลการขายทั้งหมด" 
+          showActions={true} 
+        />
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

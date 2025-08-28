@@ -1,25 +1,23 @@
+import { PageHeader } from '@/components/layout/Topbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PaymentBadge, StatusBadge } from '@/components/ui/status-badge';
 import { useRepairStore } from '@/stores/useRepairStore';
 import {
-    ArrowLeft,
     Calendar,
     Clock,
-    Edit,
     MapPin,
     Phone,
-    Printer,
     User,
     Wrench
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const JobDetail = () => {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
-	const { jobs, getCustomerById, getJobById } = useRepairStore();
+	const { jobs, getCustomerById, getJobById, updatePaymentStatus } = useRepairStore();
 	
 	const [job, setJob] = useState(getJobById(id || ''));
 	const [customer, setCustomer] = useState(getCustomerById(job?.customerId || ''));
@@ -56,30 +54,11 @@ const JobDetail = () => {
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
 			<div className="p-6 md:p-8 max-w-7xl mx-auto">
-				{/* Header */}
-				<div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between mb-8">
-					<div className="flex items-center gap-4">
-						<Button variant="outline" onClick={() => navigate('/jobs')} className="rounded-xl bg-white/10 hover:bg-white/20 text-white border-white/30 px-4 py-2">
-							<ArrowLeft className="w-4 h-4 mr-2" /> กลับไปรายการ
-						</Button>
-						<div>
-							<div className="text-lg md:text-xl font-bold thai-text">รายละเอียดงานซ่อม #{job.id}</div>
-							<div className="text-white/90 thai-text text-sm md:text-base">ข้อมูลงานซ่อมและลูกค้า</div>
-						</div>
-					</div>
-					<div className="flex items-center gap-2">
-						<Button variant="outline" asChild className="rounded-xl bg-white/10 hover:bg-white/20 text-white border-white/30 px-4 py-2">
-							<Link to={`/jobs/${job.id}/edit`}>
-								<Edit className="w-4 h-4 mr-2" /> แก้ไข
-							</Link>
-						</Button>
-						<Button variant="outline" asChild className="rounded-xl bg-white/10 hover:bg-white/20 text-white border-white/30 px-4 py-2">
-							<Link to={`/print/jobs/${job.id}`}>
-								<Printer className="w-4 h-4 mr-2" /> พิมพ์
-							</Link>
-						</Button>
-					</div>
-				</div>
+				<PageHeader 
+					title={`รายละเอียดงานซ่อม #${job.id}`}
+					description="ข้อมูลงานซ่อมและลูกค้า" 
+					showActions={false} 
+				/>
 
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 					{/* ข้อมูลงานซ่อม */}

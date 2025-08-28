@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/layout/Topbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,7 +8,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { useRepairStore } from '@/stores/useRepairStore';
 import type { JobStatus, PaymentStatus } from '@/types';
 import {
-    ArrowLeft,
     Calendar,
     Save,
     Wrench
@@ -88,23 +88,11 @@ const JobEdit = () => {
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
 			<div className="p-6 md:p-8 max-w-7xl mx-auto">
-				{/* Header */}
-				<div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl p-5 md:p-6 flex items-center justify-between mb-8">
-					<div className="flex items-center gap-4">
-						<Button variant="outline" onClick={() => navigate(`/jobs/${job.id}`)} className="rounded-xl bg-white/10 hover:bg-white/20 text-white border-white/30 px-4 py-2">
-							<ArrowLeft className="w-4 h-4 mr-2" /> กลับไปรายละเอียด
-						</Button>
-						<div>
-							<div className="text-lg md:text-xl font-bold thai-text">แก้ไขงานซ่อม #{job.id}</div>
-							<div className="text-white/90 thai-text text-sm md:text-base">อัปเดตข้อมูลงานซ่อม</div>
-						</div>
-					</div>
-					<div className="flex items-center gap-2">
-						<Button type="submit" form="edit-job-form" className="rounded-xl bg-white text-primary hover:bg-white/90 border border-white/20 px-4 py-2">
-							<Save className="w-4 h-4 mr-2" /> บันทึก
-						</Button>
-					</div>
-				</div>
+				<PageHeader 
+					title={`แก้ไขงานซ่อม #${job.id}`}
+					description="อัปเดตข้อมูลงานซ่อม" 
+					showActions={false} 
+				/>
 
 				<form id="edit-job-form" onSubmit={handleSubmit} className="space-y-6">
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

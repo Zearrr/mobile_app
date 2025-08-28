@@ -28,7 +28,7 @@ export default function PublicQuote() {
   if (!q) return <div className="p-6 thai-text">กำลังโหลด…</div>;
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-6">
+    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
       <Card className="glass-card">
         <CardHeader>
           <CardTitle className="thai-text">ใบเสนอราคา #{q.id}</CardTitle>

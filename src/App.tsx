@@ -19,6 +19,7 @@ import NewJob from "./pages/jobs/NewJob";
 
 // Inventory pages
 import Parts from "./pages/inventory/Parts";
+import StockMovement from "./pages/inventory/StockMovement";
 
 // Sales pages
 import POSSale from "./pages/sales/POSSale";
@@ -74,6 +75,7 @@ const App = () => (
             <Route path="jobs/:id" element={<JobDetail />} />
             <Route path="jobs/:id/edit" element={<JobEdit />} />
             <Route path="parts" element={<Parts />} />
+            <Route path="inventory/stock" element={<StockMovement />} />
             <Route path="pricing" element={<Pricing />} />
             <Route path="settings" element={<Settings />} />
             <Route path="cashbook" element={<Cashbook />} />
