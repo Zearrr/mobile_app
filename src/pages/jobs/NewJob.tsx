@@ -2,11 +2,12 @@ import PatternLock from '@/components/PatternLock';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 // removed parts dropdown imports
+import { PageHeader } from '@/components/layout/Topbar';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-// removed popover imports
-import { PageHeader } from '@/components/layout/Topbar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -14,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRepairStore } from '@/stores/useRepairStore';
 import { LockType } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { KeyRound, Save } from 'lucide-react';
+import { Check, ChevronsUpDown, KeyRound, Save } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -554,6 +555,69 @@ export default function NewJob() {
                   <div className="space-y-4">
                     <div className="thai-text text-base md:text-lg font-semibold text-foreground mt-2 md:mt-3">การประเมินราคา</div>
                       <div className="grid grid-cols-1 gap-4">
+                        {/* เลือกอะไหล่จากฐานข้อมูลพร้อมค้นหา */}
+                        <div className="space-y-2">
+                          <Label className="thai-text">อะไหล่ที่ต้องเปลี่ยน (ค้นหา/เลือกหลายรายการ)</Label>
+                          <Popover open={openMultiParts} onOpenChange={setOpenMultiParts}>
+                            <PopoverTrigger asChild>
+                              <Button type="button" variant="outline" role="combobox" aria-expanded={openMultiParts} className="w-full justify-between thai-text">
+                                เลือกอะไหล่...
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent side="bottom" align="start" sideOffset={4} className="p-0 w-[var(--radix-popover-trigger-width)] z-50 max-h-72 overflow-auto bg-white border shadow-lg">
+                              <Command onKeyDown={(e: any) => { if (e.key === 'Enter') e.preventDefault(); }}>
+                                <CommandInput placeholder="ค้นหาอะไหล่..." className="thai-text" />
+                                <CommandEmpty className="thai-text p-2">ไม่พบอะไหล่</CommandEmpty>
+                                <CommandGroup>
+                                  {parts.map((part: any) => {
+                                    const id = String(part.id);
+                                    const checked = selectedPartIds.includes(id);
+                                    const price = Number(part.movingAvgCost ?? part.price ?? 0);
+                                    return (
+                                      <CommandItem key={id} value={`${part.name} ${part.sku || ''}`} onSelect={() => {
+                                        setSelectedPartIds(prev => checked ? prev.filter(p => p !== id) : [...prev, id]);
+                                      }} className="thai-text">
+                                        <Check className={`mr-2 h-4 w-4 ${checked ? 'opacity-100' : 'opacity-0'}`} />
+                                        {(part.sku ? `${part.sku} - ` : '') + part.name} (฿{price.toLocaleString()})
+                                      </CommandItem>
+                                    );
+                                  })}
+                                </CommandGroup>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+
+                          {/* สรุปรายการที่เลือก */}
+                          {selectedPartIds.length > 0 && (
+                            <div className="rounded-lg border bg-white/70 p-3">
+                              <div className="text-sm thai-text mb-2">รายการที่เลือก</div>
+                              <div className="space-y-1 text-sm">
+                                {selectedPartIds.map(id => {
+                                  const p = parts.find((x: any) => String(x.id) === id);
+                                  if (!p) return null;
+                                  const price = Number(p.movingAvgCost ?? p.price ?? 0);
+                                  return (
+                                    <div key={id} className="flex items-center justify-between">
+                                      <div className="thai-text">{p.name}</div>
+                                      <div>฿{price.toLocaleString()}</div>
+                                    </div>
+                                  );
+                                })}
+                                <div className="border-t mt-2 pt-2 flex items-center justify-between font-semibold">
+                                  <div className="thai-text">รวมอะไหล่</div>
+                                  <div>
+                                    ฿{selectedPartIds.reduce((s, id) => {
+                                      const p = parts.find((x: any) => String(x.id) === id);
+                                      const price = Number(p?.movingAvgCost ?? p?.price ?? 0);
+                                      return s + price;
+                                    }, 0).toLocaleString()}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                         <FormField
                           control={form.control}
                           name="pricing.estimateParts"
@@ -586,20 +650,20 @@ export default function NewJob() {
                       </div>
 
                       {/* สรุปราคา */}
-                      <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
-                        <div className="text-sm text-blue-600 thai-text mb-3 font-semibold">สรุปราคา</div>
-                        <div className="grid grid-cols-3 gap-4">
-                          <div className="text-center">
-                            <div className="thai-text text-sm text-blue-700">ยอดรวม</div>
-                            <div className="text-xl font-extrabold">฿{totalEstimate.toLocaleString()}</div>
+                      <div className="p-4 rounded-lg border border-border/60 bg-white/70">
+                        <div className="thai-text text-sm font-medium text-foreground mb-2">สรุปราคา</div>
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div>
+                            <div className="thai-text text-xs text-muted-foreground">ยอดรวม</div>
+                            <div className="text-2xl font-bold">฿{totalEstimate.toLocaleString()}</div>
                           </div>
-                          <div className="text-center">
-                            <div className="thai-text text-sm text-blue-700">มัดจำ</div>
-                            <div className="text-xl font-extrabold">฿{watchDeposit.toLocaleString()}</div>
+                          <div>
+                            <div className="thai-text text-xs text-muted-foreground">มัดจำ</div>
+                            <div className="text-2xl font-bold">฿{watchDeposit.toLocaleString()}</div>
                           </div>
-                          <div className="text-center">
-                            <div className="thai-text text-sm text-blue-700">คงเหลือ</div>
-                            <div className="text-xl font-extrabold text-green-600">฿{remainingAmount.toLocaleString()}</div>
+                          <div>
+                            <div className="thai-text text-xs text-muted-foreground">คงเหลือ</div>
+                            <div className="text-2xl font-extrabold text-green-600">฿{remainingAmount.toLocaleString()}</div>
                           </div>
                         </div>
                       </div>
@@ -655,18 +719,10 @@ export default function NewJob() {
                 </div>
 
                 {/* ปุ่มบันทึก */}
-                <div className="flex flex-col md:flex-row md:justify-end gap-3 md:gap-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => navigate('/jobs')}
-                    className="btn-outline w-full md:w-auto"
-                  >
-                    ยกเลิก
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting} className="btn-primary w-full md:w-auto">
+                <div className="flex flex-col gap-3">
+                  <Button type="submit" disabled={isSubmitting} className="w-full h-14 text-lg rounded-xl shadow-lg bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white">
                     <Save className="w-4 h-4 mr-2" />
-                    {isSubmitting ? 'กำลังบันทึก...' : 'สร้างงานซ่อม'}
+                    {isSubmitting ? 'กำลังบันทึก...' : 'บันทึกการแจ้งซ่อม'}
                   </Button>
                 </div>
               </CardContent>
