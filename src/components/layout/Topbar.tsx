@@ -4,7 +4,6 @@ import { useRepairStore } from '@/stores/useRepairStore';
 import {
   LayoutDashboard,
   Package,
-  Plus,
   Settings,
   ShieldCheck,
   User as UserIcon,
@@ -20,34 +19,28 @@ interface PageHeaderProps {
   title: string;
   description: string;
   showActions?: boolean;
+  icon?: any;
+  actions?: React.ReactNode;
 }
 
-export const PageHeader = ({ title, description, showActions = false }: PageHeaderProps) => {
+export const PageHeader = ({ title, description, showActions = false, icon, actions }: PageHeaderProps) => {
+  const location = useLocation();
+  const isPartsPage = location.pathname.startsWith('/parts');
+  const IconEl = icon || Wrench;
   return (
     <div className="rounded-2xl bg-blue-600 text-white shadow-xl py-4 md:py-5 px-6 md:px-8 flex items-center justify-between mb-6">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center">
-          <Wrench className="w-5 h-5" />
+          <IconEl className="w-5 h-5" />
         </div>
         <div>
           <div className="text-base md:text-lg font-bold">{title}</div>
           <div className="text-white/90 thai-text text-xs md:text-sm">{description}</div>
         </div>
       </div>
-      {showActions && (
-        <div className="hidden sm:flex items-center gap-2">
-          <NavLink to="/jobs/new">
-            <button className="rounded-xl bg-blue-500 hover:bg-blue-700 text-white border-none px-3 py-2 shadow-lg transition-all duration-200 font-medium thai-text">
-              <Plus className="w-4 h-4 mr-2 inline" /> แจ้งซ่อมใหม่
-            </button>
-          </NavLink>
-          <NavLink to="/jobs">
-            <button className="rounded-xl bg-blue-600 hover:bg-blue-800 text-white border-none px-3 py-2 shadow-lg transition-all duration-200 font-medium thai-text">
-              <Wrench className="w-4 h-4 mr-2 inline" /> จัดการงานซ่อม
-            </button>
-          </NavLink>
-        </div>
-      )}
+      {actions ? (
+        <div className="hidden sm:flex items-center gap-2">{actions}</div>
+      ) : null}
     </div>
   );
 };
@@ -88,7 +81,11 @@ const navigation: NavItem[] = [
   ] }
 ];
 
-export function Topbar() {
+interface TopbarProps {
+  onMenuClick?: () => void;
+}
+
+export function Topbar({ onMenuClick }: TopbarProps = {}) {
   const location = useLocation();
   const settings = useRepairStore(state => state.settings);
   const currentUser = useRepairStore(state => state.currentUser);
@@ -109,13 +106,24 @@ export function Topbar() {
   };
 
   return (
-    <div className="w-full bg-primary text-primary-foreground border-b border-primary/40">
+    <div className="w-full bg-blue-700 text-white border-b border-blue-700">
       <div className="flex items-center justify-between gap-4 px-4 lg:px-8 py-2">
-        {/* Brand + user info chip */}
+
+        {/* Menu button (all screens) */}
         <div className="flex items-center gap-4 shrink-0">
+          <button
+            onClick={onMenuClick}
+            className="p-2 rounded-md hover:bg-white/10 text-white"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          
+          {/* Brand + user info chip */}
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-md overflow-hidden bg-white/10 flex items-center justify-center">
-              <img src="/KODPHONELOGO.png" alt="logo" className="w-full h-full object-cover" />
+              <img src="/LOGOKODPHONE.png" alt="logo" className="w-full h-full object-cover" />
             </div>
             <div className="font-semibold thai-text text-white whitespace-nowrap">ระบบซ่อมมือถือ</div>
           </div>

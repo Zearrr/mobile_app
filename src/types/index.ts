@@ -10,6 +10,9 @@ export interface Customer {
   phone: string;
   altPhone?: string;
   lineId?: string;
+  email?: string;
+  address?: string;
+  note?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -203,6 +206,8 @@ export interface CloseDay {
 export interface User {
   id: string;
   name: string;
+  username?: string; // demo login username
+  password?: string; // demo login password (plain, demo only)
   role: 'owner' | 'cashier' | 'tech' | 'staff';
   active: boolean;
 }

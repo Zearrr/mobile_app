@@ -1,67 +1,23 @@
 // Modern Sidebar Navigation
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useRepairStore } from '@/stores/useRepairStore';
 import {
-    Calculator,
-    LayoutDashboard,
-    LogOut,
-    Menu,
-    Package,
-    Settings,
-    ShieldCheck,
-    Users,
-    Wallet
+  ChevronDown,
+  LayoutDashboard,
+  LogOut,
+  Package,
+  Settings,
+  ShieldCheck,
+  Users,
+  Wallet,
+  Wrench
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
-const navigation = [
-  {
-    name: 'หน้าแรก',
-    href: '/',
-    icon: LayoutDashboard
-  },
-  {
-    name: 'จัดการสินค้า',
-    href: '/parts',
-    icon: Package
-  },
-
-  {
-    name: 'รายรับ–รายจ่าย',
-    href: '/cashbook',
-    icon: Wallet
-  },
-  {
-    name: 'ขาย (POS)',
-    href: '/pos/sale',
-    icon: Calculator
-  },
-  {
-    name: 'ใบสั่งซื้อ (PO)',
-    href: '/po',
-    icon: Package
-  },
-  // หน้ารับของเข้าสต๊อกถูกลบออก
-
-  {
-    name: 'รับประกัน',
-    href: '/warranty',
-    icon: ShieldCheck
-  },
-  {
-    name: 'ผู้ใช้',
-    href: '/users',
-    icon: Users
-  },
-  {
-    name: 'ตั้งค่า',
-    href: '/settings',
-    icon: Settings
-  }
-];
+type NavChild = { name: string; href: string };
+type NavItem = { name: string; href?: string; icon: any; children?: NavChild[] };
 
 interface SidebarProps {
   className?: string;
@@ -74,7 +30,95 @@ export function Sidebar({ className, mobileOpen, setMobileOpen }: SidebarProps) 
   const [isHovered, setIsHovered] = useState(false);
   const location = useLocation();
   const settings = useRepairStore(state => state.settings);
+  const currentRole = useRepairStore(state => state.currentRole);
+  // Build navigation based on role
+  const navigation: NavItem[] = useMemo(() => {
+    if (currentRole === 'owner') {
+      return [
+        { name: 'แดชบอร์ด', href: '/staff/dashboard', icon: LayoutDashboard },
+        {
+          name: 'แจ้งซ่อม',
+          icon: Wrench,
+          children: [
+            { name: 'แจ้งซ่อมใหม่', href: '/jobs/new' },
+            { name: 'รายการซ่อม', href: '/jobs' },
+            { name: 'คำนวณราคา', href: '/pricing' }
+          ]
+        },
+        {
+          name: 'ร้านค้า',
+          icon: Package,
+          children: [
+            { name: 'ขาย (POS)', href: '/pos/sale' },
+            { name: 'ประวัติการขาย', href: '/sales/history' },
+            { name: 'จัดการสินค้า', href: '/parts' },
+            { name: 'ประวัติสต๊อก', href: '/inventory/stock' }
+          ]
+        },
+        {
+          name: 'การเงิน',
+          icon: Wallet,
+          children: [
+            { name: 'จัดการเงินสด', href: '/admin/finance/cashbook' },
+            { name: 'ยอดประจำวัน', href: '/admin/finance/close-day' },
+            { name: 'รายงานการขาย', href: '/admin/finance/reports' }
+          ]
+        },
+        {
+          name: 'รับประกัน',
+          icon: ShieldCheck,
+          children: [
+            { name: 'จัดการรับประกัน', href: '/warranty' },
+            { name: 'การเคลม', href: '/claims' }
+          ]
+        },
+        { name: 'ผู้ใช้', href: '/admin/users', icon: Users },
+        {
+          name: 'ระบบ',
+          icon: Settings,
+          children: [
+            { name: 'ตั้งค่าร้าน', href: '/settings' }
+          ]
+        }
+      ];
+    }
+    // staff default
+    return [
+      { name: 'แดชบอร์ด', href: '/staff/dashboard', icon: LayoutDashboard },
+      {
+        name: 'แจ้งซ่อม',
+        icon: Wrench,
+        children: [
+          { name: 'แจ้งซ่อมใหม่', href: '/staff/jobs/new' },
+          { name: 'รายการซ่อม', href: '/staff/jobs' }
+        ]
+      },
+      {
+        name: 'ร้านค้า',
+        icon: Package,
+        children: [
+          { name: 'ขาย (POS)', href: '/staff/sales/pos' }
+        ]
+      },
+      {
+        name: 'รับประกัน',
+        icon: ShieldCheck,
+        children: [
+          { name: 'จัดการรับประกัน', href: '/warranty' },
+          { name: 'การเคลม', href: '/claims' }
+        ]
+      },
+      {
+        name: 'ระบบ',
+        icon: Settings,
+        children: [
+          { name: 'ตั้งค่าร้าน', href: '/settings' }
+        ]
+      }
+    ];
+  }, [currentRole]);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
@@ -108,11 +152,9 @@ export function Sidebar({ className, mobileOpen, setMobileOpen }: SidebarProps) 
     if (isMobile) setCollapsed(true);
   }, [location.pathname]);
 
-  // Sync collapsed with parent-controlled mobileOpen
+  // Sync collapsed with parent-controlled open state on all screen sizes
   useEffect(() => {
     if (typeof mobileOpen !== 'boolean') return;
-    const isMobile = window.matchMedia('(max-width: 1023px)').matches;
-    if (!isMobile) return;
     setCollapsed(!mobileOpen);
   }, [mobileOpen]);
 
@@ -168,15 +210,13 @@ export function Sidebar({ className, mobileOpen, setMobileOpen }: SidebarProps) 
       {/* Sidebar */}
       <div 
         className={cn(
-          "fixed top-0 left-0 z-50 h-screen bg-primary text-primary-foreground border-r border-primary-dark shadow-lg transition-all duration-500 ease-in-out overflow-hidden transform flex flex-col",
-          // Mobile behavior: off-canvas when collapsed
-          collapsed 
-            ? "-translate-x-full w-64 border-transparent shadow-none pointer-events-none" 
-            : "translate-x-0 w-64",
-          // Desktop behavior: static, width depends on collapse
-          "lg:translate-x-0 lg:static lg:z-auto",
-          collapsed && "lg:w-24",
-          !collapsed && "lg:w-64",
+          "fixed top-0 left-0 z-50 h-screen text-white shadow-xl transition-all duration-500 ease-in-out overflow-hidden transform flex flex-col",
+          // Gradient background changed to blue-only tone
+          "bg-gradient-to-b from-blue-500 via-blue-600 to-blue-700",
+          // Off-canvas when collapsed, visible when open (all screen sizes)
+          collapsed ? "-translate-x-full w-64 pointer-events-none" : "translate-x-0 w-64",
+          // Desktop: do not reserve layout space when closed
+          collapsed ? "lg:fixed lg:-translate-x-full" : "lg:static lg:translate-x-0 lg:z-auto",
           className
         )}
         ref={sidebarRef}
@@ -184,7 +224,7 @@ export function Sidebar({ className, mobileOpen, setMobileOpen }: SidebarProps) 
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-primary-dark bg-primary">
+        <div className="flex items-center justify-between p-6 border-b border-white/10 bg-transparent">
           <div className={cn(
             "flex items-center gap-4 transition-all duration-300",
             collapsed ? "opacity-0 lg:opacity-100" : "opacity-100"
@@ -198,33 +238,103 @@ export function Sidebar({ className, mobileOpen, setMobileOpen }: SidebarProps) 
               </div>
             )}
           </div>
-          <div className="flex items-center gap-2">
-            {isExpanded && <ThemeToggle />}
-          </div>
+          <div className="flex items-center gap-2"></div>
         </div>
 
         {/* Navigation */}
         <nav className="p-3 space-y-1.5 flex-1 overflow-y-auto">
-          {navigation
-            .filter(item => {
-              return true;
-            })
-            .map((item) => {
+          {navigation.map((item) => {
             const Icon = item.icon;
-            
+            const hasChildren = item.children && item.children.length > 0;
+            const isParentActive = hasChildren
+              ? item.children!.some((c) => location.pathname === c.href)
+              : location.pathname === item.href;
+            const isOpen = openDropdown === item.name;
+
+            if (hasChildren) {
+              return (
+                <div key={item.name} className="group relative">
+                  <button
+                    type="button"
+                    className={cn(
+                      "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 thai-text font-medium text-[14px] text-white",
+                      "hover:bg-white/5 hover:text-white hover:shadow-sm",
+                      (isParentActive || isOpen) && "bg-white/10 text-white shadow-md",
+                      collapsed && "justify-center px-2"
+                    )}
+                    onClick={() => setOpenDropdown((prev) => (prev === item.name ? null : item.name))}
+                  >
+                    {/* Active indicator bar */}
+                    <span
+                      className={cn(
+                        "absolute left-0 top-0 h-full w-1 rounded-r bg-white/70 origin-top transition-transform duration-300",
+                        (isParentActive || isOpen) ? "scale-y-100" : "scale-y-0"
+                      )}
+                    />
+                    <Icon className="flex-shrink-0 transition-all duration-300 w-5 h-5" />
+                    {isExpanded && (
+                      <span className="truncate font-medium text-[14px] flex-1 text-left">{item.name}</span>
+                    )}
+                    {isExpanded && (
+                      <ChevronDown className={cn("w-4 h-4 transition-transform", isOpen ? "rotate-180" : "rotate-0")} />
+                    )}
+                  </button>
+
+                  {/* Children */}
+                  <div
+                    className={cn(
+                      "overflow-hidden transition-[grid-template-rows] duration-300",
+                      isOpen ? "grid grid-rows-[1fr]" : "grid grid-rows-[0fr]"
+                    )}
+                  >
+                    <div className="min-h-0">
+                      {item.children!.map((child) => {
+                        const isChildActive = location.pathname === child.href;
+                        return (
+                          <NavLink
+                            key={child.name}
+                            to={child.href}
+                            className={cn(
+                              "relative block ml-10 mr-2 mt-1 px-3 py-2 rounded-md thai-text text-[14px] text-white",
+                              "hover:bg-white/5 hover:text-white",
+                              isChildActive && "bg-white/10 text-white shadow-sm"
+                            )}
+                            onClick={() => {
+                              if (window.matchMedia('(max-width: 1023px)').matches) {
+                                setCollapsed(true);
+                                setMobileOpen && setMobileOpen(false);
+                              }
+                            }}
+                          >
+                            {/* Active indicator for child */}
+                            <span
+                              className={cn(
+                                "absolute left-0 top-0 h-full w-1 rounded-r bg-white/60 origin-top transition-transform duration-300",
+                                isChildActive ? "scale-y-100" : "scale-y-0"
+                              )}
+                            />
+                            {child.name}
+                          </NavLink>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <NavLink
                 key={item.name}
-                to={item.href}
+                to={item.href!}
                 end
                 className={({ isActive }) => cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 thai-text font-medium text-[14px] text-white/80",
-                  "hover:bg-white/10 hover:text-white hover:shadow-sm",
-                  isActive && "bg-white/20 text-white shadow-md",
+                  "relative flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 thai-text font-medium text-[14px] text-white",
+                  "hover:bg-white/5 hover:text-white hover:shadow-sm",
+                  isActive && "bg-white/10 text-white shadow-md",
                   collapsed && "justify-center px-2"
                 )}
                 onClick={() => {
-                  // Close sidebar after navigating on mobile
                   if (window.matchMedia('(max-width: 1023px)').matches) {
                     setCollapsed(true);
                     setMobileOpen && setMobileOpen(false);
@@ -233,6 +343,13 @@ export function Sidebar({ className, mobileOpen, setMobileOpen }: SidebarProps) 
               >
                 {({ isActive }) => (
                   <>
+                    {/* Active indicator for single link */}
+                    <span
+                      className={cn(
+                        "absolute left-0 top-0 h-full w-1 rounded-r bg-white/70 origin-top transition-transform duration-300",
+                        isActive ? "scale-y-100" : "scale-y-0"
+                      )}
+                    />
                     <Icon className={cn(
                       "flex-shrink-0 transition-all duration-300 w-5 h-5",
                       isActive && "text-white"
@@ -248,31 +365,24 @@ export function Sidebar({ className, mobileOpen, setMobileOpen }: SidebarProps) 
         </nav>
 
         {/* Logout footer */}
-        <div className="mt-auto p-4 pb-[calc(16px+env(safe-area-inset-bottom))] border-t border-primary-dark/50">
+        <div className="mt-auto p-4 pb-[calc(16px+env(safe-area-inset-bottom))] border-t border-white/10">
           <Button
             variant="outline"
             className="w-full justify-center rounded-lg bg-white/10 border-white/20 text-white hover:bg-white/15 thai-text"
-            onClick={() => {
-              try { useRepairStore.getState().logout(); } catch {}
-              window.location.href = '/login';
-            }}
+                    onClick={() => {
+          // Use store logout function
+          useRepairStore.getState().logout();
+          
+          // Redirect to login page
+          window.location.href = '/shared/auth/login';
+        }}
           >
             <LogOut className="w-4 h-4 mr-2" /> ออกจากระบบ
           </Button>
         </div>
       </div>
 
-      {/* Floating toggle button when sidebar is collapsed */}
-      {collapsed && (
-        <Button
-          variant="default"
-          size="sm"
-          onClick={toggleSidebar}
-          className="fixed top-6 left-6 z-40 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 lg:hidden"
-        >
-          <Menu className="w-7 h-7" />
-        </Button>
-      )}
+      
     </>
   );
 }

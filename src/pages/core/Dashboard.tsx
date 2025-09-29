@@ -1,5 +1,4 @@
-// Dashboard with summary cards and recent jobs
-import { PageHeader } from '@/components/layout/Topbar';
+// Dashboard with summary cards and recent jobs (restyled to match system)
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -199,34 +198,41 @@ const Dashboard = () => {
   const doQuickSearch = () => {
     if (!quickQuery.trim()) return;
     // เบื้องต้น: นำทางไปหน้า Jobs เพื่อค้นหาเพิ่มเติม
-    window.location.href = '/jobs';
+    window.location.href = '/staff/jobs';
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary animate-fade-in">
+    <div className="min-h-screen bg-background">
       <div className="p-6 md:p-8 w-full">
-        {/* Header */}
+        {/* Header - Blue Banner style (match example 2) */}
+        <div className="mb-6">
+          <div className="relative overflow-hidden rounded-3xl bg-blue-600 text-white shadow-lg">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-500 via-blue-600 to-blue-700 opacity-90" />
+            <div className="relative p-5 md:p-7 flex items-center gap-4 md:gap-6">
+              <div className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white/15 backdrop-blur-sm">
+                <Wrench className="w-6 h-6 md:w-7 md:h-7" />
+              </div>
+              <div className="flex-1">
+                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">แดชบอร์ด</h1>
+                <p className="text-white/80 thai-text text-sm md:text-base">สร้างงานซ่อมใหม่สำหรับลูกค้า</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <PageHeader 
-          title="หน้าแรก" 
-          description="ภาพรวมและทางลัดการทำงานในระบบ" 
-          showActions={true} 
-        />
-
-
-      {/* ===== SIX STATUS CARDS ON TOP (restyled like sample) ===== */}
+      {/* ===== SIX STATUS CARDS ===== */}
       <section className="mb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {/* งานเสร็จวันนี้ */}
-          <Card className="rounded-2xl bg-white/90 backdrop-blur-sm border border-emerald-200/60 shadow-lg h-full min-h-[140px]">
+          <Card className="rounded-2xl h-full min-h-[140px]">
             <CardContent className="p-5 h-full">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-sm text-muted-foreground thai-text">งานเสร็จวันนี้</div>
-                  <div className="text-4xl font-extrabold text-emerald-700 mt-2">{finance.completedToday}</div>
+                  <div className="text-4xl font-extrabold mt-2">{finance.completedToday}</div>
                   <div className="text-sm text-muted-foreground thai-text mt-1">งาน</div>
                 </div>
-                <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-md">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
               </div>
@@ -234,15 +240,15 @@ const Dashboard = () => {
           </Card>
 
           {/* งานซ่อมทั้งหมด */}
-          <Card className="rounded-2xl bg-white/90 backdrop-blur-sm border border-blue-200/60 shadow-lg h-full min-h-[140px]">
+          <Card className="rounded-2xl h-full min-h-[140px]">
             <CardContent className="p-5 h-full">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-sm text-muted-foreground thai-text">งานซ่อมทั้งหมด</div>
-                  <div className="text-4xl font-extrabold text-blue-700 mt-2">{stats.totalJobs}</div>
+                  <div className="text-4xl font-extrabold mt-2">{stats.totalJobs}</div>
                   <div className="text-sm text-muted-foreground thai-text mt-1">งาน</div>
                 </div>
-                <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md">
+                <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center">
                   <Wrench className="w-5 h-5" />
                 </div>
               </div>
@@ -250,15 +256,15 @@ const Dashboard = () => {
           </Card>
 
           {/* รอดำเนินการ */}
-          <Card className="rounded-2xl bg-white/90 backdrop-blur-sm border border-amber-200/60 shadow-lg h-full min-h-[140px]">
+          <Card className="rounded-2xl h-full min-h-[140px]">
             <CardContent className="p-5 h-full">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-sm text-muted-foreground thai-text">รอดำเนินการ</div>
-                  <div className="text-4xl font-extrabold text-amber-700 mt-2">{stats.pendingJobs}</div>
+                  <div className="text-4xl font-extrabold mt-2">{stats.pendingJobs}</div>
                   <div className="text-sm text-muted-foreground thai-text mt-1">งาน</div>
                 </div>
-                <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-md">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center">
                   <AlertCircle className="w-5 h-5" />
                 </div>
               </div>
@@ -266,15 +272,15 @@ const Dashboard = () => {
           </Card>
 
           {/* กำลังซ่อม */}
-          <Card className="rounded-2xl bg-white/90 backdrop-blur-sm border border-indigo-200/60 shadow-lg h-full min-h-[140px]">
+          <Card className="rounded-2xl h-full min-h-[140px]">
             <CardContent className="p-5 h-full">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-sm text-muted-foreground thai-text">กำลังซ่อม</div>
-                  <div className="text-4xl font-extrabold text-indigo-700 mt-2">{stats.inProgressJobs}</div>
+                  <div className="text-4xl font-extrabold mt-2">{stats.inProgressJobs}</div>
                   <div className="text-sm text-muted-foreground thai-text mt-1">งาน</div>
                 </div>
-                <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center">
                   <Target className="w-5 h-5" />
                 </div>
               </div>
@@ -282,15 +288,15 @@ const Dashboard = () => {
           </Card>
 
           {/* เสร็จสิ้นทั้งหมด */}
-          <Card className="rounded-2xl bg-white/90 backdrop-blur-sm border border-emerald-200/60 shadow-lg h-full min-h-[140px]">
+          <Card className="rounded-2xl h-full min-h-[140px]">
             <CardContent className="p-5 h-full">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-sm text-muted-foreground thai-text">เสร็จสิ้น</div>
-                  <div className="text-4xl font-extrabold text-emerald-700 mt-2">{stats.completedJobs}</div>
+                  <div className="text-4xl font-extrabold mt-2">{stats.completedJobs}</div>
                   <div className="text-sm text-muted-foreground thai-text mt-1">งาน</div>
                 </div>
-                <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-md">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center">
                   <CheckCircle className="w-5 h-5" />
                 </div>
               </div>
@@ -298,15 +304,15 @@ const Dashboard = () => {
           </Card>
 
           {/* สต็อกต่ำ */}
-          <Card className="rounded-2xl bg-white/90 backdrop-blur-sm border border-rose-200/60 shadow-lg h-full min-h-[140px]">
+          <Card className="rounded-2xl h-full min-h-[140px]">
             <CardContent className="p-5 h-full">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="text-sm text-muted-foreground thai-text">สต็อกต่ำ</div>
-                  <div className="text-4xl font-extrabold text-rose-700 mt-2">{stats.lowStockParts}</div>
+                  <div className="text-4xl font-extrabold mt-2">{stats.lowStockParts}</div>
                   <div className="text-sm text-muted-foreground thai-text mt-1">รายการ</div>
                 </div>
-                <div className="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center shadow-md">
+                <div className="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center">
                   <AlertTriangle className="w-5 h-5" />
                 </div>
               </div>
@@ -318,20 +324,20 @@ const Dashboard = () => {
       {/* ===== ALERTS + STOCK/WARRANTY ===== */}
       <section className="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Alerts */}
-        <Card className="rounded-2xl border-0 shadow-xl bg-white/95">
+        <Card className="rounded-2xl border border-border bg-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-rose-600" /> แจ้งเตือนสำคัญ</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="p-3 rounded-xl border border-rose-200/60 bg-white flex items-center justify-between">
+            <div className="p-3 rounded-xl border bg-background flex items-center justify-between">
               <div className="thai-text">รออะไหล่</div>
               <div className="font-bold text-rose-700">{alerts.waitingParts.length}</div>
             </div>
-            <div className="p-3 rounded-xl border border-amber-200/60 bg-white flex items-center justify-between">
+            <div className="p-3 rounded-xl border bg-background flex items-center justify-between">
               <div className="thai-text">งานค้างเกิน 7 วัน</div>
               <div className="font-bold text-amber-700">{alerts.overdue.length}</div>
             </div>
-            <div className="p-3 rounded-xl border border-emerald-200/60 bg-white flex items-center justify-between">
+            <div className="p-3 rounded-xl border bg-background flex items-center justify-between">
               <div className="thai-text">ประกันใกล้หมด (≤ 7 วัน)</div>
               <div className="font-bold text-emerald-700">{alerts.warrantyExpiring.length}</div>
             </div>
@@ -339,7 +345,7 @@ const Dashboard = () => {
         </Card>
 
         {/* Unpaid jobs list */}
-        <Card className="rounded-2xl border-0 shadow-xl bg-white/95">
+        <Card className="rounded-2xl border border-border bg-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><Wallet className="w-5 h-5 text-amber-600" /> งานที่ยังไม่ชำระ</CardTitle>
           </CardHeader>
@@ -361,7 +367,7 @@ const Dashboard = () => {
         </Card>
 
         {/* Warranty expiring list */}
-        <Card className="rounded-2xl border-0 shadow-xl bg-white/95">
+        <Card className="rounded-2xl border border-border bg-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-emerald-600" /> รับประกันใกล้หมด</CardTitle>
           </CardHeader>
@@ -383,27 +389,26 @@ const Dashboard = () => {
       <section className="pb-12 grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Recent Jobs - Enhanced Design */}
         <div className="lg:col-span-2">
-          <Card className="group relative overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <CardHeader className="relative z-10 bg-gradient-to-r from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-b border-border/50">
+          <Card className="overflow-hidden border border-border bg-card">
+            <CardHeader className="border-b border-border/50">
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Activity className="h-6 w-6 text-primary" />
                   <span className="text-2xl md:text-3xl font-bold">งานซ่อมล่าสุด</span>
                 </div>
-                <Link to="/jobs">
+                <Link to="/staff/jobs">
                   <Button variant="outline" className="rounded-xl h-9 px-4 text-sm thai-text">ดูทั้งหมด</Button>
                 </Link>
               </CardTitle>
             </CardHeader>
-            <CardContent className="relative z-10 p-6">
+            <CardContent className="p-6">
               {recentPageItems.length > 0 ? (
                 <div className="space-y-4">
                   {recentPageItems.map((job, index) => (
-                    <div key={job.id} className="p-4 rounded-xl border border-border/40 bg-white/90 dark:bg-slate-800/60 shadow-sm hover:shadow-md transition-all">
+                    <div key={job.id} className="p-4 rounded-xl border bg-background">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-semibold">
+                          <div className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-semibold">
                             {recentStart + index + 1}
                           </div>
                           <div>
@@ -421,8 +426,8 @@ const Dashboard = () => {
                 </div>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center">
-                    <Package className="w-8 h-8 text-blue-500/50 dark:text-blue-400/50" />
+                  <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-2xl flex items-center justify-center">
+                    <Package className="w-8 h-8 text-primary/60" />
                   </div>
                   <p className="text-lg font-medium thai-text mb-1">ยังไม่มีงานซ่อม</p>
                   <p className="text-sm thai-text">เริ่มต้นด้วยการสร้างงานซ่อมใหม่</p>

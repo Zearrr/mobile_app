@@ -1,9 +1,10 @@
 // Main Application Layout
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { useRepairStore } from '@/stores/useRepairStore';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Menu } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Topbar } from './Topbar';
+import { Sidebar } from './Sidebar';
 
 export function AppLayout() {
   const currentUser = useRepairStore(state => state.currentUser);
@@ -21,7 +22,7 @@ export function AppLayout() {
 
   // Redirect to login if not authenticated
   if (!currentUser) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/shared/auth/login" state={{ from: location }} replace />;
   }
 
   // Get current page info
@@ -60,10 +61,26 @@ export function AppLayout() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex h-screen">
+        {/* Sidebar */}
+        <Sidebar 
+          mobileOpen={sidebarOpen} 
+          setMobileOpen={setSidebarOpen}
+        />
+        
         <main className={`flex-1 overflow-y-auto h-screen bg-secondary transition-all duration-300`}>
-          {/* Top navigation bar only */}
-          <div className="w-full sticky top-0 z-40">
-            <Topbar />
+          {/* Minimal top header with menu toggle (all screens) */}
+          <div className="w-full sticky top-0 z-40 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="px-3 py-2 flex items-center justify-between">
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring"
+                aria-label="เปิด/ปิดเมนู"
+              >
+                <Menu className="w-5 h-5" />
+                <span className="thai-text text-sm">เมนู</span>
+              </button>
+              <ThemeToggle />
+            </div>
           </div>
 
           {/* Loading overlay */}
@@ -77,7 +94,7 @@ export function AppLayout() {
           )}
           
           {/* Main content */}
-          <div className="w-full">
+          <div className={`w-full ${sidebarOpen ? 'max-w-7xl' : 'max-w-none'} mx-auto px-4 md:px-6`}>
             <Outlet context={{ sidebarOpen, setSidebarOpen, currentPageInfo }} />
           </div>
         </main>

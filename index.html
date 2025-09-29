@@ -12,21 +12,29 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
 
-    <meta property="og:title" content="9a3b93e8-39be-4a9d-8fd0-c530fa149729" />
-    <meta property="og:description" content="Lovable Generated Project" />
+    <!-- Favicon & app icons -->
+    <link rel="icon" type="image/png" href="/KODPHONELOGO.png?v=2">
+    <link rel="apple-touch-icon" href="/KODPHONELOGO.png?v=2">
+
+    <!-- Social preview -->
+    <meta property="og:title" content="ระบบร้านซ่อมมือถือ" />
+    <meta property="og:description" content="ระบบจัดการงานซ่อมมือถือแบบครบวงจร" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:image" content="/KODPHONELOGO.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:site" content="@" />
+    <meta name="twitter:image" content="/KODPHONELOGO.png" />
     <script>
       (function() {
         try {
           var stored = localStorage.getItem('theme');
           var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          if (stored === 'dark' || (!stored && prefersDark)) {
+          var shouldDark = stored === 'dark' || (!stored || stored === 'system') && prefersDark;
+          if (shouldDark) {
             document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
           }
         } catch (e) {}
       })();

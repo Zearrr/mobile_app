@@ -93,6 +93,7 @@ interface RepairState {
   getFilteredJobs: () => Job[];
   getJobsByCustomer: (customerId: string) => Job[];
   getJobById: (id: string) => Job | undefined;
+  getPartById: (id: string) => Part | undefined;
   getCustomerById: (id: string) => Customer | undefined;
   getDashboardSummary: () => DashboardSummary;
 }
@@ -120,27 +121,39 @@ export const useRepairStore = create<RepairState>()(
       // Authentication (Simple demo)
       login: async (username: string, password: string) => {
         set({ isLoading: true });
-        
-        // Demo authentication
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const roleMap: Record<string, 'owner'|'cashier'|'tech'|'staff'> = {
-          admin: 'owner',
-          cashier: 'cashier',
-          tech: 'tech',
-          staff: 'staff'
-        };
-        const role = roleMap[username as keyof typeof roleMap];
-        if (role && password === username) {
-          const user = username;
-          localStorage.setItem('repairpro_user', user);
-          localStorage.setItem('repairpro_role', role);
-          set({ currentUser: user, currentRole: role, isLoading: false });
-          return true;
+        try {
+          // Simulate IO
+          await new Promise(resolve => setTimeout(resolve, 400));
+          // 1) Try match against created users in DB
+          const allUsers = await userRepo.all();
+          const matched = allUsers.find(u => u.active && u.username && u.password && u.username === username && u.password === password);
+          if (matched) {
+            localStorage.setItem('repairpro_user', matched.username || matched.name);
+            localStorage.setItem('repairpro_role', matched.role);
+            set({ currentUser: matched.username || matched.name, currentRole: matched.role, isLoading: false });
+            return true;
+          }
+
+          // 2) Fallback demo credentials
+          const validCredentials = [
+            { username: 'admin', password: 'admin', role: 'owner' as const },
+            { username: 'staff', password: 'staff', role: 'staff' as const },
+          ];
+          const isValidUser = validCredentials.find(cred => cred.username === username && cred.password === password);
+          if (isValidUser) {
+            localStorage.setItem('repairpro_user', isValidUser.username);
+            localStorage.setItem('repairpro_role', isValidUser.role);
+            set({ currentUser: isValidUser.username, currentRole: isValidUser.role, isLoading: false });
+            return true;
+          }
+
+          // 3) Reject if no match
+          set({ isLoading: false });
+          return false;
+        } catch (e) {
+          set({ isLoading: false });
+          return false;
         }
-        
-        set({ isLoading: false });
-        return false;
       },
       
       logout: () => {
@@ -490,6 +503,10 @@ export const useRepairStore = create<RepairState>()(
       
       getJobById: (id) => {
         return get().jobs.find(job => job.id === id);
+      },
+      
+      getPartById: (id) => {
+        return get().parts.find(part => part.id === id);
       },
       
       getCustomerById: (id) => {
